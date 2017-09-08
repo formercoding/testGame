@@ -7,7 +7,17 @@
 
 <script>
 export default {
-  name: 'app'
+  created() {
+    console.log(this.$store.state.count);
+    this.$ajax({
+      method: 'post',
+      url: '/user',
+      data: {
+        name: 'wise',
+        info: 'wrong'
+      }
+    });
+  }
 }
 </script>
 
