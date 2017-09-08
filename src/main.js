@@ -6,6 +6,9 @@ import router from './router'
 import store from './store'
 import axios from 'axios'
 
+import { Radio, Select } from 'element-ui'
+Vue.use(Radio)
+
 Vue.prototype.$ajax = axios;
 
 Vue.config.productionTip = false
