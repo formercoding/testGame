@@ -9,9 +9,13 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
-        count: 1
+        dialogVisible: false, // 选择弹窗状态
     },
     actions,
     getters,
-    mutations,
+    mutations: {
+        changeDialog(state) {
+            state.dialogVisible = !state.dialogVisible;
+        }
+    }
 });
