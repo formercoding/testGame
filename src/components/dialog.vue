@@ -67,8 +67,30 @@
     },
 
     computed: {
+        // 计算问题结果标题文字
+        results() {
+            let gameResults = this.$store.state.gameResults,
+                results = [];
+
+            gameResults.forEach((item) => {
+                results
+            });
+
+        },
+
+        // 计算题目数据
+        askNum() {
+            return this.$store.state.gameQuestions.length || 0;
+        },
+
+        // 计算dialogData状态
+        dialogData() {
+            return this.$store.state.dialogData;
+        },
+
+        // 计算dialogVisible状态
         dialogVisible() {
-            this.$store.state.dialogVisible;
+            return this.$store.state.dialogVisible;
         }
     },
 

@@ -7,20 +7,7 @@ import router from './router'
 import store from './store'
 import axios from 'axios'
 import  './assets/less/common.less'
-import BScroll from 'better-scroll'
 
-<<<<<<< HEAD
-import { Radio, Select, Input, Form, FormItem, Button } from 'element-ui'
-Vue.use(Radio)
-Vue.use(Input)
-Vue.use(Form)
-Vue.use(FormItem)
-Vue.use(Select)
-Vue.use(Button)
-
-
-
-=======
 import { Form, FormItem, Input, Radio, Dialog, Button, RadioGroup} from 'element-ui'
 Vue.use(Form)
 Vue.use(FormItem)
@@ -29,7 +16,7 @@ Vue.use(Radio)
 Vue.use(Dialog)
 Vue.use(RadioGroup)
 Vue.use(Button)
->>>>>>> 28bc34158d4238bf87729df50deba6ff7b194d4c
+
 
 
 

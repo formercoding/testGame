@@ -10,6 +10,10 @@ Vue.use(Vuex);
 export default new Vuex.Store({
     state: {
         dialogVisible: false, // 选择弹窗状态
+        dialogData: { // 弹窗跳转状态信息
+            targetType: '', // 跳转目标类型
+            targetIndex: '' // 跳转目标序号
+        },
         gameBase: { // 游戏基础设置
             description: '', // 游戏简介做多500个字符
             image: '', // 游戏简介图片地址
@@ -150,6 +154,15 @@ export default new Vuex.Store({
          */
         setDialogVisible(state, isShow) {
             state.dialogVisible = isShow;
+        },
+
+        /**
+         * 设置跳转弹窗信息
+         * @param {Object} state
+         * @param {dialogData} dialogData
+         */
+        setDialogData(state, dialogData) {
+            state.dialogData = dialogData;
         }
 
 

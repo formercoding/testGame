@@ -121,9 +121,24 @@ export default {
                 return true;
             }
         },
-       
+        
+        /**
+         * 开启弹窗 同时设置跳转目标
+         * @param {Number} type 跳转类型
+         * @param {Number} index 跳转目标序号
+         */
         targetChose(type, index) {
+            // 开启弹窗
             this.$store.commit('setDialogVisible', true);
+
+            let dialogData = {
+                targetType: type,
+                targetIndex: index
+            }
+
+            // 设置弹窗数据
+            this.$store.commit('setDialogData', dialogData); 
+            
         },
 
         // 将表单数据与vuex同步

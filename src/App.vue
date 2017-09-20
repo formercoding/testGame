@@ -1,11 +1,5 @@
 <template>
   <div id="app">
-<<<<<<< HEAD
-    <img src="./assets/logo.png">
-    <el-radio class="radio" v-model="radio" label="1">备选项</el-radio>
-    <router-view></router-view>
-    <v-form></v-form>
-=======
     <!-- <img src="./assets/logo.png"> -->
     <!-- <el-radio class="radio" v-model="radio" label="1">备选项</el-radio> -->
     <!-- <router-view></router-view> -->
@@ -18,20 +12,16 @@
       <!-- <hammer></hammer> -->
       <v-setgame></v-setgame>
     </div>
->>>>>>> 28bc34158d4238bf87729df50deba6ff7b194d4c
   </div>
 </template>
 <script>
-<<<<<<< HEAD
-import vForm from './components/form.vue';
-=======
 import BUS from './assets/js/bus'
 import scrollbar from './components/scrollbar'
 import swiper from './components/swiper'
 import hammer from './components/hammer'
 
 import vSetgame from './components/setgame'
->>>>>>> 28bc34158d4238bf87729df50deba6ff7b194d4c
+
 export default {
   data() {
     return {
@@ -60,11 +50,6 @@ export default {
         info: 'wrong'
       }
     });
-<<<<<<< HEAD
-  },
-  components: {
-    vForm
-=======
     // let posX = 0;
     // setInterval(() => {
     //   posX = posX + 2;
@@ -76,7 +61,6 @@ export default {
     swiper,
     hammer,
     vSetgame
->>>>>>> 28bc34158d4238bf87729df50deba6ff7b194d4c
   }
 }
 </script>
