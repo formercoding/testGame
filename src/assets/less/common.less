@@ -1,0 +1,128 @@
+/* element style */
+.el-form {
+    /* 修改item下边距 */
+    .el-form-item {
+        margin-bottom: 20px;
+
+    }
+    /*  修改星号 */
+    .el-form-item.is-required {
+        .el-form-item__label:before {
+            display: none;
+        }
+
+        .el-input:after {
+            content: "*";
+            position: absolute;
+            right: -20px;
+            font-size: 24px;
+            line-height: 40px;
+            color: #FF6A4D;
+        }
+    }
+
+    /* 验证错误颜色 */
+    .el-form-item.is-error {
+        .el-form-item__content {
+            .el-input__inner {
+                border: 1px solid #ff4949;
+            }
+
+            .el-textarea__inner {
+                border: 1px solid #ff4949;
+            }  
+        }
+    }
+    /* input边框行高修改*/
+    .el-form-item__label {
+        padding: 9px 12px 9px 0;
+        text-align: left;
+        color: #666;
+    }
+
+    /* 表单颜色更改 */
+    .el-form-item__content {
+        line-height: 32px;
+
+        .el-input__inner {
+            height: 32px;
+            border: 1px solid #999999;
+            border-radius: 3px;
+
+            &:focus {
+                border-color:  #FF981A;
+            }
+        }
+
+        .el-textarea__inner {
+            height: 100%;
+            border: 1px solid #999999;
+            border-radius: 3px;
+
+            &:focus {
+                border-color:  #FF981A;
+            }
+        }
+    }
+}
+
+/* 单选按钮颜色更改 */
+.el-radio__input.is-checked .el-radio__inner {
+    border-color:#FF981A;
+    background: #FF981A;
+}
+.el-radio+.el-radio {
+    margin-left: 0;
+}
+
+
+/* flex */
+.flex {
+    display: flex;
+}
+.flex-col {
+    display: flex;
+    flex-direction: column;
+}
+
+/* scrollbar组件滚动条样式修改 */
+.gm-scrollbar.-vertical {
+    width: 4px;
+    background: #ccc;
+
+    .thumb {
+        width: 4px;
+        background: #666;
+    }
+}
+
+.gm-scrollbar {
+    right: 0;
+    z-index: 0;
+}
+
+.sticky {
+    .scrollbar-track-y {
+        width: 4px;
+        border-radius: 2px;
+
+        .scrollbar-thumb-y {
+            width: 4px;
+        }
+    }
+}
+
+.scrollbar-thumb {
+    width: 4px;
+}
+
+.scrollbar-thumb-y {
+    width: 4px;
+}
+
+body {
+    overflow: scroll !important;
+}
+
+
+
