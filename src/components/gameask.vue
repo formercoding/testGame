@@ -1,10 +1,9 @@
 <template>
     <div class="gameask">
         <!-- 问题表单 -->
-        <el-form v-for="(askData, index) in askForm" 
+        <el-form v-for="(askData, index) in gameQuestions" 
                  :model= "askData"
                  :key="index"
-                 :rules="ruleAsk"
                  class="ask-form">
             <!-- 问题遍历 -->
             <div class="ask">
@@ -15,23 +14,28 @@
                     <span class="add" @click="add(index)">+</span>
                 </div>
                 <!-- 问题描述 -->
-                <el-form-item class="title" prop="title">
+                <el-form-item class="title" prop="question.name"
+                    :rules="{
+                        required: true, message: '请输入选项描述', trigger: 'blur'
+                    }">
                     <el-input type="textarea" 
                               :maxlength="38"
                               placeholder="请输入问题..."
-                              v-model="askData.title" 
-                              class="w-300" 
+                              v-model="askData.question.name"
+                              @change="syncData"
+                              class="w-300"
                               resize="none">
                     </el-input>
-                    <span class="input-num">{{askData.title.length}}/38</span>
+                    <span class="input-num">{{askData.question.name.length}}/38</span>
                     <!-- 描述图片 -->
                     <div class="flex desc-pic">
-                        <div class="place-pic" v-show="askData.url !== ''">
+                        <div class="place-pic" v-show="askData.question.image !== ''">
+                            <img :src="askData.question.image">
                             <span class="close" @click="deletePic(index)"></span>
                         </div>
-                        <div class="flex-col upload" v-show="askData.url === ''">
+                        <div class="flex-col upload" v-show="askData.question.image === ''">
                             <div class="btn-wrap">
-                                <v-uploadpic :data="calculatePic(index)" @uploadPic="changePic"></v-uploadpic>
+                                <v-uploadpic :data="{pos: 'gameQuestions', flag: index}"></v-uploadpic>
                             </div>
                         </div>
                     </div>
@@ -41,24 +45,28 @@
                 <span class="opt">问题答案</span>
                 <el-form-item
                     class="option"
-                    v-for="(opt, indexs) in askData.opts"
+                    v-for="(option, indexs) in askData.options"
                     :key="indexs"
-                    :prop="'opts.' + indexs + '.txt'"
+                    :prop="'options.' + indexs + '.name'"
                     :rules="{
                         required: true, message: '请输入选项描述', trigger: 'blur'
-                    }"
-                >
+                    }">
                     <!-- 选项描述 -->
                     <span class="key">A.</span>
-                    <el-input v-model="opt.txt" 
+                    <el-input v-model="option.name" 
                               :maxlength="20"
                               placeholder="不超过20个字" 
+                              @change="syncData"
                               class="w-300">
                     </el-input>
-                    <span class="input-num">{{opt.txt.length}}/20</span>
+                    <span class="input-num">{{option.name.length}}/20</span>
                     <!-- 选择跳转 -->
-                    <span class="txt" targetType="opt.targetType" target="opt.target">跳转至</span>
-                    <span class="target active" @click="targetChose(index, indexs)">选择</span>
+                    <span class="txt">跳转至</span>
+                    <span class="target" 
+                          :class="{active: isTarget(option.target.type, option.target.issueOrResultId)}"
+                          @click="targetChose(option.target.type, option.target.issueOrResultId)">
+                          {{targetTxt(option.target.type, option.target.issueOrResultId)}}
+                    </span>
                  </el-form-item>
                 <!-- 增加选项 -->
                 <div class="add-opt">
@@ -73,54 +81,55 @@ import vUploadpic from './uploadpic'
 export default {
     data() {
         return {
-            askForm: [{
-                    title: '',
-                    url: 'http://img3.redocn.com/20131025/Redocn_2013102514143640.jpg',
-                    opts: [
-                        {
-                            txt: '1',
-                            targetType: '',
-                            target: '0'
-                        }, {
-                            txt: '',
-                            targetType: '',
-                            target: '0'
-                        }
-                    ]
-                }, {
-                    title: '',
-                    url: '',
-                    opts: [
-                        {
-                            txt: '',
-                            targetType: '',
-                            target: '0'
-                        }, {
-                            txt: '',
-                            targetType: '',
-                            target: '0'
-                        }
-                    ]
-                }],
-            ruleAsk: {
-                title: [
-                    { required: true, message: '请输入问题', trigger: 'blur' }
-                ]
-            }
+        }
+    },
+
+    computed: {
+        // 计算状态的问题设置
+        gameQuestions() {
+            return this.$store.state.gameQuestions;
         }
     },
 
     methods: {
         /**
-         * 选择跳转目标
-         * @param {Number} index 问题索引
-         * @param {Number} indexs 选项索引
+         * 跳转文字
+         * @param {Number} type 跳转类型
+         * @param {Number} index 跳转索引
          */
-        targetChose(index, indexs) {
-
+        targetTxt(type, index) {
+            if(type === '' || index === '') { 
+                return '选择';
+            } else {
+                if(type === 0) {
+                    return '问题' + index;
+                } else {
+                    return '答案' + index;
+                }
+            }
         },
 
+        /**
+         * 跳转文字
+         * @param {Number} type 跳转类型
+         * @param {Number} index 跳转索引
+         */
+        isTarget(type, index) {
+            if(type === '' || index === '') { 
+                return false;
+            } else {
+                return true;
+            }
+        },
+       
+        targetChose(type, index) {
+            this.$store.commit('setDialogVisible', true);
+        },
 
+        // 将表单数据与vuex同步
+        syncData() {
+            this.$store.commit('setGameQuestions', this.gameQuestions);
+        },
 
         /**
          * 计算题目索引
@@ -129,19 +138,6 @@ export default {
          */
         calculateIndex(index) {
             return index < 9 ? '0' + (index + 1) : (index + 1);      
-        },
-
-        /**
-         * 计算传递给上传组件的信息
-         * @param {Number} index 数组索引
-         * @return {Object} 数据对象
-         */
-        calculatePic(index) {
-            return {
-                txt: '上传图片',
-                limit: 1000,
-                param: index
-            }
         },
 
         /**
@@ -158,7 +154,7 @@ export default {
          * @param {String} index 图片所在数组索引
          */
         deletePic(index) {
-            this.askForm[index].url = '';
+            this.$store.commit('changeQuestionsPic', {index: index, url: ''});
         },
 
         /**
@@ -325,10 +321,11 @@ export default {
                             margin-top: -4px;
                             margin-right: 20px;
                             border-radius: 3px;
-                            background: url('../assets/image/logo.png');
-                            background-repeat: no-repeat;
-                            background-position: center center;
-                            background-size: cover;
+
+                            img {
+                                width: 70px;
+                                height: 40px;
+                            }
 
                             .close {
                                 position: absolute;
@@ -411,6 +408,9 @@ export default {
                             color: #bababa;
                         }
 
+                        .target {
+                            cursor: default;
+                        }
                         .target.active {
                             color: #FF981A;
                         }

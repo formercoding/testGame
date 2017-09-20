@@ -57,7 +57,6 @@
   export default {
     data() {
         return {
-            dialogVisible: true,
             askNum: 5,
             results: [
                 '地方机构', 'sss'
@@ -65,6 +64,12 @@
             choseType: 0,
             choseNum: 1
         };
+    },
+
+    computed: {
+        dialogVisible() {
+            this.$store.state.dialogVisible;
+        }
     },
 
     mounted() {

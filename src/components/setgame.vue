@@ -25,7 +25,7 @@
                          ref="scrollbar">
                     <div class="sets">
                         <v-gamebase v-show="curTab === 1"></v-gamebase>
-                        <v-gameresult v-show="curTab === 2"></v-gameresult>
+                        <v-gameresult v-show="curTab === 2" ></v-gameresult>
                         <v-gameask v-show="curTab === 3"></v-gameask>
                     </div>
                 </section>
@@ -75,10 +75,85 @@ export default {
     },
 
     created() {
-        this.$store.commit('changeDialog');
+        let _this = this;
+
+        // 游戏数据请求
+        this.$http({
+            method: 'post',
+            url: '123.3.3.3'
+        }).then(() => {
+            console.log('success');
+        }).catch(() => {
+            // 设置游戏基础状态
+            _this.$store.commit('setGameBase', {
+                description: 'wulihang', // 游戏简介做多500个字符
+                image: 'http://bbs.cguse.com/attachments/month_1004/1004241424c162021c314fa9c0.jpg', // 游戏简介图片地址
+                keyword: '共享测试游戏', // 关键字
+                name: '共享测试游戏', // 游戏标题最多12个字符
+                share: { // 分享的设置
+                    shareConfig: { // 分享设置
+                        shareContent: '姜青铜', // 分享描述
+                        shareImage: 'http://bbs.cguse.com/attachments/month_1004/1004241424c162021c314fa9c0.jpg', // 分享图片地址
+                        shareTitle: '玩游戏啦', // 分享标题
+                    },
+                    shareType: 'true' // 是否自定义分享
+                } 
+            });
+            // 设置游戏规则状态
+            _this.$store.commit('setGameQuestions', [
+                {
+                    _id: 1, // 问题序号
+                    question: { // 问题文字描述
+                        image: 'http://bbs.cguse.com/attachments/month_1004/1004241424c162021c314fa9c0.jpg', // 问题图片地址
+                        name: '你是不是傻', // 问题描述
+                    }, 
+                    options: [ // 问题选项数组
+                        {
+                            name: '是傻', // 答案文字描述
+                            target: {
+                                type: '',
+                                issueOrResultId: ''
+                            }
+                        }, {
+                            name: '不傻', // 答案文字描述
+                            target: {
+                                type: '',
+                                issueOrResultId: ''
+                            }
+                        }
+                    ]
+                }, {
+                    _id: 0, // 问题序号
+                    question: { // 问题文字描述
+                        image: 'http://bbs.cguse.com/attachments/month_1004/1004241424c162021c314fa9c0.jpg', // 问题图片地址
+                        name: '你是傻逼嘛', // 问题描述
+                    }, 
+                    options: [ // 问题选项数组
+                        {
+                            name: '傻哦', // 答案文字描述
+                            target: {
+                                type: 0,
+                                issueOrResultId: 0
+                            }
+                        }, {
+                            name: '不傻哦', // 答案文字描述
+                            target: {
+                                type: 0,
+                                issueOrResultId: 0
+                            }
+                        }
+                    ]
+                }
+            ])
+        })
     },
 
     computed: {
+        // gameBase from state
+        gameBase() {
+            return this.$store.state.gameBase;
+        },
+
         // 滚动区域的高度
         scrollH() {
             let scrollH = 0;

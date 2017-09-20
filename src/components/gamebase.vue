@@ -1,51 +1,54 @@
 <template>
     <div class="gamebase">
         <!-- 基础设置表单 -->
-        <el-form :model="baseForm" 
+        <el-form :model="gameBase" 
                  :rules="ruleBase" 
                  label-width="96px"
                  ref="baseform" 
                  class="base-form">
             <!-- 题目 -->
-            <el-form-item label="题目" prop="title" class="title">
-                <el-input v-model="baseForm.title" 
+            <el-form-item label="题目" prop="name" class="title">
+                <el-input v-model="gameBase.name" 
                           :maxlength="12"
+                          @change="syncData"
                           placeholder="请输入题目名称最多12字..." 
                           class="w-300">
                 </el-input>
-                <span class="input-num">{{baseForm.title.length}}/12</span>
+                <span class="input-num">{{gameBase.name.length}}/12</span>
             </el-form-item>
             <!-- 关键词 -->
-            <el-form-item label="关键词" prop="keys" class="keys">
-                <el-input v-model="baseForm.keys" 
+            <el-form-item label="关键词" prop="keyword" class="keys">
+                <el-input v-model="gameBase.keyword" 
                           :maxlength="20"
+                          @change="syncData"
                           placeholder="请输入关键词..." 
                           class="w-300">
                 </el-input>
-                <span class="input-num">{{baseForm.keys.length}}/20</span>
+                <span class="input-num">{{gameBase.keyword.length}}/20</span>
             </el-form-item>
             <!-- 文字描述 -->
-            <el-form-item label="文字描述" class="desc" prop="desc">
+            <el-form-item label="文字描述" class="desc" prop="description">
                 <el-input type="textarea"
                           :maxlength="150"
+                          @change="syncData"
                           placeholder="请输入活动说明..."
-                          v-model="baseForm.desc" 
+                          v-model="gameBase.description" 
                           class="w-384"
                           resize="none">
                 </el-input>
-                <span class="input-num">{{baseForm.desc.length}}/150</span>
+                <span class="input-num">{{gameBase.description.length}}/150</span>
             </el-form-item>
         </el-form>
         <!-- 图片描述 -->
         <div class="flex desc-pic">
             <span class="label">图片描述</span>
             <div class="place-pic" v-show="hasIndexPic">
-                <img :src="picUrl.index">
-                <span class="close" @click="deletePic('index')"></span>
+                <img :src="gameBase.image">
+                <span class="close" @click="deletePic"></span>
             </div>
             <div class="flex-col upload">
                 <div class="btn-wrap">
-                    <v-uploadpic :data="indexPic" @uploadPic="changePic"></v-uploadpic>
+                    <v-uploadpic :data="{pos: 'gameBase', flag: 'index'}"></v-uploadpic>
                 </div>
                 <span class="suggest">图片建议尺寸：640&times;365px</span>
                 <span class="suggest">图片支持格式：JPG、 JPEG、png</span>
@@ -54,16 +57,18 @@
         <!-- 分享选择 -->
         <div class="shareDefine flex">
             <span class="label">分享设置</span>
-            <el-radio class="radio" v-model="radio" label="1">默认设置</el-radio>
-            <el-radio class="radio" v-model="radio" label="2">自定义设置</el-radio>
+            <el-radio-group v-model="gameBase.share.shareType" @change="syncData">
+                <el-radio class="radio" label="false">默认设置</el-radio>
+                <el-radio class="radio" label="true">自定义设置</el-radio>
+            </el-radio-group>
         </div>
         <!-- 分享设置 -->
         <div class="share">
             <div class="flex share-pic">
                 <span class="label">分享图片</span>
-                <img class="pic" :src="picUrl.share">
+                <img class="pic" :src="shareConfig.shareImage">
                 <div class="btn-wrap">
-                    <v-uploadpic :data="sharePic" @uploadPic="changePic"></v-uploadpic>
+                    <v-uploadpic :data="{pos: 'gameBase', flag: 'share'}"></v-uploadpic>
                 </div>
                 <div class="flex-col">
                     <span class="suggest">图片尺寸：200&times;200px</span>
@@ -71,18 +76,19 @@
                 </div>
             </div>
             <!-- 分享设置表单 -->
-            <el-form :model="shareForm" 
+            <el-form :model="shareConfig" 
                      ref="shareForm" 
                      label-width="76px" 
                      class="share-form">
                 <!-- 分享标题 -->
-                <el-form-item label="分享标题" prop="title" class="title">
-                    <el-input v-model="shareForm.name" class="w-260"></el-input>
+                <el-form-item label="分享标题" prop="shareTitle" class="title">
+                    <el-input v-model="shareConfig.shareTitle" class="w-260" @change="syncData"></el-input>
                 </el-form-item>
                 <!-- 分享描述 -->
-                <el-form-item label="分享描述" class="desc" prop="desc">
+                <el-form-item label="分享描述"  class="desc" prop="shareContent">
                     <el-input type="textarea" 
-                              v-model="shareForm.desc" 
+                              v-model="shareConfig.shareContent"
+                              @change="syncData"
                               class="w-260"
                               resize="none"
                               >
@@ -99,32 +105,6 @@ import vUploadpic from './uploadpic';
 export default {
     data() {
         return {
-            picUrl: {
-                // 首页·图片·
-                index: 'http://img.redocn.com/sheying/20151230/shanfengjingfushitufengjingsheyingtupian_5678440.jpg',
-                // 分享图片
-                share: 'http://img.redocn.com/sheying/20151230/shanfengjingfushitufengjingsheyingtupian_5678440.jpg'
-            },
-            indexPic: {
-                param: 'index',
-                txt: '选择图片',
-                limit: 1000
-            },
-            sharePic: {
-                param: 'share',
-                txt: '选择图片',
-                limit: 1000
-            },
-            radio: "1", // 是否设置分享自定义 1默认 2自定义
-            baseForm: { // 基本描述表单信息
-                title: '',
-                keys: '',
-                desc: ''
-            },
-            shareForm: { // 分享设置表单信息
-                title: '',
-                desc: ''
-            },
             ruleBase: { // 基本设置校验
                 title: [
                     { required: true, message: '请输入题目名称', trigger: 'blur' }
@@ -135,30 +115,33 @@ export default {
             }
         }
     },
-     
+
     computed: {
+        // 设置gameBase为store gameBase
+        gameBase() {
+            return this.$store.state.gameBase;
+        },
+
+        // 设置shareconfig为shareConfig
+        shareConfig() {
+            return this.$store.state.gameBase.share.shareConfig;
+        },
+
         // 是否存在首页图片
         hasIndexPic() {
-            return this.picUrl.index !== '';
+            return this.gameBase.image !== '';
         }
     },
 
     methods: {
-        /**
-         * 改变img的url地址
-         * @param {String} name 图片字段名
-         * @param {String} url  图片地址
-         */
-        changePic(name, url) {
-            this.picUrl[name] = url;
+        // 将表单数据与vuex同步
+        syncData() {
+            this.$store.commit('setGameBase', this.gameBase);
         },
 
-        /**
-         * 预览图片删除
-         * @param {String} name 图片字段名
-         */
-        deletePic(name) {
-            this.picUrl[name] = '';
+        // 删除预览图片
+        deletePic() {
+            this.$store.commit('changeIndexPic', '');
         }
     },
 
