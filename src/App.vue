@@ -3,10 +3,12 @@
     <img src="./assets/logo.png">
     <el-radio class="radio" v-model="radio" label="1">备选项</el-radio>
     <router-view></router-view>
+    <v-form></v-form>
   </div>
 </template>
 
 <script>
+import vForm from './components/form.vue';
 export default {
   data() {
     return {
@@ -23,6 +25,9 @@ export default {
         info: 'wrong'
       }
     });
+  },
+  components: {
+    vForm
   }
 }
 </script>

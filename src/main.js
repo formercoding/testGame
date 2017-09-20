@@ -6,8 +6,16 @@ import router from './router'
 import store from './store'
 import axios from 'axios'
 
-import { Radio, Select } from 'element-ui'
+import { Radio, Select, Input, Form, FormItem, Button } from 'element-ui'
 Vue.use(Radio)
+Vue.use(Input)
+Vue.use(Form)
+Vue.use(FormItem)
+Vue.use(Select)
+Vue.use(Button)
+
+
+
 
 Vue.prototype.$ajax = axios;
 
