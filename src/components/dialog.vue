@@ -1,9 +1,9 @@
 <template>
-    <div class="dialog" :class="{active: dialogVisible}">
+    <div class="dialog">
         <el-dialog
         title="跳转设置"
         size="tiny"
-        :visible="true"
+        :visible="dialogData.isShow"
         :before-close="close"
         :modal-append-to-body="false">
         <div class="content flex">
@@ -12,10 +12,10 @@
                 <section scrollbar
                          class="scroll1">
                     <ul class="asks">
-                        <li v-for="(item, index) in 20" 
+                        <li v-for="(item, index) in gameQuestions" 
                             :key="index" 
-                            :class="{active: choseNum === index + 1 && choseType === 0}"
-                            @click="targetSelect(0, index + 1)"
+                            :class="{active: dialogData.targetIndex === index && dialogData.targetType === 0}"
+                            @click="setOptionTarget(0, index)"
                             class="flex item">
                             <span class="check-box">
                                 <span class="check"></span>
@@ -30,23 +30,22 @@
                 <span class="txt">测试结果</span>
                 <section scrollbar class="scroll2">
                     <ul class="result">
-                        <li v-for="(item, index) in results" 
+                        <li v-for="(item, index) in gameResults" 
                             :key="index" 
-                            :class="{active: choseNum === index + 1 && choseType === 1}"
+                            :class="{active: dialogData.targetIndex === index && dialogData.targetType === 1}"
                             class="flex item"  
-                            @click="targetSelect(1, index + 1)">
+                            @click="setOptionTarget(1, index)">
                             <span class="check-box">
                                 <span class="check"></span>
                             </span>
-                            <span class="desc">{{'问题会不会超过字符串呢啊'}}</span>
-                            
+                            <span class="desc">{{resultsTxt(index)}}</span>
                         </li>
                     </ul>
                 </section>
             </div>
         </div>
         <span slot="footer" class="dialog-footer">
-            <el-button type="primary" @click="dialogVisible = false">确定</el-button>
+            <el-button type="primary" @click="setTarget">确定</el-button>
         </span>
         </el-dialog>
     </div>
@@ -57,40 +56,23 @@
   export default {
     data() {
         return {
-            askNum: 5,
-            results: [
-                '地方机构', 'sss'
-            ],
-            choseType: 0,
-            choseNum: 1
         };
     },
 
     computed: {
-        // 计算问题结果标题文字
-        results() {
-            let gameResults = this.$store.state.gameResults,
-                results = [];
-
-            gameResults.forEach((item) => {
-                results
-            });
-
+        // 计算问题状态
+        gameQuestions() {
+            return this.$store.state.gameQuestions;
         },
 
-        // 计算题目数据
-        askNum() {
-            return this.$store.state.gameQuestions.length || 0;
+        // 计算结果状态
+        gameResults() {
+            return this.$store.state.gameResults;
         },
 
         // 计算dialogData状态
         dialogData() {
             return this.$store.state.dialogData;
-        },
-
-        // 计算dialogVisible状态
-        dialogVisible() {
-            return this.$store.state.dialogVisible;
         }
     },
 
@@ -119,34 +101,60 @@
         },
 
         /**
-         * 修改跳转目标
+         * 序号规则化两位显示
+         * @param {Number} index 当前序号
+         * @return {String} 
+         */
+        resultsTxt(index) {
+            let calculateIndex =  index < 9 ? '0' + (index + 1) : index + 1;
+            return calculateIndex + ' ' + this.gameResults[index].name;
+        },
+
+        /**
+         * 修改跳转目标显示
          * @param {Number} 跳转类型 type(0 为问题 1为答案)
          * @param {Number} 跳转索引 index 
          */
-        targetSelect(type, index) {
-            this.choseType = type;
-            this.choseNum = index;
+        setOptionTarget(type, index) {
+            let dialogData = {
+                targetType: type,
+                targetIndex: index,
+                isShow: true
+            }
+
+            // 弹窗状态修改
+            this.$store.commit('setDialogData', dialogData);            
+        },
+
+        //  修改跳转目标
+        setTarget() {
+            this.$store.commit('setTarget');
+            // 弹窗状态修改
+            this.$store.commit('setDialogData', {
+                targetType: 0,
+                targetIndex: 0,
+                isShow: false
+            });           
         },
 
         // 关闭弹窗
         close() {
-            this.dialogVisible = false;
+            this.$store.commit('setDialogData', {
+                targetType: 0,
+                targetIndex: 0,
+                isShow: false 
+            });
         }
     }
   };
 </script>
 <style lang="less">
     .dialog {
-        display: none;
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-
-        &.active {
-            display: inline-block;
-        }
 
         /* 弹出框 */
         .el-dialog {

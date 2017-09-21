@@ -64,13 +64,13 @@
                     <span class="txt">跳转至</span>
                     <span class="target" 
                           :class="{active: isTarget(option.target.type, option.target.issueOrResultId)}"
-                          @click="targetChose(option.target.type, option.target.issueOrResultId)">
+                          @click="targetChose(index, indexs)">
                           {{targetTxt(option.target.type, option.target.issueOrResultId)}}
                     </span>
                  </el-form-item>
                 <!-- 增加选项 -->
                 <div class="add-opt">
-                    <button type="button" class="btn">增加答案</button>
+                    <button type="button" class="btn" @click="addOption(index)">增加答案</button>
                 </div>
             </div>    
         </el-form>
@@ -101,6 +101,7 @@ export default {
             if(type === '' || index === '') { 
                 return '选择';
             } else {
+                index = index < 9 ? '0' + (index + 1) : (index + 1); 
                 if(type === 0) {
                     return '问题' + index;
                 } else {
@@ -124,26 +125,39 @@ export default {
         
         /**
          * 开启弹窗 同时设置跳转目标
-         * @param {Number} type 跳转类型
-         * @param {Number} index 跳转目标序号
+         * @param {Number} index 问题索引
+         * @param {Number} indexs 选项索引
          */
-        targetChose(type, index) {
-            // 开启弹窗
-            this.$store.commit('setDialogVisible', true);
+        targetChose(index, indexs) {
+            let option = this.gameQuestions[index].options[indexs].target,
+                targetIndex = option.issueOrResultId,
+                targetType = option.type;
 
             let dialogData = {
-                targetType: type,
-                targetIndex: index
+                targetType: targetType,
+                targetIndex: targetIndex,
+                isShow: true
             }
 
-            // 设置弹窗数据
-            this.$store.commit('setDialogData', dialogData); 
-            
+            // 选项状态更新
+            this.$store.commit('setCurOption', {
+                index: index,
+                indexs: indexs
+            });
+
+            // 开启弹窗
+            this.$store.commit('setDialogData', dialogData);
         },
 
         // 将表单数据与vuex同步
         syncData() {
             this.$store.commit('setGameQuestions', this.gameQuestions);
+
+            // 更新滚动条
+            let _this = this;
+            this.$nextTick(() => {
+                _this.$emit('updateH');
+            });
         },
 
         /**
@@ -153,15 +167,6 @@ export default {
          */
         calculateIndex(index) {
             return index < 9 ? '0' + (index + 1) : (index + 1);      
-        },
-
-        /**
-         * 监听图片上传，修改对应图片地址
-         * @param {Number} index 图片所在数组索引
-         * @param {Number} url   图片新地址
-         */
-        changePic(index, url) {
-            this.askForm[index].url = url;
         },
 
         /**
@@ -178,25 +183,50 @@ export default {
          */
         add(index) {
             // 控制问题20以上
-            if(this.askForm.length === 20) {
+            if(this.gameQuestions.length === 20) {
                 return false;
             }
 
-            this.askForm.splice(index + 1, 0, {
-                title: '',
-                url: 'http://img3.redocn.com/20131025/Redocn_2013102514143640.jpg',
-                opts: [
+            this.gameQuestions.splice(index + 1, 0, {
+                _id: 0, // 问题序号
+                question: { // 问题文字描述
+                    image: '', // 问题图片地址
+                    name: '1', // 问题描述
+                }, 
+                options: [ // 问题选项数组
                     {
-                        txt: '1',
-                        targetType: '',
-                        target: '0'
+                        name: '', // 答案文字描述
+                        target: {
+                            type: '',
+                            issueOrResultId: ''
+                        }
                     }, {
-                        txt: '',
-                        targetType: '',
-                        target: '0'
+                        name: '', // 答案文字描述
+                        target: {
+                            type: '',
+                            issueOrResultId: ''
+                        }
                     }
                 ]
             });
+            this.syncData();
+        },
+
+        /**
+         * 增加问题选项
+         * @param {Nubmer} index 一级索引
+         * @param {Number} indexs 二级索引
+         */
+        addOption(index) {
+            this.gameQuestions[index].options.push({
+                name: '', // 答案文字描述
+                target: {
+                    type: '',
+                    issueOrResultId: ''
+                }
+            });
+
+            this.syncData();
         },
 
         /**
@@ -205,11 +235,35 @@ export default {
          */
         sub(index) {
             // 防止全被删除
-            if(this.askForm.length === 1) {
-                return false;
+            if(this.gameQuestions.length === 2) {
+                this.gameQuestions.splice(index, 1, {
+                    _id: 0, // 问题序号
+                    question: { // 问题文字描述
+                        image: '', // 问题图片地址
+                        name: '1', // 问题描述
+                    }, 
+                    options: [ // 问题选项数组
+                        {
+                            name: '', // 答案文字描述
+                            target: {
+                                type: '',
+                                issueOrResultId: ''
+                            }
+                        }, {
+                            name: '', // 答案文字描述
+                            target: {
+                                type: '',
+                                issueOrResultId: ''
+                            }
+                        }
+                    ]
+                })
+            } else {
+                this.gameQuestions.splice(index, 1);
             }
 
-            this.askForm.splice(index, 1);
+            this.syncData();
+
         }
     },
 

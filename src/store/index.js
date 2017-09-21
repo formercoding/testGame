@@ -9,10 +9,14 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
-        dialogVisible: false, // 选择弹窗状态
         dialogData: { // 弹窗跳转状态信息
             targetType: '', // 跳转目标类型
-            targetIndex: '' // 跳转目标序号
+            targetIndex: '', // 跳转目标序号
+            isShow: false // 选择弹窗状态
+        },
+        curOption: { // 当前选择的选项
+            index: -1, // 问题序号
+            indexs: -1 // 选项序号
         },
         gameBase: { // 游戏基础设置
             description: '', // 游戏简介做多500个字符
@@ -28,7 +32,7 @@ export default new Vuex.Store({
                 shareType: 'flase' // 是否自定义分享
             }
         },
-        gameQuestions: [ // 测试结果数组
+        gameQuestions: [ // 测试问题数组
             {
                 _id: 0, // 问题序号
                 question: { // 问题文字描述
@@ -72,19 +76,51 @@ export default new Vuex.Store({
                     }
                 ]
             }
+        ],
+        gameResults: [ // 测试结果数组
+            {
+                _id: 0, // 测试结果序号
+                content: '', // 测试结果描述
+                image: '', // 测试结果图片地址
+                name: '', // 测试结果标题
+            }
         ]
-
     },
     actions,
     getters,
     mutations: {
         /**
+         * 跳转设置
+         * @param {Object} state 
+         * @param {Boolean} curOption 当前选项索引
+         */
+        setCurOption(state, curOption) {
+            state.curOption.index = curOption.index;
+            state.curOption.indexs = curOption.indexs;
+        },
+
+        /**
+         * 根据当前弹窗选择状态和选项状态跳转
+         */
+        setTarget(state) {
+            let index = state.curOption.index,
+                indexs = state.curOption.indexs,
+                targetType = state.dialogData.targetType,
+                targetIndex = state.dialogData.targetIndex;
+                console.log(indexs, index);
+            state.gameQuestions[index].options[indexs].target.type = targetType;
+            state.gameQuestions[index].options[indexs].target.issueOrResultId = targetIndex;
+        },
+
+        /**
          * 跳转设置弹窗状态修改
          * @param {Object} state 
-         * @param {Boolean} isShow 是否显示弹窗
+         * @param {Boolean} dialogData 弹窗数据
          */
-        changeDialog(state, isShow) {
-            state.dialogVisible = isShow;
+        setDialogData(state, dialogData) {
+            state.dialogData.isShow = dialogData.isShow;
+            state.dialogData.targetIndex = dialogData.targetIndex || -1;
+            state.dialogData.targetType = dialogData.targetType || -1;
         },
 
         /**
@@ -127,7 +163,7 @@ export default new Vuex.Store({
          */
         changeResultsPic(state, payload) {
             payload.url = payload.url || '';                        
-            state.gameAnswer[payload.index].image = payload.url;
+            state.gameResults[payload.index].image = payload.url;
         },
 
         /**
@@ -141,11 +177,19 @@ export default new Vuex.Store({
 
         /**
          * 设置游戏问题
-         * @param {Object} gameQuestions 设置对象数组
+         * @param {Array} gameQuestions 设置对象数组
          */
         setGameQuestions(state, gameQuestions) {
             state.gameQuestions = gameQuestions;
             console.log(state.gameQuestions);
+        },
+        
+        /**
+         * 设置游戏结果
+         * @param {Array} gameResults 设置对象数组
+         */
+        setGameResults(state, gameResults) {
+            state.gameResults = gameResults;
         },
 
         /**

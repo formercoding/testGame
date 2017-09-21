@@ -1,8 +1,9 @@
 <template>
     <div class="gameresult">
         <!-- 问题结果表单 -->
-        <el-form v-for="(resultData, index) in resultForm"
-                 :rules="ruleResult" :model="resultData" 
+        <el-form v-for="(resultData, index) in gameResults"
+                 :rules="ruleResult" 
+                 :model="resultData" 
                  :key="index"
                  class="result-form">
             <!-- 结果遍历 -->
@@ -14,38 +15,40 @@
                     <span class="add" @click="add(index)">+</span>
                 </div>
                 <!-- 题目 -->
-                <el-form-item  prop="title" class="title">
-                    <el-input v-model="resultData.title" 
+                <el-form-item  prop="name" class="title">
+                    <el-input v-model="resultData.name" 
                               :maxlength="10"
-                              placeholder="标题不超过10个字..." 
+                              placeholder="标题不超过10个字..."
+                              @change="syncData"
                               class="w-300">
                     </el-input>
-                    <span class="input-num">{{resultData.title.length}}/10</span>
+                    <span class="input-num">{{resultData.name.length}}/10</span>
                 </el-form-item>
                 <!-- 描述图片 -->
                 <div class="flex desc-pic">
-                    <div class="place-pic" v-show="resultData.url !== ''">
-                        <img :src="resultData.url">
+                    <div class="place-pic" v-show="resultData.image !== ''">
+                        <img :src="resultData.image">
                         <span class="close" @click="deletePic(index)"></span>
                     </div>
                     <div class="flex-col upload">
                         <div class="btn-wrap">
-                            <v-uploadpic :data="calculatePic(index)" @uploadPic="changePic"></v-uploadpic>
+                            <v-uploadpic :data="{pos: 'gameResults', flag: index}"></v-uploadpic>
                         </div>
                         <span class="suggest">图片建议尺寸：640&times;365px</span>
-                        <span class="suggest">图片支持格式：JPG、 JPEG、png</span>
+                        <span class="suggest">图片支持格式：JPG、JPEG、png</span>
                     </div>
                 </div>
                 <!-- 结果描述 -->
-                <el-form-item class="desc" prop="desc">
+                <el-form-item class="desc" prop="content">
                     <el-input type="textarea" 
                               :maxlength="150" 
-                              v-model="resultData.desc"
+                              v-model="resultData.content"
                               placeholder="文字描述..."
+                              @change="syncData"
                               class="w-370" 
                               resize="none">
                     </el-input>
-                    <span class="input-num">{{resultData.desc.length}}/150</span>
+                    <span class="input-num">{{resultData.content.length}}/150</span>
                 </el-form-item>
             </div>
         </el-form>
@@ -56,35 +59,35 @@ import vUploadpic from './uploadpic'
 export default {
     data() {
         return {
-            resultForm: [{
-                    title: '1',
-                    desc: '',
-                    url: 'http://img3.redocn.com/20131025/Redocn_2013102514143640.jpg'
-                }, {
-                    title: '',
-                    desc: '',
-                    url: 'http://img3.redocn.com/20131025/Redocn_2013102514143640.jpg'
-                }, {
-                    title: '',
-                    desc: '',
-                    url: 'http://img3.redocn.com/20131025/Redocn_2013102514143640.jpg'
-                }, {
-                    title: '',
-                    desc: '',
-                    url: 'http://img3.redocn.com/20131025/Redocn_2013102514143640.jpg'
-                }],
             ruleResult: {
-                title: [
+                name: [
                     { required: true, message: '请输入标题', trigger: 'blur' }
                 ],
-                desc: [
+                content: [
                     { required: true, message: '请输入文字描述', trigger: 'blur' }
                 ]
             }
         }
     },
 
+    computed: {
+        gameResults() {
+            return this.$store.state.gameResults;
+        }
+    },
+    
     methods: {
+        // 将表单数据与vuex同步
+        syncData() {
+            this.$store.commit('setGameQuestions', this.gameQuestions);
+
+            // 更新滚动条
+            let _this = this;
+            this.$nextTick(() => {
+                _this.$emit('updateH');
+            });
+        },
+
         /**
          * 计算题目索引
          * @param {Number} index 题目索引
@@ -108,20 +111,14 @@ export default {
         },
 
         /**
-         * 监听图片上传，修改对应图片地址
-         * @param {Number} index 图片所在数组索引
-         * @param {Number} url   图片新地址
-         */
-        changePic(index, url) {
-            this.resultForm[index].url = url;
-        },
-
-        /**
          * 预览图片删除
-         * @param {String} index 图片所在数组索引
+         * @param {Number} index 图片所在数组索引
          */
         deletePic(index) {
-            this.resultForm[index].url = '';
+            this.$store.commit('changeResultsPic', {
+                index: index,
+                url: ''
+            })
         },
 
         /**
@@ -129,16 +126,40 @@ export default {
          * @param {Number} index 问题结果索引
          */
         add(index) {
-            // 控制问题20以上
-            if(this.resultForm.length === 20) {
+            // 控制问题20以下
+            if(this.gameResults.length === 20) {
                 return false;
             }
 
-            this.resultForm.splice(index + 1, 0, {
-                title: '',
-                desc: '',
-                url: ''
+            this.gameResults.splice(index + 1, 0, {
+                name: '',
+                content: '',
+                image: ''
             });
+
+            this.syncData();
+        },
+
+        /**
+         * 验证关联性
+         * 
+         */
+        subValidate(index) {
+            let isRelate = false;
+            let questions = this.$store.state.gameQuestions;
+            
+            questions.forEach((item) => {
+                item.options.forEach((items)=> {
+                    let target = items.target;
+
+                    // 验证是否关联
+                    if(target.type === 1 || target.gameQuestions === index) {
+                        isRelate = true;
+                    }
+                })
+            });
+
+            return isRelate;
         },
 
         /**
@@ -146,13 +167,22 @@ export default {
          * @param {Number} index 问题结果索引
          */
         sub(index) {
+            this.subValidate();
+
+            
             // 防止全被删除
-            if(this.resultForm.length === 1) {
-                return false;
+            if(this.gameResults.length === 2) {
+                this.gameResults.splice(index, 1, {
+                    _id: 0, // 测试结果序号
+                    content: '', // 测试结果描述
+                    image: '', // 测试结果图片地址
+                    name: '', // 测试结果标题
+                })
+            } else {
+                this.gameResults.splice(index, 1);
             }
 
-            this.resultForm.splice(index, 1);
-            
+            this.syncData();
         }
     },
 

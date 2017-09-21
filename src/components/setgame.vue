@@ -24,9 +24,9 @@
                          :style="{maxHeight: scrollH}"
                          ref="scrollbar">
                     <div class="sets">
-                        <v-gamebase v-show="curTab === 1"></v-gamebase>
-                        <v-gameresult v-show="curTab === 2" ></v-gameresult>
-                        <v-gameask v-show="curTab === 3"></v-gameask>
+                        <v-gamebase v-show="curTab === 1" @updateH="updateScroll"></v-gamebase>
+                        <v-gameresult v-show="curTab === 2" @updateH="updateScroll"></v-gameresult>
+                        <v-gameask v-show="curTab === 3" @updateH="updateScroll"></v-gameask>
                     </div>
                 </section>
             </div>
@@ -53,6 +53,9 @@
         </div>
         <!-- 弹出框 -->
         <v-dialog></v-dialog>
+        <!-- 弹出框集合 -->
+        <!-- <v-dialogs></v-dialogs> -->
+        
     </div>
 </template>
 <script>
@@ -66,11 +69,11 @@ import vGameask from './gameask'
 import vGameresult from './gameresult'
 import vPhone from './phone'
 import vDialog from './dialog'
-
+import vDialogs from './dialogs'
 export default {
     data() {
         return {
-            curTab: 3, // 当前tab 1基础设置 2测试结果设置 3问题设置
+            curTab: 2, // 当前tab 1基础设置 2测试结果设置 3问题设置
         }
     },
 
@@ -138,11 +141,26 @@ export default {
                         }, {
                             name: '不傻哦', // 答案文字描述
                             target: {
-                                type: 0,
-                                issueOrResultId: 0
+                                type: 1,
+                                issueOrResultId: 1
                             }
                         }
                     ]
+                }
+            ]);
+
+            // 设置游戏结果
+            _this.$store.commit('setGameResults', [
+                {
+                    _id: 0, // 测试结果序号
+                    content: '姜青铜', // 测试结果描述
+                    image: 'http://bbs.cguse.com/attachments/month_1004/1004241424c162021c314fa9c0.jpg', // 测试结果图片地址
+                    name: '你是姜青铜', // 测试结果标题
+                }, {
+                    _id: 0, // 测试结果序号
+                    content: '姜青铜', // 测试结果描述
+                    image: 'http://bbs.cguse.com/attachments/month_1004/1004241424c162021c314fa9c0.jpg', // 测试结果图片地址
+                    name: '你是姜青铜', // 测试结果标题
                 }
             ])
         })
@@ -181,19 +199,8 @@ export default {
 
         // 更新滚动条
         updateScroll() {
-            let scrollEle = this.$refs.scrollbar,
-                thumb = scrollEle.querySelector('.thumb'),
-                scrollbar = scrollEle.querySelector('.gm-scrollbar');
-
             // 更新滚动条
             this.scrollbar.update();
-
-            // 高度为0隐藏滚动条
-            if (thumb.style.height === '0px') {
-                scrollbar.style.backgroundColor = '#fff';
-            } else {
-                scrollbar.style.backgroundColor = '#ccc'
-            }
         }
     },
 
@@ -216,7 +223,8 @@ export default {
         vGameask,
         vGamebase,
         vGameresult,
-        vDialog
+        vDialog,
+        vDialogs
     }
 }
 </script>
