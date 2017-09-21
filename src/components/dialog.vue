@@ -1,9 +1,10 @@
 <template>
-    <div class="dialog">
+    <div class="dialog" v-show="dialogData.isShow">
         <el-dialog
+        ref="mydialog"
         title="跳转设置"
         size="tiny"
-        :visible="dialogData.isShow"
+        :visible="true"
         :before-close="close"
         :modal-append-to-body="false">
         <div class="content flex">
@@ -77,8 +78,8 @@
     },
 
     mounted() {
-        // 初始化滚动条
         this.$nextTick(() => {
+            // 初始化滚动条
             Scrollbar.init(document.querySelector('.scroll1'), {
                 alwaysShowTracks: true, // 滚动条常显
                 syncCallbacks:　true // 同步执行函数
@@ -150,11 +151,6 @@
 </script>
 <style lang="less">
     .dialog {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
 
         /* 弹出框 */
         .el-dialog {

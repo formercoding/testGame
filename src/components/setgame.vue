@@ -54,7 +54,8 @@
         <!-- 弹出框 -->
         <v-dialog></v-dialog>
         <!-- 弹出框集合 -->
-        <!-- <v-dialogs></v-dialogs> -->
+        <v-dialogs></v-dialogs>
+
         
     </div>
 </template>

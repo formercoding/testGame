@@ -9,6 +9,12 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
+        tipConfirm: false, // 是否确定提示
+        tipDialog: { // 提示弹窗
+            isShow: true, // 是否开启
+            txtType: 0, // '提示文案类型',
+            type: 0 // 弹窗类型，确定交互函数
+        },
         dialogData: { // 弹窗跳转状态信息
             targetType: '', // 跳转目标类型
             targetIndex: '', // 跳转目标序号
@@ -89,6 +95,24 @@ export default new Vuex.Store({
     actions,
     getters,
     mutations: {
+        /**
+         * 提示弹窗确认
+         * @param {Object} state 
+         * @param {Boolean} isConfirm 是否确认
+         */
+        setTipConfirm(isConfirm) {
+            state.tipConfirm = isConfirm;
+        },
+
+        /**
+         * 提示弹窗
+         * @param {Object} state 
+         * @param {Object} tipDialog 当前弹窗设置
+         */
+        setTipDialog(state, tipData) {
+            state.tipDialog = tipData;
+        },
+
         /**
          * 跳转设置
          * @param {Object} state 
