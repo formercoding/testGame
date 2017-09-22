@@ -9,21 +9,6 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
-        tipConfirm: false, // 是否确定提示
-        tipDialog: { // 提示弹窗
-            isShow: true, // 是否开启
-            txtType: 0, // '提示文案类型',
-            type: 0 // 弹窗类型，确定交互函数
-        },
-        dialogData: { // 弹窗跳转状态信息
-            targetType: '', // 跳转目标类型
-            targetIndex: '', // 跳转目标序号
-            isShow: false // 选择弹窗状态
-        },
-        curOption: { // 当前选择的选项
-            index: -1, // 问题序号
-            indexs: -1 // 选项序号
-        },
         gameBase: { // 游戏基础设置
             description: '', // 游戏简介做多500个字符
             image: '', // 游戏简介图片地址
@@ -96,58 +81,6 @@ export default new Vuex.Store({
     getters,
     mutations: {
         /**
-         * 提示弹窗确认
-         * @param {Object} state 
-         * @param {Boolean} isConfirm 是否确认
-         */
-        setTipConfirm(isConfirm) {
-            state.tipConfirm = isConfirm;
-        },
-
-        /**
-         * 提示弹窗
-         * @param {Object} state 
-         * @param {Object} tipDialog 当前弹窗设置
-         */
-        setTipDialog(state, tipData) {
-            state.tipDialog = tipData;
-        },
-
-        /**
-         * 跳转设置
-         * @param {Object} state 
-         * @param {Boolean} curOption 当前选项索引
-         */
-        setCurOption(state, curOption) {
-            state.curOption.index = curOption.index;
-            state.curOption.indexs = curOption.indexs;
-        },
-
-        /**
-         * 根据当前弹窗选择状态和选项状态跳转
-         */
-        setTarget(state) {
-            let index = state.curOption.index,
-                indexs = state.curOption.indexs,
-                targetType = state.dialogData.targetType,
-                targetIndex = state.dialogData.targetIndex;
-                console.log(indexs, index);
-            state.gameQuestions[index].options[indexs].target.type = targetType;
-            state.gameQuestions[index].options[indexs].target.issueOrResultId = targetIndex;
-        },
-
-        /**
-         * 跳转设置弹窗状态修改
-         * @param {Object} state 
-         * @param {Boolean} dialogData 弹窗数据
-         */
-        setDialogData(state, dialogData) {
-            state.dialogData.isShow = dialogData.isShow;
-            state.dialogData.targetIndex = dialogData.targetIndex || -1;
-            state.dialogData.targetType = dialogData.targetType || -1;
-        },
-
-        /**
          * 修改游戏基础设置首页的图片
          * @param {Object} state 
          * @param {String} url 图片地址 
@@ -214,26 +147,6 @@ export default new Vuex.Store({
          */
         setGameResults(state, gameResults) {
             state.gameResults = gameResults;
-        },
-
-        /**
-         * 设置跳转弹窗状态
-         * @param {Object} gameQuestions 设置对象数组
-         */
-        setDialogVisible(state, isShow) {
-            state.dialogVisible = isShow;
-        },
-
-        /**
-         * 设置跳转弹窗信息
-         * @param {Object} state
-         * @param {dialogData} dialogData
-         */
-        setDialogData(state, dialogData) {
-            state.dialogData = dialogData;
         }
-
-
-
     }
 });

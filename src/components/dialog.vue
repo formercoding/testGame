@@ -1,60 +1,76 @@
 <template>
-    <div class="dialog" v-show="dialogData.isShow">
-        <el-dialog
+    <el-dialog
         ref="mydialog"
         title="跳转设置"
         size="tiny"
-        :visible="true"
+        :visible="isOpen"
         :before-close="close"
-        :modal-append-to-body="false">
+        :lock-scroll="true"
+        :modal-append-to-body="true">
         <div class="content flex">
             <div class="ask-box flex-col">
                 <span class="txt">问题</span>
-                <section scrollbar
-                         class="scroll1">
-                    <ul class="asks">
-                        <li v-for="(item, index) in gameQuestions" 
-                            :key="index" 
-                            :class="{active: dialogData.targetIndex === index && dialogData.targetType === 0}"
-                            @click="setOptionTarget(0, index)"
-                            class="flex item">
-                            <span class="check-box">
-                                <span class="check"></span>
-                            </span>
-                                {{'问题' + calculateIndex(index)}}
-                            </span>
-                        </li>
-                    </ul>
-                </section>
+                <div class="scroll-wrap">
+                    <div class="scroll" v-bar>
+                        <ul class="asks">
+                            <li v-for="(item, index) in gameQuestions" 
+                                :key="index" 
+                                :class="{active: targetIndex === index && targetType === 0}"
+                                @click="setOptionTarget(0, index)"
+                                class="flex item">
+                                <span class="check-box">
+                                    <span class="check"></span>
+                                </span>
+                                    {{'问题' + calculateIndex(index)}}
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
             <div class="result-box flex-col">
                 <span class="txt">测试结果</span>
-                <section scrollbar class="scroll2">
-                    <ul class="result">
-                        <li v-for="(item, index) in gameResults" 
-                            :key="index" 
-                            :class="{active: dialogData.targetIndex === index && dialogData.targetType === 1}"
-                            class="flex item"  
-                            @click="setOptionTarget(1, index)">
-                            <span class="check-box">
-                                <span class="check"></span>
-                            </span>
-                            <span class="desc">{{resultsTxt(index)}}</span>
-                        </li>
-                    </ul>
-                </section>
+                <div class="scroll-wrap">
+                    <div v-bar="{preventParentScroll: true}" class="scroll" >
+                        <ul class="result">
+                            <li v-for="(item, index) in gameResults" 
+                                :key="index" 
+                                :class="{active: targetIndex === index && targetType === 1}"
+                                class="flex item"  
+                                @click="setOptionTarget(1, index)">
+                                <span class="check-box">
+                                    <span class="check"></span>
+                                </span>
+                                <span class="desc">{{resultsTxt(index)}}</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                </div>
             </div>
         </div>
         <span slot="footer" class="dialog-footer">
-            <el-button type="primary" @click="setTarget">确定</el-button>
+            <el-button type="primary" @click="confirm">确定</el-button>
         </span>
-        </el-dialog>
-    </div>
+    </el-dialog>
 </template>
 <script>
-  import  Scrollbar from 'smooth-scrollbar'
-  import  'smooth-scrollbar/dist/smooth-scrollbar.css'
-  export default {
+export default {
+    props: {
+        isOpen: {
+            type: Boolean,
+            default: false
+        },
+        targetIndex: {
+            type: Number,
+            default: 0
+        },
+        targetType: {
+            type: Number,
+            default: 0
+        }
+    },
+
     data() {
         return {
         };
@@ -69,26 +85,7 @@
         // 计算结果状态
         gameResults() {
             return this.$store.state.gameResults;
-        },
-
-        // 计算dialogData状态
-        dialogData() {
-            return this.$store.state.dialogData;
         }
-    },
-
-    mounted() {
-        this.$nextTick(() => {
-            // 初始化滚动条
-            Scrollbar.init(document.querySelector('.scroll1'), {
-                alwaysShowTracks: true, // 滚动条常显
-                syncCallbacks:　true // 同步执行函数
-            });
-            Scrollbar.init(document.querySelector('.scroll2'), {
-                alwaysShowTracks: true, // 滚动条常显
-                syncCallbacks:　true // 同步执行函数
-            });
-        });
     },
 
     methods: {
@@ -117,90 +114,77 @@
          * @param {Number} 跳转索引 index 
          */
         setOptionTarget(type, index) {
-            let dialogData = {
-                targetType: type,
-                targetIndex: index,
-                isShow: true
-            }
-
-            // 弹窗状态修改
-            this.$store.commit('setDialogData', dialogData);            
+            console.log(index, type);
+            this.$emit('update:targetIndex', index);
+            this.$emit('update:targetType', type);
+            console.log(index, this.targetIndex, type, this.targetType);
         },
 
-        //  修改跳转目标
-        setTarget() {
-            this.$store.commit('setTarget');
-            // 弹窗状态修改
-            this.$store.commit('setDialogData', {
-                targetType: 0,
-                targetIndex: 0,
-                isShow: false
-            });           
+        //  确认事件
+        confirm() {
+            this.$emit('update:isOpen', false);
+            this.$emit('confirm', this.targetType, this.targetIndex);
         },
 
         // 关闭弹窗
         close() {
-            this.$store.commit('setDialogData', {
-                targetType: 0,
-                targetIndex: 0,
-                isShow: false 
-            });
+            this.$emit('update:isOpen', false);
         }
     }
-  };
+};
 </script>
 <style lang="less">
-    .dialog {
+    /* 弹出框 */
+    .el-dialog {
+        width: 425px;
+        border-radius: 5px;
+        background: #fff;
 
-        /* 弹出框 */
-        .el-dialog {
+        /* 头部 */
+        .el-dialog__header {
             width: 425px;
-            border-radius: 5px;
-            background: #fff;
+            height: 40px;
+            padding: 10px 12px 10px 20px;
+            line-height: 20px;
+            text-align: left;
+            background: #F8F8F8;
 
-            /* 头部 */
-            .el-dialog__header {
-                width: 425px;
-                height: 40px;
-                padding: 10px 12px 10px 20px;
+            /* 标题 */
+            .el-dialog__title {
+                color: #1A1A1A;
+                font-size: 14px;
+            }
+
+            .el-dialog__headerbtn {
+                font-size: 12px;
                 line-height: 20px;
-                text-align: left;
-                background: #F8F8F8;
 
-                /* 标题 */
-                .el-dialog__title {
-                    color: #1A1A1A;
-                    font-size: 14px;
-                }
-
-                .el-dialog__headerbtn {
-                    font-size: 12px;
-                    line-height: 20px;
-
-                    i {
+                i {
+                    color: #999;
+                    &:hover {
                         color: #999;
-                        &:hover {
-                            color: #FF981A;
-                        }
                     }
                 }
             }
+        }
 
-            .el-dialog__body {
-                padding: 0;
+        .el-dialog__body {
+            padding: 0;
 
-                /* 内容区域 */
-                .content {
-                    padding: 0 40px;
+            /* 内容区域 */
+            .content {
+                padding: 0 40px;
 
-                    /* 滚动区域 */
-                    section {
-                        display: inline-block;
-                        padding: 10px;
+                /* 滚动区域 */
+                .scroll-wrap {
+                    display: inline-block;
+                    border: 1px solid #CCCCCC;
+                    padding: 10px;
+                    background: #FFFFFF;
+
+                    .scroll {
                         height: 220px;
-                        border: 1px solid #CCCCCC;
-                        background: #FFFFFF;
-
+                        
                         .item {
                             align-items: center;
                             line-height: 26px;
@@ -244,51 +228,51 @@
                             }
                         }
                     }
+                }   
 
-                    /* 问题框 */
-                    .ask-box {
-                        width: 110px;
-                        text-align: left;
+                /* 问题框 */
+                .ask-box {
+                    width: 110px;
+                    text-align: left;
 
-                        .txt {
-                            font-size: 14px;
-                            color: #999;
-                            line-height: 34px;
-                        }
+                    .txt {
+                        font-size: 14px;
+                        color: #999;
+                        line-height: 34px;
                     }
+                }
 
-                    /* 答案框 */
-                    .result-box {
-                        width: 215px;
-                        margin-left: 20px;
-                        text-align: left;
+                /* 答案框 */
+                .result-box {
+                    width: 215px;
+                    margin-left: 20px;
+                    text-align: left;
 
-                        .txt {
-                            font-size: 14px;
-                            color: #999;
-                            line-height: 34px;
-                        }
+                    .txt {
+                        font-size: 14px;
+                        color: #999;
+                        line-height: 34px;
                     }
                 }
             }
-
-            /* 弹出框底部 */
-            .el-dialog__footer {
-                padding: 20px 40px;
-
-                .dialog-footer {
-                    .el-button--primary {
-                        width: 80px;
-                        height: 32px;
-                        font-size: 12px;
-                        background: #FF981A;
-                        border-radius: 3px;
-                        border: none;
-                        outline: none;
-                    }
-                }
-            }
-            
         }
+
+        /* 弹出框底部 */
+        .el-dialog__footer {
+            padding: 20px 40px;
+
+            .dialog-footer {
+                .el-button--primary {
+                    width: 80px;
+                    height: 32px;
+                    font-size: 12px;
+                    background: #FF981A;
+                    border-radius: 3px;
+                    border: none;
+                    outline: none;
+                }
+            }
+        }
+        
     }
 </style>

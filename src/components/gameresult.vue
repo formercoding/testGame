@@ -80,12 +80,6 @@ export default {
         // 将表单数据与vuex同步
         syncData() {
             this.$store.commit('setGameQuestions', this.gameQuestions);
-
-            // 更新滚动条
-            let _this = this;
-            this.$nextTick(() => {
-                _this.$emit('updateH');
-            });
         },
 
         /**
@@ -169,7 +163,7 @@ export default {
         sub(index) {
             this.subValidate();
 
-            
+
             // 防止全被删除
             if(this.gameResults.length === 2) {
                 this.gameResults.splice(index, 1, {

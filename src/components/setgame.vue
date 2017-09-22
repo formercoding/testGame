@@ -19,16 +19,16 @@
                         @click="switchTab(3)">问题设置</li>
                 </ul>
                 <!-- 设置内容组件 -->
-                <section id="scrollEle"
+                <div v-bar id="scrollEle"
                          class="scrollbar" 
-                         :style="{maxHeight: scrollH}"
+                         :style="{height: scrollH}"
                          ref="scrollbar">
                     <div class="sets">
-                        <v-gamebase v-show="curTab === 1" @updateH="updateScroll"></v-gamebase>
-                        <v-gameresult v-show="curTab === 2" @updateH="updateScroll"></v-gameresult>
-                        <v-gameask v-show="curTab === 3" @updateH="updateScroll"></v-gameask>
+                        <v-gamebase v-show="curTab === 1"></v-gamebase>
+                        <v-gameresult v-show="curTab === 2"></v-gameresult>
+                        <v-gameask v-show="curTab === 3"></v-gameask>
                     </div>
-                </section>
+                </div>
             </div>
         </div>
         <!-- 按钮切换tab模块 -->
@@ -51,30 +51,18 @@
                         type="button">提交</button>
             </div>
         </div>
-        <!-- 弹出框 -->
-        <v-dialog></v-dialog>
-        <!-- 弹出框集合 -->
-        <v-dialogs></v-dialogs>
-
-        
     </div>
 </template>
 <script>
-// 自定义滚动条插件
-import GeminiScrollbar from 'gemini-scrollbar';
-import "gemini-scrollbar/gemini-scrollbar.css";
-
 // 子组件
 import vGamebase from './gamebase'
 import vGameask from './gameask'
 import vGameresult from './gameresult'
 import vPhone from './phone'
-import vDialog from './dialog'
-import vDialogs from './dialogs'
 export default {
     data() {
         return {
-            curTab: 2, // 当前tab 1基础设置 2测试结果设置 3问题设置
+            curTab: 3, // 当前tab 1基础设置 2测试结果设置 3问题设置
         }
     },
 
@@ -115,14 +103,14 @@ export default {
                         {
                             name: '是傻', // 答案文字描述
                             target: {
-                                type: '',
-                                issueOrResultId: ''
+                                type: -1,
+                                issueOrResultId: -1
                             }
                         }, {
                             name: '不傻', // 答案文字描述
                             target: {
-                                type: '',
-                                issueOrResultId: ''
+                                type: -1,
+                                issueOrResultId: -1
                             }
                         }
                     ]
@@ -136,17 +124,17 @@ export default {
                         {
                             name: '傻哦', // 答案文字描述
                             target: {
-                                type: 0,
-                                issueOrResultId: 0
+                                type: -1,
+                                issueOrResultId: -1
                             }
                         }, {
                             name: '不傻哦', // 答案文字描述
                             target: {
-                                type: 1,
-                                issueOrResultId: 1
+                                type: -1,
+                                issueOrResultId: -1
                             }
                         }
-                    ]
+                    ]  
                 }
             ]);
 
@@ -187,36 +175,12 @@ export default {
          * @param {Number} index tab索引
          */
         switchTab(index) {
-            let _this = this;
-
             // 切换tab
             this.curTab = index;
-
-            // 更新滚动样式
-            this.$nextTick(() => {
-               _this.updateScroll();
-            });
         },
-
-        // 更新滚动条
-        updateScroll() {
-            // 更新滚动条
-            this.scrollbar.update();
-        }
     },
 
     mounted() {
-        let _this = this;
-        this.$nextTick(() => {
-            // 初始化滚动条
-            _this.scrollbar = new GeminiScrollbar({
-                element: document.querySelector('section'),
-            }).create();
-
-            // 更新样式
-            _this.updateScroll();
-
-        });
     },
 
     components: {
@@ -224,8 +188,6 @@ export default {
         vGameask,
         vGamebase,
         vGameresult,
-        vDialog,
-        vDialogs
     }
 }
 </script>

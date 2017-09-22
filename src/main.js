@@ -7,6 +7,8 @@ import router from './router'
 import store from './store'
 import axios from 'axios'
 import  './assets/less/common.less'
+import Vuebar from 'vuebar';
+Vue.use(Vuebar);
 
 import { Form, FormItem, Input, Radio, Dialog, Button, RadioGroup} from 'element-ui'
 Vue.use(Form)

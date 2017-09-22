@@ -10,7 +10,7 @@
                 <!-- 头部 -->
                 <div class="header flex">
                     <span class="txt">测试结果 {{calculateIndex(index)}}</span>
-                    <span class="sub" @click="sub(index)">-</span>
+                    <span class="sub" @click="delConfirm(index)">-</span>
                     <span class="add" @click="add(index)">+</span>
                 </div>
                 <!-- 问题描述 -->
@@ -72,15 +72,34 @@
                 <div class="add-opt">
                     <button type="button" class="btn" @click="addOption(index)">增加答案</button>
                 </div>
+                <!-- 选择弹出框 -->
+                <v-dialog 
+                    @confirm="setTarget"
+                    :isOpen.sync="goDialog"
+                    :targetType.sync="targetType" 
+                    :targetIndex.sync="targetIndex">
+                </v-dialog>
+                <!-- 弹出框集合 -->
+                <v-tipDialog :isOpen.sync="tipDialog" @confirm="sub" :type="tipType"></v-tipdialog>
             </div>    
         </el-form>
     </div>
 </template>
 <script>
 import vUploadpic from './uploadpic'
+import vDialog from './dialog'
+import vTipDialog from './tipDialog'
 export default {
     data() {
         return {
+            goDialog: false, // 跳转弹窗状态
+            tipDialog: false, // 提示弹窗状态
+            delIndex: 0, // 点击的删除索引
+            addIndex: 0, // 点击的增加索引
+            goIndex: 0, // 跳转问题所在索引
+            goIndexs: 0, // 跳转选项所在索引
+            tipType: 0 // 提示类型
+
         }
     },
 
@@ -88,20 +107,92 @@ export default {
         // 计算状态的问题设置
         gameQuestions() {
             return this.$store.state.gameQuestions;
+        },
+
+        // 跳转选项跳转类型
+        targetType: {
+            set(val) {
+                return val;
+            },
+            get() {
+                let _this = this;
+                return _this.gameQuestions[_this.goIndex].options[_this.goIndexs].target.type;    
+            }
+            
+        },
+
+        // 跳转选项跳转选项
+        targetIndex: {
+            set(val) {
+                let _this = this;
+                console.log(val)
+                _this.gameQuestions[_this.goIndex].options[_this.goIndexs].target.issueOrResultId = val;
+                return val;
+            },
+            get() {
+                let _this = this;
+                return _this.gameQuestions[_this.goIndex].options[_this.goIndexs].target.issueOrResultId;
+            }
         }
     },
 
     methods: {
+        /**
+         * 弹出确认 确认删除
+         */
+        delConfirm(index) {
+            let _this = this,
+                gameQuestions = _this.gameQuestions;
+
+            _this.delIndex = index;
+            _this.tipType = 0;
+
+            // 验证关联性
+            gameQuestions.forEach((question) => {
+                question.options.forEach((option)=> {
+                    let target = option.target;
+
+                    // 验证是否关联
+                    if(target.type === 1 || target.issueOrResultId === index) {
+                        // 切换弹窗类型
+                        _this.tipType = 1;
+                    }
+                })
+            });
+
+            // 开启弹窗
+            _this.tipDialog = true;
+        },
+
+        /**
+         * 弹出确认 修改跳转
+         * @param {Number} type 跳转类型
+         * @param {Number} index 跳转目标序号
+         */
+        setTarget(type, index) {
+            let _this = this,
+                curQuestion = _this.gameQuestions[_this.goIndex],
+                curOption = curQuestion.options[_this.goIndexs],
+                target = curOption.target;
+
+            // 跳转目标修改
+            target.type = type;
+            target.issueOrResultId = index;
+
+            // 同步gameQuestions数据至vuex
+            _this.syncData();
+        },
         /**
          * 跳转文字
          * @param {Number} type 跳转类型
          * @param {Number} index 跳转索引
          */
         targetTxt(type, index) {
-            if(type === '' || index === '') { 
+            if(type === -1 || index === -1) { 
                 return '选择';
             } else {
-                index = index < 9 ? '0' + (index + 1) : (index + 1); 
+                index = index < 9 ? '0' + (index + 1) : (index + 1);
+
                 if(type === 0) {
                     return '问题' + index;
                 } else {
@@ -129,35 +220,19 @@ export default {
          * @param {Number} indexs 选项索引
          */
         targetChose(index, indexs) {
-            let option = this.gameQuestions[index].options[indexs].target,
-                targetIndex = option.issueOrResultId,
-                targetType = option.type;
+            let _this = this;
 
-            let dialogData = {
-                targetType: targetType,
-                targetIndex: targetIndex,
-                isShow: true
-            }
+            _this.goIndex = index;
+            _this.goIndexs = indexs;
 
-            // 选项状态更新
-            this.$store.commit('setCurOption', {
-                index: index,
-                indexs: indexs
-            });
-
-            // 开启弹窗
-            this.$store.commit('setDialogData', dialogData);
+            // 弹出框
+            _this.goDialog = true;
         },
 
         // 将表单数据与vuex同步
         syncData() {
-            this.$store.commit('setGameQuestions', this.gameQuestions);
-
-            // 更新滚动条
             let _this = this;
-            this.$nextTick(() => {
-                _this.$emit('updateH');
-            });
+            _this.$store.commit('setGameQuestions', _this.gameQuestions);
         },
 
         /**
@@ -182,12 +257,15 @@ export default {
          * @param {Number} index 问题结果索引
          */
         add(index) {
+            let _this = this,
+                gameQuestions = _this.gameQuestions;
+
             // 控制问题20以上
-            if(this.gameQuestions.length === 20) {
+            if(gameQuestions.length === 20) {
                 return false;
             }
 
-            this.gameQuestions.splice(index + 1, 0, {
+            gameQuestions.splice(index + 1, 0, {
                 _id: 0, // 问题序号
                 question: { // 问题文字描述
                     image: '', // 问题图片地址
@@ -197,18 +275,20 @@ export default {
                     {
                         name: '', // 答案文字描述
                         target: {
-                            type: '',
-                            issueOrResultId: ''
+                            type: -1,
+                            issueOrResultId: -1
                         }
                     }, {
                         name: '', // 答案文字描述
                         target: {
-                            type: '',
-                            issueOrResultId: ''
+                            type: -1,
+                            issueOrResultId: -1
                         }
                     }
                 ]
             });
+
+            // 同步vuex数据
             this.syncData();
         },
 
@@ -218,15 +298,19 @@ export default {
          * @param {Number} indexs 二级索引
          */
         addOption(index) {
-            this.gameQuestions[index].options.push({
+            let _this = this;
+
+            // 添加选项
+            _this.gameQuestions[index].options.push({
                 name: '', // 答案文字描述
                 target: {
-                    type: '',
-                    issueOrResultId: ''
+                    type: -1,
+                    issueOrResultId: -1
                 }
             });
 
-            this.syncData();
+            // 同步vuex数据
+            _this.syncData();
         },
 
         /**
@@ -234,9 +318,12 @@ export default {
          * @param {Number} index 问题结果索引
          */
         sub(index) {
+            let _this = this;
+                gameQuestions = _this.gameQuestions;
+
             // 防止全被删除
-            if(this.gameQuestions.length === 2) {
-                this.gameQuestions.splice(index, 1, {
+            if(gameQuestions.length === 2) {
+                gameQuestions.splice(index, 1, {
                     _id: 0, // 问题序号
                     question: { // 问题文字描述
                         image: '', // 问题图片地址
@@ -259,16 +346,19 @@ export default {
                     ]
                 })
             } else {
-                this.gameQuestions.splice(index, 1);
+                gameQuestions.splice(index, 1);
             }
 
-            this.syncData();
+            // 同步vuex数据
+            _this.syncData();
 
         }
     },
 
     components: {
         vUploadpic,
+        vDialog,
+        vTipDialog
     }
 }
 </script>
