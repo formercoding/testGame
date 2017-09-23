@@ -16,13 +16,13 @@
                 <!-- 问题描述 -->
                 <el-form-item class="title" prop="question.name"
                     :rules="{
-                        required: true, message: '请输入选项描述', trigger: 'blur'
+                        required: true, message: '请输入选项描述', trigger: 'change'
                     }">
                     <el-input type="textarea" 
                               :maxlength="38"
                               placeholder="请输入问题..."
                               v-model="askData.question.name"
-                              @change="syncData"
+                              @blur="syncData"
                               class="w-300"
                               resize="none">
                     </el-input>
@@ -31,11 +31,11 @@
                     <div class="flex desc-pic">
                         <div class="place-pic" v-show="askData.question.image !== ''">
                             <img :src="askData.question.image">
-                            <span class="close" @click="deletePic(index)"></span>
+                            <span class="close" @click="changePic(index, '')"></span>
                         </div>
                         <div class="flex-col upload" v-show="askData.question.image === ''">
                             <div class="btn-wrap">
-                                <v-uploadpic :data="{pos: 'gameQuestions', flag: index}"></v-uploadpic>
+                                <v-uploadpic :flag="index" @upload="changePic"></v-uploadpic>
                             </div>
                         </div>
                     </div>
@@ -49,14 +49,14 @@
                     :key="indexs"
                     :prop="'options.' + indexs + '.name'"
                     :rules="{
-                        required: true, message: '请输入选项描述', trigger: 'blur'
+                        required: true, message: '请输入选项描述', trigger: 'change'
                     }">
                     <!-- 选项描述 -->
                     <span class="key">A.</span>
                     <el-input v-model="option.name" 
                               :maxlength="20"
                               placeholder="不超过20个字" 
-                              @change="syncData"
+                              @blur="syncData"
                               class="w-300">
                     </el-input>
                     <span class="input-num">{{option.name.length}}/20</span>
@@ -79,7 +79,7 @@
                     :targetType.sync="targetType" 
                     :targetIndex.sync="targetIndex">
                 </v-dialog>
-                <!-- 弹出框集合 -->
+                <!-- 提示弹出框 -->
                 <v-tipDialog :isOpen.sync="tipDialog" @confirm="sub" :type="tipType"></v-tipdialog>
             </div>    
         </el-form>
@@ -95,11 +95,9 @@ export default {
             goDialog: false, // 跳转弹窗状态
             tipDialog: false, // 提示弹窗状态
             delIndex: 0, // 点击的删除索引
-            addIndex: 0, // 点击的增加索引
             goIndex: 0, // 跳转问题所在索引
             goIndexs: 0, // 跳转选项所在索引
             tipType: 0 // 提示类型
-
         }
     },
 
@@ -112,7 +110,8 @@ export default {
         // 跳转选项跳转类型
         targetType: {
             set(val) {
-                return val;
+                let _this= this;
+                return _this.gameQuestions[_this.goIndex].options[_this.goIndexs].target.type = val;    
             },
             get() {
                 let _this = this;
@@ -125,7 +124,6 @@ export default {
         targetIndex: {
             set(val) {
                 let _this = this;
-                console.log(val)
                 _this.gameQuestions[_this.goIndex].options[_this.goIndexs].target.issueOrResultId = val;
                 return val;
             },
@@ -137,6 +135,23 @@ export default {
     },
 
     methods: {
+        /**
+         * 修改图片地址
+         * @param {Number} index 要改变的图片索引
+         * @param {String} url 要改变的图片地址
+         */
+        changePic(index, url) {
+            let _this = this,
+                gameQuestions = _this.gameQuestions,
+                question = gameQuestions[index].question;
+            
+            // 改变图片
+            question.image = url;
+
+            // 更新问题状态
+            _this.syncData();
+        },
+
         /**
          * 弹出确认 确认删除
          */
@@ -153,7 +168,7 @@ export default {
                     let target = option.target;
 
                     // 验证是否关联
-                    if(target.type === 1 || target.issueOrResultId === index) {
+                    if(target.type === 0 && target.issueOrResultId === index) {
                         // 切换弹窗类型
                         _this.tipType = 1;
                     }
@@ -182,6 +197,7 @@ export default {
             // 同步gameQuestions数据至vuex
             _this.syncData();
         },
+
         /**
          * 跳转文字
          * @param {Number} type 跳转类型
@@ -245,14 +261,6 @@ export default {
         },
 
         /**
-         * 预览图片删除
-         * @param {String} index 图片所在数组索引
-         */
-        deletePic(index) {
-            this.$store.commit('changeQuestionsPic', {index: index, url: ''});
-        },
-
-        /**
          * 增加问题结果
          * @param {Number} index 问题结果索引
          */
@@ -265,6 +273,7 @@ export default {
                 return false;
             }
 
+            // 在问题底下新增提问
             gameQuestions.splice(index + 1, 0, {
                 _id: 0, // 问题序号
                 question: { // 问题文字描述
@@ -286,6 +295,22 @@ export default {
                         }
                     }
                 ]
+            });
+
+            // 问题的关联性更新
+            gameQuestions.forEach((question) => {
+                question.options.forEach((option)=> {
+                    let target = option.target;
+
+                    // 当选项的关联索引 <= 删除索引 关联性不变
+
+                    // 当选项的关联索引 > 增加索引 关联结果后置一个单位
+                    if(target.type === 0 && target.issueOrResultId > index) {
+
+                        // 删除问题的关联目标
+                        target.issueOrResultId = target.issueOrResultId + 1;
+                    }
+                })
             });
 
             // 同步vuex数据
@@ -313,45 +338,75 @@ export default {
             _this.syncData();
         },
 
-        /**
-         * 减少问题结果
-         * @param {Number} index 问题结果索引
-         */
-        sub(index) {
-            let _this = this;
+        // 确认问题删除
+        sub() {
+            let _this = this,
                 gameQuestions = _this.gameQuestions;
 
-            // 防止全被删除
-            if(gameQuestions.length === 2) {
-                gameQuestions.splice(index, 1, {
+            // goIndex重置 不然计算值中的targetIndex容易出错
+            _this.goIndex = 0;
+            _this.goIndexs = 0;            
+
+            // 防止全被删除 至少保留两个
+            if(gameQuestions.length === 2) { // 当前问题个数为2
+
+                gameQuestions.splice(_this.delIndex, 1, {
                     _id: 0, // 问题序号
                     question: { // 问题文字描述
                         image: '', // 问题图片地址
-                        name: '1', // 问题描述
+                        name: '', // 问题描述
                     }, 
                     options: [ // 问题选项数组
                         {
                             name: '', // 答案文字描述
                             target: {
-                                type: '',
-                                issueOrResultId: ''
+                                type: -1,
+                                issueOrResultId: -1
                             }
                         }, {
                             name: '', // 答案文字描述
                             target: {
-                                type: '',
-                                issueOrResultId: ''
+                                type: -1,
+                                issueOrResultId: -1
                             }
                         }
                     ]
-                })
-            } else {
-                gameQuestions.splice(index, 1);
+                });
+                // 如果此时问题个数为2  则维持 其它 -> 自身 的关联性
+                
+            } else {// 如果此时问题个数大于2
+                
+                // 更新 问题关联性
+                gameQuestions.forEach((question) => {
+                    question.options.forEach((option)=> {
+                        let target = option.target;
+
+                        console.log('target', target.type, target.issueOrResultId)
+                        // 当选项的关联索引 = 删除索引 删除关联性
+                        if(target.type === 0 && target.issueOrResultId === _this.delIndex) {
+
+                            // 删除问题的关联目标
+                            target.type = -1;
+                            target.issueOrResultId = -1;
+                        }
+                        
+                        // 当选项的关联索引 > 删除索引 将关联性提前一个位置
+                        if(target.type === 0 && target.issueOrResultId > _this.delIndex) {
+
+                            // 提前问题的关联目标
+                            target.issueOrResultId = target.issueOrResultId - 1;
+                        }
+
+                        // 当选项的关联索引 < 删除索引 关联性不变
+                    })
+                });
+
+                // 删除问题
+                gameQuestions.splice(_this.delIndex, 1);
             }
 
             // 同步vuex数据
             _this.syncData();
-
         }
     },
 

@@ -11,7 +11,7 @@
                 <!-- 头部 -->
                 <div class="header flex">
                     <span class="txt">测试结果 {{calculateIndex(index)}}</span>
-                    <span class="sub" @click="sub(index)">-</span>
+                    <span class="sub" @click="delConfirm(index)">-</span>
                     <span class="add" @click="add(index)">+</span>
                 </div>
                 <!-- 题目 -->
@@ -19,7 +19,7 @@
                     <el-input v-model="resultData.name" 
                               :maxlength="10"
                               placeholder="标题不超过10个字..."
-                              @change="syncData"
+                              @blur="syncData"
                               class="w-300">
                     </el-input>
                     <span class="input-num">{{resultData.name.length}}/10</span>
@@ -28,11 +28,11 @@
                 <div class="flex desc-pic">
                     <div class="place-pic" v-show="resultData.image !== ''">
                         <img :src="resultData.image">
-                        <span class="close" @click="deletePic(index)"></span>
+                        <span class="close" @click="changePic(index, '')"></span>
                     </div>
                     <div class="flex-col upload">
                         <div class="btn-wrap">
-                            <v-uploadpic :data="{pos: 'gameResults', flag: index}"></v-uploadpic>
+                            <v-uploadpic :txtType="0" @upload="changePic" :flag="index"></v-uploadpic>
                         </div>
                         <span class="suggest">图片建议尺寸：640&times;365px</span>
                         <span class="suggest">图片支持格式：JPG、JPEG、png</span>
@@ -44,7 +44,7 @@
                               :maxlength="150" 
                               v-model="resultData.content"
                               placeholder="文字描述..."
-                              @change="syncData"
+                              @blur="syncData"
                               class="w-370" 
                               resize="none">
                     </el-input>
@@ -52,13 +52,18 @@
                 </el-form-item>
             </div>
         </el-form>
+        <!-- 提示弹出框 -->
+        <v-tipDialog :isOpen.sync="tipDialog" @confirm="sub" :type="tipType"></v-tipdialog>
+
     </div>
 </template>
 <script>
 import vUploadpic from './uploadpic'
+import vTipDialog from './tipDialog'
 export default {
     data() {
         return {
+            // 验证规则
             ruleResult: {
                 name: [
                     { required: true, message: '请输入标题', trigger: 'blur' }
@@ -66,17 +71,71 @@ export default {
                 content: [
                     { required: true, message: '请输入文字描述', trigger: 'blur' }
                 ]
-            }
+            },
+            tipDialog: false, // 提示弹窗状态
+            delIndex: 0, // 点击的删除索引
+            tipType: 0, // 提示类型
+            picIndex: 0 // 当前选择图片索引
         }
     },
 
     computed: {
+        // 计算游戏结果状态
         gameResults() {
             return this.$store.state.gameResults;
+        },
+
+        // 计算游戏问题状态
+        gameQuestions() {
+            return this.$store.state.gameQuestions;
         }
     },
     
     methods: {
+        /**
+         * 修改图片地址
+         * @param {Number} index 要改变的图片索引
+         * @param {String} url 要改变的图片地址
+         */
+        changePic(index, url) {
+            let _this = this,
+                gameResults = _this.gameResults;
+            
+            // 改变图片
+            gameResults[index].image = url;
+
+            // 更新答案状态
+            _this.syncData();
+        },
+        
+        /**
+         * 弹出确认 确认删除
+         */
+        delConfirm(index) {
+            let _this = this,
+                gameQuestions = _this.gameQuestions;
+
+            _this.delIndex = index;
+            _this.tipType = 0;
+
+            // 验证关联性
+            gameQuestions.forEach((question) => {
+                question.options.forEach((option)=> {
+                    let target = option.target;
+
+                    // 验证是否关联
+                    if(target.type === 1 && target.issueOrResultId === index) {
+                        
+                        // 切换弹窗类型
+                        _this.tipType = 1;
+                    }
+                })
+            });
+
+            // 开启弹窗
+            _this.tipDialog = true;
+        },
+
         // 将表单数据与vuex同步
         syncData() {
             this.$store.commit('setGameQuestions', this.gameQuestions);
@@ -105,55 +164,46 @@ export default {
         },
 
         /**
-         * 预览图片删除
-         * @param {Number} index 图片所在数组索引
-         */
-        deletePic(index) {
-            this.$store.commit('changeResultsPic', {
-                index: index,
-                url: ''
-            })
-        },
-
-        /**
          * 增加问题结果
          * @param {Number} index 问题结果索引
          */
         add(index) {
-            // 控制问题20以下
-            if(this.gameResults.length === 20) {
+            let _this = this,
+                gameQuestions = _this.gameQuestions,
+                gameResults = _this.gameResults;
+            // 控制答案个数20
+            if(gameResults.length === 20) {
                 return false;
             }
 
-            this.gameResults.splice(index + 1, 0, {
+            // 在选择答案下面新增答案
+            gameResults.splice(index + 1, 0, {
                 name: '',
                 content: '',
                 image: ''
             });
 
-            this.syncData();
-        },
+            // 问题的关联性更新
+            gameQuestions.forEach((question) => {
+                question.options.forEach((option)=> {
+                    let target = option.target;
 
-        /**
-         * 验证关联性
-         * 
-         */
-        subValidate(index) {
-            let isRelate = false;
-            let questions = this.$store.state.gameQuestions;
-            
-            questions.forEach((item) => {
-                item.options.forEach((items)=> {
-                    let target = items.target;
+                    // 当选项的关联索引 <= 删除索引 关联性不变
 
-                    // 验证是否关联
-                    if(target.type === 1 || target.gameQuestions === index) {
-                        isRelate = true;
+                    // 当选项的关联索引 > 增加索引 关联结果后置一个单位
+                    if(target.type === 1 && target.issueOrResultId > index) {
+
+                        // 删除问题的关联目标
+                        target.issueOrResultId = target.issueOrResultId + 1;
                     }
                 })
             });
 
-            return isRelate;
+            // 更新问题
+            _this.$store.commit('setGameQuestions', gameQuestions);
+
+            // 更新vuex状态
+            _this.syncData();
         },
 
         /**
@@ -161,27 +211,65 @@ export default {
          * @param {Number} index 问题结果索引
          */
         sub(index) {
-            this.subValidate();
+            let _this = this,
+                gameResults = _this.gameResults,
+                gameQuestions = _this.gameQuestions;
 
+            // 防止全被删除 至少保留一题
+            if(gameResults.length === 1) {
 
-            // 防止全被删除
-            if(this.gameResults.length === 2) {
-                this.gameResults.splice(index, 1, {
+                // 当前结果为一时替换题目
+                gameResults.splice(index, 1, {
                     _id: 0, // 测试结果序号
                     content: '', // 测试结果描述
                     image: '', // 测试结果图片地址
                     name: '', // 测试结果标题
-                })
-            } else {
-                this.gameResults.splice(index, 1);
+                });
+
+                // 此时结果个数为一，保留其关联性
+
+            } else { // 当前结果个数大于一
+
+                // 更新 问题关联性
+                gameQuestions.forEach((question) => {
+                    question.options.forEach((option)=> {
+                        let target = option.target;
+
+                        // 当选项的关联索引 = 删除索引 删除关联性
+                        if(target.type === 1 && target.issueOrResultId === _this.delIndex) {
+
+                            // 删除问题的关联目标
+                            target.type = -1;
+                            target.issueOrResultId = -1;
+                        }
+                        
+                        // 当选项的关联索引 > 删除索引 将关联性提前一个位置
+                        if(target.type === 1 && target.issueOrResultId > _this.delIndex) {
+
+                            // 提前问题的关联目标
+                            target.issueOrResultId = target.issueOrResultId - 1;
+                        }
+
+                        // 当选项的关联索引 < 删除索引 关联性不变
+                    })
+                });
+
+                // 删除问题
+                gameResults.splice(index, 1);
+
+                // 同时更新问题
+                _this.$store.commit('setGameQuestions', gameQuestions);
+                
             }
 
-            this.syncData();
+            // 更新游戏答案
+            _this.syncData();
         }
     },
 
     components: {
-        vUploadpic
+        vUploadpic,
+        vTipDialog
     }
 }
 </script>

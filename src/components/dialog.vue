@@ -114,10 +114,8 @@ export default {
          * @param {Number} 跳转索引 index 
          */
         setOptionTarget(type, index) {
-            console.log(index, type);
             this.$emit('update:targetIndex', index);
             this.$emit('update:targetType', type);
-            console.log(index, this.targetIndex, type, this.targetType);
         },
 
         //  确认事件
@@ -129,6 +127,7 @@ export default {
         // 关闭弹窗
         close() {
             this.$emit('update:isOpen', false);
+            this.$emit('confirm', this.targetType, this.targetIndex);
         }
     }
 };

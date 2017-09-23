@@ -37,13 +37,6 @@ export default {
 
     computed: {
       /**
-       * 计算提示弹窗的状态
-       */
-      tipDialog() {
-        return this.$store.state.tipDialog;
-      },
-
-      /**
        * 弹窗文案
        */
       txt() {

@@ -10,25 +10,27 @@
 <script>
 export default {
     props: {
-        data: Object
+        txtType: {
+            type: Number,
+            default: 0
+        },
+        flag: {
+            type: Number,
+            default: 0
+        }
     },
 
     data() {
         return {
-            url: 'ss' // 图片上传地址
+            limit: 1000, // 图片上传限制
+            url: 'ss', // 图片上传地址
+            txts: ['上传图片', '选择图片'] 
         }
     },
     
     computed: {
         txt() {
-            let pos = this.data.pos,
-                txt = '上传图片';
-
-            if(pos === 'gameBase') {
-                txt = '选择图片';
-            }
-
-            return txt;
+            return this.txts[this.txtType];
         }
     },
 
@@ -74,48 +76,11 @@ export default {
             _this.$http.post(_this.url, formData).then((res) => {
                 _this.urlStr = res.url;
             }, () => {
-                // 错误提示
-                console.log(formData.has('file'));
                 console.log('上传失败');
-                // 广播
-                // _this.$emit('uploadPic', _this.data.flag, 'http://img.redocn.com/sheying/20151230/xiajiahejingguandaifengjingsheyingtupian_5693692.jpg')
-                _this.changePic('http://img.redocn.com/sheying/20151230/xiajiahejingguandaifengjingsheyingtupian_5693692.jpg');
+                _this.$emit('upload', _this.flag, 'http://img.redocn.com/sheying/20151230/xiajiahejingguandaifengjingsheyingtupian_5693692.jpg');
             });
-        },
-
-        /**
-         * 上传成功后修改预览图片
-         * @param {String} url 图片地址
-         */
-        changePic(url) {
-            let pos = this.data.pos,
-                flag = this.data.flag;
-            console.log(pos, flag, url);
-            // 根据按钮位置执行不同的commit
-            switch(pos) {
-                case 'gameBase': {
-                    if(flag === 'index') {
-                        this.$store.commit('changeIndexPic', url);
-                    } else {
-                        this.$store.commit('changeSharePic', url);
-                    }
-                    break;
-                }
-                case 'gameQuestions': {
-                    this.$store.commit('changeQuestionsPic', {index: flag, url: url});
-                    break;
-                }
-                case 'gameResults': {
-                    this.$store.commit('changeResultsPic', {index: flag, url: url});
-                    break;
-                }
-            }
         }
-         
     }
-
-
-  
 }
 </script>
 <style lang="less" scoped>

@@ -9,7 +9,7 @@
             <div class="set-wrap">
                 <ul class="tabs">
                     <li class="tab" 
-                        :class="{active: curTab === 1}" 
+                        :class="{active: curTab === 1}"
                         @click="switchTab(1)">基础设置</li>
                     <li class="tab" 
                         :class="{active: curTab === 2}" 
@@ -24,7 +24,7 @@
                          :style="{height: scrollH}"
                          ref="scrollbar">
                     <div class="sets">
-                        <v-gamebase v-show="curTab === 1"></v-gamebase>
+                        <v-gamebase v-show="curTab === 1" :validateKey.sync="validateKey"></v-gamebase>
                         <v-gameresult v-show="curTab === 2"></v-gameresult>
                         <v-gameask v-show="curTab === 3"></v-gameask>
                     </div>
@@ -33,22 +33,34 @@
         </div>
         <!-- 按钮切换tab模块 -->
         <div class="btns">
-            <div class="next" v-show="curTab === 1">
+            <div class="left" v-show="curTab === 1">
+                <button class="btn" 
+                        type="button" 
+                        @click="switchTab(2)">提交</button>
                 <button class="btn" 
                         type="button" 
                         @click="switchTab(2)">下一步</button>
             </div>
-            <div class="bridge" v-show="curTab === 2">
-                <button class="btn btn-prev" 
-                        type="button" 
-                        @click="switchTab(1)">上一步</button>
-                <button class="btn btn-next" 
-                        type="button" 
-                        @click="switchTab(3)">下一步</button>
-            </div>
-            <div class="save" v-show="curTab === 3">
+            <div class="left" v-show="curTab === 2">
                 <button class="btn" 
-                        type="button">提交</button>
+                        type="button" 
+                        @click="switchTab(2)">上一步</button>
+                <button class="btn" 
+                        type="button" 
+                        @click="switchTab(2)">下一步</button>
+            </div>
+            <div class="left" v-show="curTab === 3">
+                <button class="btn" 
+                        type="button" 
+                        @click="switchTab(2)">上一步</button>
+                <button class="btn" 
+                        type="button" 
+                        @click="switchTab(2)">提交</button>
+            </div>
+            <div class="right">
+                <button class="btn" 
+                        type="button" 
+                        @click="switchTab(2)">恢复默认设置</button>
             </div>
         </div>
     </div>
@@ -62,7 +74,8 @@ import vPhone from './phone'
 export default {
     data() {
         return {
-            curTab: 3, // 当前tab 1基础设置 2测试结果设置 3问题设置
+            curTab: 1, // 当前tab 1基础设置 2测试结果设置 3问题设置
+            validateKey: true, // 验证是否通过
         }
     },
 
@@ -269,7 +282,6 @@ export default {
 
         /* 按钮样式 */
         .btns {
-            text-align: left;
             font-size: 14px;
             line-height: 40px;
 
@@ -280,34 +292,8 @@ export default {
                 margin-top: 20px;
             }
 
-            /* 下一步 */
-            .next {
-                .btn {
-                    margin-left: 523px;
-                }
-            }
+            
 
-            /* 上一步 下一步 */
-            .bridge {
-                font-size: 0;
-
-                .btn-prev {
-                    margin-left: 427px;
-                }
-
-                .btn-next {
-                    margin-left: 20px;
-                    color: #ccc;
-                    border: 1px solid #ccc;
-                    background: #fff;
-                }
-
-            }
-
-            /* 保存 */
-            .save {
-                margin-left: 446px;
-            }
         }
     }
 </style>

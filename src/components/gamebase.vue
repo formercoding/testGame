@@ -10,7 +10,7 @@
             <el-form-item label="题目" prop="name" class="title">
                 <el-input v-model="gameBase.name" 
                           :maxlength="12"
-                          @change="syncData"
+                          @blur="syncData"
                           placeholder="请输入题目名称最多12字..." 
                           class="w-300">
                 </el-input>
@@ -20,7 +20,7 @@
             <el-form-item label="关键词" prop="keyword" class="keys">
                 <el-input v-model="gameBase.keyword" 
                           :maxlength="20"
-                          @change="syncData"
+                          @blur="syncData"
                           placeholder="请输入关键词..." 
                           class="w-300">
                 </el-input>
@@ -30,7 +30,7 @@
             <el-form-item label="文字描述" class="desc" prop="description">
                 <el-input type="textarea"
                           :maxlength="150"
-                          @change="syncData"
+                          @blur="syncData"
                           placeholder="请输入活动说明..."
                           v-model="gameBase.description" 
                           class="w-384"
@@ -44,11 +44,11 @@
             <span class="label">图片描述</span>
             <div class="place-pic" v-show="hasIndexPic">
                 <img :src="gameBase.image">
-                <span class="close" @click="deletePic"></span>
+                <span class="close" @click="changePic(0, '')"></span>
             </div>
             <div class="flex-col upload">
                 <div class="btn-wrap">
-                    <v-uploadpic :data="{pos: 'gameBase', flag: 'index'}"></v-uploadpic>
+                    <v-uploadpic :flag="0" @upload="changePic" :txtType="1"></v-uploadpic>
                 </div>
                 <span class="suggest">图片建议尺寸：640&times;365px</span>
                 <span class="suggest">图片支持格式：JPG、 JPEG、png</span>
@@ -57,7 +57,7 @@
         <!-- 分享选择 -->
         <div class="shareDefine flex">
             <span class="label">分享设置</span>
-            <el-radio-group v-model="gameBase.share.shareType" @change="syncData">
+            <el-radio-group v-model="gameBase.share.shareType" @blur="syncData">
                 <el-radio class="radio" label="false">默认设置</el-radio>
                 <el-radio class="radio" label="true">自定义设置</el-radio>
             </el-radio-group>
@@ -68,7 +68,7 @@
                 <span class="label">分享图片</span>
                 <img class="pic" :src="shareConfig.shareImage">
                 <div class="btn-wrap">
-                    <v-uploadpic :data="{pos: 'gameBase', flag: 'share'}"></v-uploadpic>
+                    <v-uploadpic :flag="1" @upload="changePic" :txtType="1"></v-uploadpic>
                 </div>
                 <div class="flex-col">
                     <span class="suggest">图片尺寸：200&times;200px</span>
@@ -82,13 +82,13 @@
                      class="share-form">
                 <!-- 分享标题 -->
                 <el-form-item label="分享标题" prop="shareTitle" class="title">
-                    <el-input v-model="shareConfig.shareTitle" class="w-260" @change="syncData"></el-input>
+                    <el-input v-model="shareConfig.shareTitle" class="w-260" @blur="syncData"></el-input>
                 </el-form-item>
                 <!-- 分享描述 -->
                 <el-form-item label="分享描述"  class="desc" prop="shareContent">
                     <el-input type="textarea" 
                               v-model="shareConfig.shareContent"
-                              @change="syncData"
+                              @blur="syncData"
                               class="w-260"
                               resize="none"
                               >
@@ -103,14 +103,25 @@
 import vUploadpic from './uploadpic';
 
 export default {
+    props: {
+        validator : {
+            type: Boolean,
+            default: true
+        }
+    },
+
     data() {
         return {
+            ajaxUrl: {
+                checkKeyword: 'www.fff.dd'
+            },
             ruleBase: { // 基本设置校验
-                title: [
-                    { required: true, message: '请输入题目名称', trigger: 'blur' }
+                name: [
+                    { required: true, message: '请输入题目名称', trigger: 'change' }
                 ],
-                keys: [
-                    { required: true, message: '请输入关键词', trigger: 'blur' }
+                keyword: [
+                    { required: true, message: '请输入关键词', trigger: 'change' },
+                    { validator: this.checkKeyword, trigger: 'blur'}
                 ]
             }
         }
@@ -134,14 +145,66 @@ export default {
     },
 
     methods: {
+        /**
+         * 修改图片地址
+         * @param {Number} index 要改变的图片索引
+         * @param {String} url 要改变的图片地址
+         */
+        changePic(index, url) {
+            let _this = this,
+                gameBase = _this.gameBase;
+
+            // 根据不同的按钮位置来改变不同位置的图片
+            if(index === 0) {
+                gameBase.image = url;
+            } else if(type === 1) {
+                let share = gameBase.share;
+                share.shareConfig.shareImage = url;
+            }
+
+            // 更新基础设置状态
+            _this.syncData();
+        },
+
         // 将表单数据与vuex同步
         syncData() {
             this.$store.commit('setGameBase', this.gameBase);
         },
 
-        // 删除预览图片
-        deletePic() {
-            this.$store.commit('changeIndexPic', '');
+        /**
+         * 检查关键词是否正确
+         * @param {Object} rule 当前校验规则
+         * @param {String} value 当前校验对象值
+         * @param {Function} callback  回调函数
+         */
+        checkKeyword(rule, value, callback) {
+            let _this = this,
+                gameBase = _this.gameBase;
+
+            if (value) {
+                _this.$http.get(_this.ajaxUrl.checkKeyword, {
+                    params: {
+                        keyword: value,
+                    },
+                    timeout: 10 * 1000
+                }).then((res) => {
+                    let resData = res.data;
+
+                    // 验证是否通过
+                    if(resData.return_code === 'SUCCESS') {
+                        _this.$emit('update:validateKey', true);
+                        callback();
+                    } else {
+                        callback(new Error(resData.return_msg));
+                        _this.$emit('update:validateKey', false);
+                    }
+                }, () => {
+                    callback(new Error('网络错误，请刷新后重试！'));
+                    _this.$emit('update:validateKey', false);
+                });
+            } else {
+                callback();
+            }
         }
     },
 

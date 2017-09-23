@@ -80,48 +80,6 @@ export default new Vuex.Store({
     actions,
     getters,
     mutations: {
-        /**
-         * 修改游戏基础设置首页的图片
-         * @param {Object} state 
-         * @param {String} url 图片地址 
-         */
-        changeIndexPic(state, url) {
-            url = url || '';            
-            state.gameBase.image = url;
-        },
-
-        /**
-         * 修改游戏基础设置分享的图片
-         * @param {Object} state 
-         * @param {String} url 图片地址 
-         */
-        changeSharePic(state, url) {
-            url = url || '';            
-            state.gameBase.share.shareConfig.shareImage = url;
-        },
-
-        /**
-         * 修改游戏问题设置的图片
-         * @param {Object} state 
-         * @param {Number} index 问题索引 
-         * @param {String} url 图片地址 
-         */
-        changeQuestionsPic(state, payload) {
-            payload.url = payload.url || '';
-            state.gameQuestions[payload.index].question.image = payload.url;
-        },
-
-        
-        /**
-         * 修改游戏结果设置的图片
-         * @param {Object} state 
-         * @param {Number} index 问题索引 
-         * @param {String} url 图片地址 
-         */
-        changeResultsPic(state, payload) {
-            payload.url = payload.url || '';                        
-            state.gameResults[payload.index].image = payload.url;
-        },
 
         /**
          * 设置游戏基础设置
@@ -129,7 +87,6 @@ export default new Vuex.Store({
          */
         setGameBase(state, gameBase) {
             state.gameBase = gameBase;
-            console.log(state.gameBase);
         },
 
         /**
