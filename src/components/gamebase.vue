@@ -4,7 +4,7 @@
         <el-form :model="gameBase" 
                  :rules="ruleBase" 
                  label-width="96px"
-                 ref="baseform" 
+                 ref="form" 
                  class="base-form">
             <!-- 题目 -->
             <el-form-item label="题目" prop="name" class="title">
@@ -107,6 +107,11 @@ export default {
         validator : {
             type: Boolean,
             default: true
+        },
+
+        validateBase: {
+            type: Boolean,
+            default: false
         }
     },
 
@@ -141,7 +146,7 @@ export default {
         // 是否存在首页图片
         hasIndexPic() {
             return this.gameBase.image !== '';
-        }
+        },
     },
 
     methods: {

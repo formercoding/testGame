@@ -9,6 +9,9 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
+        gameBaseDefault: {}, // 游戏基础设置默认
+        gameQuestionsDefault: {}, // 游戏问题设置默认
+        gameResultsDefault: {},
         gameBase: { // 游戏基础设置
             description: '', // 游戏简介做多500个字符
             image: '', // 游戏简介图片地址
@@ -104,6 +107,31 @@ export default new Vuex.Store({
          */
         setGameResults(state, gameResults) {
             state.gameResults = gameResults;
+        },
+
+        /**
+         * 设置游戏基础设置默认
+         * @param {Object} gameBase 设置对象
+         */
+        setGameBaseDefault(state, gameBase) {
+            state.gameBaseDefault = gameBase;
+        },
+
+        /**
+         * 设置游戏问题默认
+         * @param {Array} gameQuestions 设置对象数组
+         */
+        setGameQuestionsDefault(state, gameQuestions) {
+            state.gameQuestionsDefault = gameQuestions;
+            console.log(state.gameQuestions);
+        },
+        
+        /**
+         * 设置游戏结果默认
+         * @param {Array} gameResults 设置对象数组
+         */
+        setGameResultsDefault(state, gameResults) {
+            state.gameResultsDefault = gameResults;
         }
     }
 });
