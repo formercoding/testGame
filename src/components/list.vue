@@ -11,7 +11,7 @@
                 <span class="state">状态</span>
                 <span class="handle">操作</span>
             </div>
-            <div class="list" v-for="list in rows">
+            <div class="list" v-for="(list, index) in rows">
                 <span class="title">{{list.title}}</span>
                 <span class="created-time">{{list.createdTime}}</span>
                 <span class="participants">{{list.participants}}</span>
@@ -20,7 +20,7 @@
                 <span class="uv">{{list.uv}}</span>
                 <span class="state">{{list.state}}</span>
                 <span class="handle">
-                    <span class="open" @click="changeState(list.eventId)">开启</span>
+                    <span class="open" @click="changeState(list.shareUrl, index)">开启</span>
                     <span class="edit" @click="edit(list.eventId)">编辑</span>
                     <span class="share" @click="share(list.shareUrl)">分享</span>
                 </span>
@@ -82,15 +82,54 @@ export default {
         },
 
         /**
-         * 进入编辑页面
-         * @param {Number} eventId 活动ID
+         * 开启分享弹窗
+         * @param {String} url 活动链接
          */
-        share() {
+        share(url) {
+            
 
         },
 
-        // 
-        changeState() {
+        /**
+         * 更改活动状态
+         * @param {Number} eventId 活动ID
+         * @param {Number} index 当前活动所在列表索引
+         */
+        changeState(eventId, index) {
+            let _this = this,
+                state = _this.rows[index];
+            
+            switch(state) {
+                case 0: {
+                    _this.$http({
+                        method: 'post',
+                        url: _this.ajaxUrl.changeState,
+                        params: {
+                            state: state
+                        },
+                        timeout: 10000
+                    }).then((res) => {
+                        if(res.status === 200) {
+                            _this.rows[index].state = 1;
+                        }
+                    });
+                    break;
+                }
+                case 1: {
+                    _this.$http({
+                        method: 'post',
+                        url: _this.ajaxUrl.changeState,
+                        params: {
+                            state: state
+                        },
+                        timeout: 10000
+                    }).then((res) => {
+                        if(res.status === 200) {
+                            _this.rows[index].state = 0;
+                        }
+                    })
+                }
+            }
 
         }
     }
