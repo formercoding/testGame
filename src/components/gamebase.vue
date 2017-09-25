@@ -122,10 +122,10 @@ export default {
             },
             ruleBase: { // 基本设置校验
                 name: [
-                    { required: true, message: '请输入题目名称', trigger: 'change' }
+                    { required: true, message: '请输入题目名称', trigger: 'blur' }
                 ],
                 keyword: [
-                    { required: true, message: '请输入关键词', trigger: 'change' },
+                    { required: true, message: '请输入关键词', trigger: 'blur' },
                     { validator: this.checkKeyword, trigger: 'blur'}
                 ]
             }

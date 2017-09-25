@@ -9,7 +9,7 @@
         <span>{{txt}}</span>
         <span slot="footer" class="dialog-footer">
             <el-button type="primary" @click="confirm">确 定</el-button>
-            <el-button @click="close">取 消</el-button>
+            <el-button @click="close" v-show="!single">取 消</el-button>
         </span>
     </el-dialog>
 </template>
@@ -23,14 +23,24 @@ export default {
         type: {
             type: Number,
             default: 0
+        },
+        single: {
+            type: Boolean,
+            default: false
         }
     },
 
     data() {
       return {
         txts: [
-          '是否删除',
-          '问题关联，是否删除'
+          '是否删除？',
+          '问题关联，是否删除？',
+          '是否恢复默认设置？',
+          '游戏关键词设置错误',
+          '游戏名称填写错误',
+          '游戏描述填写错误',
+          '游戏问题填写错误',
+          '游戏结果设置有误'
         ]
       };
     },
@@ -78,6 +88,7 @@ export default {
         .el-dialog__body {
             height: 100px;
             padding: 20px 20px 0 20px;
+            text-align: left;
             color: #1A1A1A;
         }
 

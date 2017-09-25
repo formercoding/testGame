@@ -1,15 +1,23 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Hello from '@/components/Hello'
+import Edit from '@/components/setgame'
+import List from '@/components/list'
 
 Vue.use(Router)
 
 export default new Router({
   routes: [
     {
-      path: '/',
-      name: 'Hello',
-      component: Hello
+      path: '/edit/:eventId',
+      name: 'edit',
+      component: Edit
+    }, {
+      path: '/list',
+      name: 'list',
+      component: List
+    }, {
+      path: '/edit',
+      redirect: '/edit/new'
     }
   ]
 })

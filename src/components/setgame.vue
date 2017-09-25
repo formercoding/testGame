@@ -33,11 +33,11 @@
             </div>
         </div>
         <!-- 按钮切换tab模块 -->
-        <div class="btns" v-show="false">
+        <div class="btns">
             <div class="left" v-show="curTab === 1">
                 <button class="btn" 
                         type="button" 
-                        @click="submit">提交</button>
+                        @click="submit()">提交</button>
                 <button class="btn" 
                         type="button" 
                         @click="switchTab(2)">下一步</button>
@@ -56,14 +56,71 @@
                         @click="switchTab(2)">上一步</button>
                 <button class="btn" 
                         type="button" 
-                        @click="submit">提交</button>
+                        @click="submit()">提交</button>
             </div>
             <div class="right">
                 <button class="btn" 
                         type="button" 
-                        @click="setDefault()">恢复默认设置</button>
+                        @click="confirmDefault">恢复默认设置</button>
             </div>
         </div>
+        <!-- 提示弹出框 恢复默认设置 -->
+        <v-tipDialog 
+            :isOpen.sync="tipSetDialog" 
+            @confirm="setDefault" 
+            :type="tipSetType">
+        </v-tipDialog>
+        <!-- 提示弹出框 表单未通过校验 -->
+        <v-tipDialog 
+            :isOpen.sync="tipValidateDialog" 
+            :single="true"
+            :type="tipValidateType">
+        </v-tipDialog>
+        <el-dialog
+            title="分享链接"
+            :visible.sync="isBeforePurchase"
+            :modal-append-to-body="false"
+            :before-close="closePurchaseDialog"
+            class="before-purchase"
+            size="tiny">
+                <div class="contents">
+                    <div class="title">
+                        <span class="tip">试用倒计时</span>
+                        <span class="rest-time">{{restTime}}</span>
+                    </div>
+                    <div class="desc">
+                        本链接为临时预览链接，一段时间后失效。如需
+                        正式使用请购买本套餐。
+                    </div>
+                    <div class="pics">
+                        <div class="left-pic">
+                            <div class="txt">套餐购买</div>
+                            <img src="">
+                            <div class="pic-bottom">
+                                <div class="spans">
+                                    <span>套餐价格：</span>
+                                    <span class="cash">￥300</span>
+                                </div>
+                                <div class="spans">
+                                    <span>使用期限：</span>
+                                    <span>一个月</span>
+                                </div>
+                                <div class="spans">
+                                    <span>套餐名称：</span>
+                                    <span>西游记问答测试</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="right-pic">
+                            <div class="txt">发布预览</div>
+                            <img src="">
+                            <div class="pic-bottom">
+                                微信扫码预览设置效果
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </el-dialog>
     </div>
 </template>
 <script>
@@ -72,15 +129,25 @@ import vGamebase from './gamebase'
 import vGameask from './gameask'
 import vGameresult from './gameresult'
 import vPhone from './phone'
+import vTipDialog from './tipdialog'
 export default {
     data() {
         return {
             curTab: 1, // 当前tab 1基础设置 2测试结果设置 3问题设置
             validateKey: true, // 验证是否通过
+            tipValidateType: 0, // 表单验证提示文字类型
+            tipSetType: 2,  // 恢复默认设置提示文字类型
+            tipSetDialog: false, // 恢复默认设置弹出是否显示
+            tipValidateDialog: false, // 表单验证弹窗是否显示
+            isBeforePurchase: false, // 预览的链接弹窗
+            restTime: '23:05:36' // 试用剩余时间
         }
     },
 
     created() {
+        // eventId
+        console.log(this.$route.params.eventId)
+
         let _this = this;
 
         // 游戏数据请求
@@ -90,6 +157,7 @@ export default {
         }).then(() => {
             console.log('success');
         }).catch(() => {
+
             // 设置游戏基础状态
             _this.$store.commit('setGameBase', {
                 description: 'wulihang', // 游戏简介做多500个字符
@@ -105,6 +173,7 @@ export default {
                     shareType: 'true' // 是否自定义分享
                 } 
             });
+
             // 设置游戏规则状态
             _this.$store.commit('setGameQuestions', [
                 {
@@ -167,8 +236,6 @@ export default {
                 }
             ]);
 
-
-
             // 存储默认值
             let state = _this.$store.state,
                 gameBase = _this.cloneObj(_this.$store.state.gameBase),
@@ -201,8 +268,6 @@ export default {
                     }
 
                 })
-
-
         })
     },
 
@@ -270,15 +335,33 @@ export default {
 
             // 其次对游戏逻辑进行校验
             if(!_this.normalValidate()) {
-                return false;
+                // _this.tipValidateDialog = true;
+                // return false;
+            }
+
+            // 是否为试用用户判断
+            if(1) {
+                _this.isBeforePurchase = true;
             }
             
             _this.$http('url', {});
 
         },
 
+        // 弹出确认恢复默认设置弹出
+        confirmDefault() {
+            let _this = this;
+
+            _this.tipSetDialog = true;
+        },
+
+        // 关闭试用弹窗
+        closePurchaseDialog() {
+            this.isBeforePurchase = false;
+        },
+
+        // 恢复默认值
         setDefault() {
-            // 恢复默认值
             let _this = this,
                 state = _this.$store.state,
                 gameBase = _this.cloneObj(_this.$store.state.gameBaseDefault),
@@ -302,7 +385,7 @@ export default {
             
             // 校验关键词
             if(!_this.validateKey) {
-                console.log('游戏关键词设置错误');
+                _this.tipValidateType = 3;
                 return false;
             }
 
@@ -311,19 +394,19 @@ export default {
                 switch (key) {
                     case 'name': {
                         if(gameBase[key].lenth > 12 || gameBase[key].trim() === '') {
-                            console.log('游戏名称填写错误');
+                            _this.tipValidateType = 4;
                             return false;
                         }
                     }
                     case 'keyword': {
                         if(gameBase[key].lenth > 20 || gameBase[key].trim() === '') {
-                            console.log('游戏关键词填写错误');
+                            _this.tipValidateType = 3;
                             return false;
                         }
                     }
                     case 'description': {
                         if(gameBase[key].lenth > 500 || gameBase[key].trim() === '') {
-                            console.log('游戏描述填写错误');
+                            _this.tipValidateType = 5;
                             return false;
                         }
                     }
@@ -364,7 +447,7 @@ export default {
 
                 // 跳出循环
                 if(!validate) {
-                    console.log('游戏问题设置有误');
+                    _this.tipValidateType = 6;
                     return false;
                 }
             })
@@ -399,7 +482,7 @@ export default {
 
                 // 跳出循环
                 if(!validate) {
-                    console.log('游戏结果设置有误');
+                     _this.tipValidateType = 7;
                     return false;
                 }
             });
@@ -461,10 +544,11 @@ export default {
         vGameask,
         vGamebase,
         vGameresult,
+        vTipDialog
     }
 }
 </script>
-<style lang="less" scoped>
+<style lang="less">
 
     /* 颜色 按钮基本样式 */
     @themeColor: #ff981a;
@@ -555,17 +639,127 @@ export default {
             }
 
             .left {
-                width: 400px;
+                width: 265px;
+                margin-right: 120px;
+                font-size: 0;
+
+                .btn {
+                    font-size: 14px;
+
+                    &:first-child {
+                        margin-right: 20px;
+                    }
+                }
             }
 
             .right {
-                width: 100px;
-                margin-right: 50px;
+                width: 200px;
+
+                .btn {
+                    height: 38px;
+                    margin: 21px 0 0 0;
+                    color: #FFC44E;
+                    border: 1px solid #FFC44E;
+                    background: #fff;
+                }
             }
             
 
         }
-    }
+
+        /* 试用提示框 */
+        .before-purchase {
+            .el-dialog {
+                width: 600px;
+                font-size: 14px;
+                line-height: 20px;
+
+                .el-dialog__header {
+                    width: 600px;
+                    padding: 10px 20px;
+                    background: #F8F8F8;
+                    border-radius: 5px 5px 0 0;
+                    box-shadow: inset 0 -1px 0 0 #E6E6E6;
+                }
+
+                .el-dialog__body {
+                    padding: 28px 90px 57px 90px;
+                    text-align: left;
+                    color: #1A1A1A;
+
+                    .contents {
+                        display: flex;
+                        flex-flow: column;
+
+                        .title {
+                            display: flex;
+                            justify-content: center;
+                            font-size: 28px;
+                            line-height: 40px;
+
+                            .tip {
+                                margin-right: 18px;
+                                color: #1A1A1A;
+                            }
+
+                            .rest-time {
+                                color: #FF981A;
+                            }
+                        }
+
+                        .desc {
+                            width: 266px;
+                            margin: 0 auto;
+                            text-align: center;
+                            line-height: 20px;
+                            font-size: 14px;
+                            color: #999;
+                        }
+
+                        .pics {
+                            display: flex;
+                            justify-content: space-between;
+                            width: 100%;
+
+                            .left-pic, .right-pic {
+                                text-align: center;
+                                font-size: 0;
+                                
+                                .txt {
+                                    width: 130px;
+                                    text-align: center;
+                                    margin-top: 30px;
+                                    font-size: 14px;
+                                    color: #222;
+                                }
+
+                                img {
+                                    display: block;
+                                    width: 130px;
+                                    height: 130px;
+                                    margin-top: 5px;
+                                    font-size: 0;
+                                }
+
+                                .pic-bottom {
+                                    margin-top: 20px;
+                                    text-align: left;
+                                    line-height: 28px;
+                                    font-size: 14px;
+                                    color: #666;
+
+                                    .cash {
+                                        color: #FF981A;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        }
 </style>
 
 

@@ -59,7 +59,7 @@
 </template>
 <script>
 import vUploadpic from './uploadpic'
-import vTipDialog from './tipDialog'
+import vTipDialog from './tipdialog'
 export default {
     data() {
         return {

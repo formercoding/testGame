@@ -10,7 +10,8 @@
       <!-- <scrollbar></scrollbar> -->
       <!-- <swiper></swiper> -->
       <!-- <hammer></hammer> -->
-      <v-setgame></v-setgame>
+      <router-view></router-view>
+      <!-- <v-setgame></v-setgame> -->
     </div>
   </div>
 </template>

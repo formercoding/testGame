@@ -16,7 +16,7 @@
                 <!-- 问题描述 -->
                 <el-form-item class="title" prop="question.name"
                     :rules="{
-                        required: true, message: '请输入选项描述', trigger: 'change'
+                        required: true, message: '请输入选项描述', trigger: 'blur'
                     }">
                     <el-input type="textarea" 
                               :maxlength="38"
@@ -49,7 +49,7 @@
                     :key="indexs"
                     :prop="'options.' + indexs + '.name'"
                     :rules="{
-                        required: true, message: '请输入选项描述', trigger: 'change'
+                        required: true, message: '请输入选项描述', trigger: 'blur'
                     }">
                     <!-- 选项描述 -->
                     <span class="key">A.</span>
@@ -88,7 +88,7 @@
 <script>
 import vUploadpic from './uploadpic'
 import vDialog from './dialog'
-import vTipDialog from './tipDialog'
+import vTipDialog from './tipdialog'
 export default {
     data() {
         return {

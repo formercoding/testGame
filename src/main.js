@@ -19,6 +19,9 @@ Vue.use(Dialog)
 Vue.use(RadioGroup)
 Vue.use(Button)
 
+Vue.use(router)
+
+
 
 
 
