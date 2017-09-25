@@ -25,7 +25,25 @@
                     <span class="share" @click="share(list.shareUrl)">分享</span>
                 </span>
             </div>
+            <el-dialog
+                title="分享链接"
+                :visible.sync="isOpen"
+                :modal-append-to-body="false"
+                :before-close="close"
+                class="share-dialog"
+                size="tiny">
+                    <div class="contents">
+                        <div class="title">
+                            <span class="tip">试用倒计时</span>
+                        </div>
+                        <div class="content">
+
+                        </div>
+                     
+                    </div>
+            </el-dialog>
         </div>
+        
     </div>
 </template>
 <script>
