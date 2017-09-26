@@ -301,6 +301,13 @@ export default {
         // 计算游戏结果状态
         gameResults() {
             return this.$store.state.gameResults;
+        },
+        
+        // 滚动区域的高度
+        scrollH() {
+            let scrollH = 0;
+            this.curTab === 3 ? scrollH = 810 : scrollH = 700;
+            return scrollH + 'px';
         }
     },
 
