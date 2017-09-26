@@ -31,7 +31,6 @@ export default {
   },
   methods: {
     sound() {
-      console.log(this.$refs.btn.paused)
       if(!this.$refs.btn.paused) {
         this.$refs.btn.pause();
       } else {

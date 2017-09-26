@@ -76,7 +76,7 @@
                 <v-dialog 
                     @confirm="setTarget"
                     :isOpen.sync="goDialog"
-                    :targetType.sync="targetType" 
+                    :targetType.sync="targetType"
                     :targetIndex.sync="targetIndex">
                 </v-dialog>
                 <!-- 提示弹出框 -->
@@ -96,6 +96,8 @@ export default {
             tipDialog: false, // 提示弹窗状态
             delIndex: 0, // 点击的删除索引
             goIndex: 0, // 跳转问题所在索引
+            targetType: -1, // 跳转类型
+            targetIndex: -1, // 跳转索引
             goIndexs: 0, // 跳转选项所在索引
             tipTxt: '确认删除?' // 提示文字
         }
@@ -105,31 +107,6 @@ export default {
         // 计算状态的问题设置
         gameQuestions() {
             return this.$store.state.gameQuestions;
-        },
-
-        // 跳转选项跳转类型
-        targetType: {
-            set(val) {
-                let _this= this;
-                return _this.gameQuestions[_this.goIndex].options[_this.goIndexs].target.type = val;    
-            },
-            get() {
-                let _this = this;
-                return _this.gameQuestions[_this.goIndex].options[_this.goIndexs].target.type;    
-            }
-        },
-
-        // 跳转选项跳转选项
-        targetIndex: {
-            set(val) {
-                let _this = this;
-                _this.gameQuestions[_this.goIndex].options[_this.goIndexs].target.issueOrResultId = val;
-                return val;
-            },
-            get() {
-                let _this = this;
-                return _this.gameQuestions[_this.goIndex].options[_this.goIndexs].target.issueOrResultId;
-            }
         }
     },
 
@@ -183,15 +160,16 @@ export default {
          * @param {Number} type 跳转类型
          * @param {Number} index 跳转目标序号
          */
-        setTarget(type, index) {
+        setTarget() {
             let _this = this,
                 curQuestion = _this.gameQuestions[_this.goIndex],
                 curOption = curQuestion.options[_this.goIndexs],
                 target = curOption.target;
 
             // 跳转目标修改
-            target.type = type;
-            target.issueOrResultId = index;
+            console.log('settt',  _this.targetIndex, _this.targetType)
+            target.type = _this.targetType;
+            target.issueOrResultId = _this.targetIndex;
 
             // 同步gameQuestions数据至vuex
             _this.syncData();
@@ -203,11 +181,12 @@ export default {
          * @param {Number} index 跳转索引
          */
         targetTxt(type, index) {
+            console.log(type, index, 'top');
             if(type === -1 || index === -1) { 
                 return '选择';
             } else {
                 index = index < 9 ? '0' + (index + 1) : (index + 1);
-
+                console.log(index, 'ddddd');
                 if(type === 0) {
                     return '问题' + index;
                 } else {
@@ -217,7 +196,7 @@ export default {
         },
 
         /**
-         * 跳转文字
+         * 跳转文字样式
          * @param {Number} type 跳转类型
          * @param {Number} index 跳转索引
          */
@@ -235,10 +214,14 @@ export default {
          * @param {Number} indexs 选项索引
          */
         targetChose(index, indexs) {
-            let _this = this;
+            let _this = this,
+                target =  _this.gameQuestions[index].options[indexs].target;
 
             _this.goIndex = index;
             _this.goIndexs = indexs;
+
+            _this.targetType = target.type;
+            _this.targetIndex = target.issueOrResultId;
 
             // 弹出框
             _this.goDialog = true;

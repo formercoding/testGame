@@ -74,7 +74,7 @@ export default {
             },
             tipDialog: false, // 提示弹窗状态
             delIndex: 0, // 点击的删除索引
-            tipTxt: , // 提示弹窗文字
+            tipTxt: '是否删除？', // 提示弹窗文字
             picIndex: 0 // 当前选择图片索引
         }
     },
@@ -116,7 +116,7 @@ export default {
                 gameQuestions = _this.gameQuestions;
 
             _this.delIndex = index;
-            _this.tipType = 0;
+            _this.tipTxt = '确认删除？';
 
             // 验证关联性
             gameQuestions.forEach((question) => {
@@ -127,7 +127,7 @@ export default {
                     if(target.type === 1 && target.issueOrResultId === index) {
                         
                         // 切换弹窗类型
-                        _this.tipType = 1;
+                        _this.tipTxt = '该问题已被关联，是否确认删除？';
                     }
                 })
             });

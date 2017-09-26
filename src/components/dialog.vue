@@ -13,7 +13,7 @@
                 <div class="scroll-wrap">
                     <div class="scroll" v-bar>
                         <ul class="asks">
-                            <li v-for="(item, index) in 20" 
+                            <li v-for="(item, index) in gameQuestions" 
                                 :key="index" 
                                 :class="{active: targetIndex === index && targetType === 0}"
                                 @click="setOptionTarget(0, index)"
@@ -122,13 +122,13 @@ export default {
         //  确认事件
         confirm() {
             this.$emit('update:isOpen', false);
-            this.$emit('confirm', this.targetType, this.targetIndex);
+            this.$emit('confirm');
         },
 
         // 关闭弹窗
         close() {
             this.$emit('update:isOpen', false);
-            this.$emit('confirm', this.targetType, this.targetIndex);
+            this.$emit('confirm');
         }
     }
 };

@@ -35,7 +35,6 @@ export default {
         txt: {
             type: String,
             default: '确认操作？'
-
         }
     },
 
