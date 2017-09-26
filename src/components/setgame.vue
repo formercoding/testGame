@@ -25,7 +25,8 @@
                     </ul>
                     <!-- 设置内容组件 -->
                     <div v-bar id="scrollEle"
-                            class="scrollbar" 
+                            class="scrollbar"
+                            :style="{maxHeight: scrollH}"
                             ref="scrollbar">
                         <div class="sets">
                             <v-gamebase v-show="curTab === 1" 
