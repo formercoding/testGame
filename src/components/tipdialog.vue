@@ -1,6 +1,6 @@
 <template>
     <el-dialog
-    title="提示"
+    :title="title"
     :visible.sync="isOpen"
     :modal-append-to-body="false"
     :before-close="close"
@@ -27,31 +27,24 @@ export default {
         single: {
             type: Boolean,
             default: false
+        },
+        title: {
+            type: String,
+            default: '操作提示'
+        },
+        txt: {
+            type: String,
+            default: '确认操作？'
+
         }
     },
 
     data() {
       return {
-        txts: [
-          '是否删除？',
-          '问题关联，是否删除？',
-          '是否恢复默认设置？',
-          '游戏关键词设置错误',
-          '游戏名称填写错误',
-          '游戏描述填写错误',
-          '游戏问题填写错误',
-          '游戏结果设置有误'
-        ]
-      };
+      }
     },
 
     computed: {
-      /**
-       * 弹窗文案
-       */
-      txt() {
-        return this.txts[this.type];
-      }
     },
     mounted() {
     },

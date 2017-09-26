@@ -1,126 +1,138 @@
 <template>
-    <div class="box">
-        <div class="content">
-            <!-- 手机预览组件 -->
-            <div class="phone-wrap">
-                <v-phone></v-phone>
-            </div>
-            <!-- 游戏设置模块 -->
-            <div class="set-wrap">
-                <ul class="tabs">
-                    <li class="tab" 
-                        :class="{active: curTab === 1}"
-                        @click="switchTab(1)">基础设置</li>
-                    <li class="tab" 
-                        :class="{active: curTab === 2}" 
-                        @click="switchTab(2)">测试结果设置</li>
-                    <li class="tab" 
-                        :class="{active: curTab === 3}" 
-                        @click="switchTab(3)">问题设置</li>
-                </ul>
-                <!-- 设置内容组件 -->
-                <div v-bar id="scrollEle"
-                         class="scrollbar" 
-                         :style="{height: scrollH}"
-                         ref="scrollbar">
-                    <div class="sets">
-                        <v-gamebase v-show="curTab === 1" 
-                                    :validateKey.sync="validateKey"></v-gamebase>
-                        <v-gameresult v-show="curTab === 2"></v-gameresult>
-                        <v-gameask v-show="curTab === 3"></v-gameask>
-                    </div>
+    <div class="setgame">
+        <div class="top">
+            <span class="level-1">新建运营套餐 &gt; </span>
+            <span class="level-2">新建问答</span>
+        </div>
+        <div class="box">
+            <div class="content">
+                <!-- 手机预览组件 -->
+                <div class="phone-wrap">
+                    <v-phone></v-phone>
                 </div>
-            </div>
-        </div>
-        <!-- 按钮切换tab模块 -->
-        <div class="btns">
-            <div class="left" v-show="curTab === 1">
-                <button class="btn" 
-                        type="button" 
-                        @click="submit()">提交</button>
-                <button class="btn" 
-                        type="button" 
-                        @click="switchTab(2)">下一步</button>
-            </div>
-            <div class="left" v-show="curTab === 2">
-                <button class="btn" 
-                        type="button" 
-                        @click="switchTab(1)">上一步</button>
-                <button class="btn" 
-                        type="button" 
-                        @click="switchTab(3)">下一步</button>
-            </div>
-            <div class="left" v-show="curTab === 3">
-                <button class="btn" 
-                        type="button" 
-                        @click="switchTab(2)">上一步</button>
-                <button class="btn" 
-                        type="button" 
-                        @click="submit()">提交</button>
-            </div>
-            <div class="right">
-                <button class="btn" 
-                        type="button" 
-                        @click="confirmDefault">恢复默认设置</button>
-            </div>
-        </div>
-        <!-- 提示弹出框 恢复默认设置 -->
-        <v-tipDialog 
-            :isOpen.sync="tipSetDialog" 
-            @confirm="setDefault" 
-            :type="tipSetType">
-        </v-tipDialog>
-        <!-- 提示弹出框 表单未通过校验 -->
-        <v-tipDialog 
-            :isOpen.sync="tipValidateDialog" 
-            :single="true"
-            :type="tipValidateType">
-        </v-tipDialog>
-        <el-dialog
-            title="分享链接"
-            :visible.sync="isBeforePurchase"
-            :modal-append-to-body="false"
-            :before-close="closePurchaseDialog"
-            class="before-purchase"
-            size="tiny">
-                <div class="contents">
-                    <div class="title">
-                        <span class="tip">试用倒计时</span>
-                        <span class="rest-time">{{restTime}}</span>
-                    </div>
-                    <div class="desc">
-                        本链接为临时预览链接，一段时间后失效。如需
-                        正式使用请购买本套餐。
-                    </div>
-                    <div class="pics">
-                        <div class="left-pic">
-                            <div class="txt">套餐购买</div>
-                            <img src="">
-                            <div class="pic-bottom">
-                                <div class="spans">
-                                    <span>套餐价格：</span>
-                                    <span class="cash">￥300</span>
-                                </div>
-                                <div class="spans">
-                                    <span>使用期限：</span>
-                                    <span>一个月</span>
-                                </div>
-                                <div class="spans">
-                                    <span>套餐名称：</span>
-                                    <span>西游记问答测试</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="right-pic">
-                            <div class="txt">发布预览</div>
-                            <img src="">
-                            <div class="pic-bottom">
-                                微信扫码预览设置效果
-                            </div>
+                <!-- 游戏设置模块 -->
+                <div class="set-wrap">
+                    <ul class="tabs">
+                        <li class="tab" 
+                            :class="{active: curTab === 1}"
+                            @click="switchTab(1)">基础设置</li>
+                        <li class="tab" 
+                            :class="{active: curTab === 2}" 
+                            @click="switchTab(2)">测试结果设置</li>
+                        <li class="tab" 
+                            :class="{active: curTab === 3}" 
+                            @click="switchTab(3)">问题设置</li>
+                    </ul>
+                    <!-- 设置内容组件 -->
+                    <div v-bar id="scrollEle"
+                            class="scrollbar" 
+                            ref="scrollbar">
+                        <div class="sets">
+                            <v-gamebase v-show="curTab === 1" 
+                                        :validateKey.sync="validateKey"></v-gamebase>
+                            <v-gameresult v-show="curTab === 2"></v-gameresult>
+                            <v-gameask v-show="curTab === 3"></v-gameask>
                         </div>
                     </div>
                 </div>
-        </el-dialog>
+            </div>
+            <!-- 按钮切换tab模块 -->
+            <div class="btns">
+                <div class="left" v-show="curTab === 1">
+                    <button class="btn" 
+                            type="button" 
+                            @click="submit">提交</button>
+                    <button class="btn" 
+                            type="button" 
+                            @click="switchTab(2)">下一步</button>
+                </div>
+                <div class="left" v-show="curTab === 2">
+                    <button class="btn" 
+                            type="button" 
+                            @click="switchTab(1)">上一步</button>
+                    <button class="btn" 
+                            type="button" 
+                            @click="switchTab(3)">下一步</button>
+                </div>
+                <div class="left" v-show="curTab === 3">
+                    <button class="btn" 
+                            type="button" 
+                            @click="switchTab(2)">上一步</button>
+                    <button class="btn" 
+                            type="button" 
+                            @click="submit">提交</button>
+                </div>
+                <div class="right">
+                    <button class="btn" 
+                            type="button" 
+                            @click="confirmDefault">恢复默认设置</button>
+                </div>
+            </div>
+            <!-- 提示弹出框 恢复默认设置 -->
+            <v-tipDialog 
+                :isOpen.sync="isSetOpen" 
+                @confirm="setDefault"
+                title="恢复默认" 
+                :txt="tipSetTxt">
+            </v-tipDialog>
+            <!-- 提示弹出框 表单未通过校验 -->
+            <v-tipDialog 
+                :isOpen.sync="isValidateOpen" 
+                :single="true"
+                title="提示"
+                :txt="tipValidateTxt">
+            </v-tipDialog>
+            <el-dialog
+                title="分享链接"
+                :visible.sync="isPurchaseOpen"
+                :modal-append-to-body="false"
+                :before-close="closePurchaseDialog"
+                class="before-purchase"
+                size="tiny">
+                    <div class="contents">
+                        <div class="title">
+                            <span class="tip">你离刷爆朋友圈就差最后一步</span>
+                        </div>
+                        <div class="pics">
+                            <div class="left-pic">
+                                <div class="txt">套餐购买</div>
+                                <div class="qrcode">
+                                    <v-qrcode :value="purchaseUrl" size="130"></v-qrcode>
+                                </div>
+                                <div class="pic-bottom">
+                                    <div class="spans">
+                                        <span>套餐价格：</span>
+                                        <span class="cash">￥300</span>
+                                    </div>
+                                    <div class="spans">
+                                        <span>使用期限：</span>
+                                        <span>一个月</span>
+                                    </div>
+                                    <div class="spans">
+                                        <span>套餐名称：</span>
+                                        <span>西游记问答测试</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="right-pic">
+                                <div class="txt">发布预览</div>
+                                <div class="qrcode">
+                                    <v-qrcode :value="previewUrl" size="130"></v-qrcode>
+                                </div>
+                                <div class="pic-bottom">
+                                    <div class="spans">
+                                        <span>试用倒计时：</span>
+                                        <span class="rest-time">{{restTime}}</span>
+                                    </div>
+                                    <div class="time-tip">
+                                        本链接预览在30分钟后失效
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </el-dialog>
+        </div>
     </div>
 </template>
 <script>
@@ -130,17 +142,20 @@ import vGameask from './gameask'
 import vGameresult from './gameresult'
 import vPhone from './phone'
 import vTipDialog from './tipdialog'
+import vQrcode from 'qrcode.vue'
 export default {
     data() {
         return {
             curTab: 1, // 当前tab 1基础设置 2测试结果设置 3问题设置
-            validateKey: true, // 验证是否通过
-            tipValidateType: 0, // 表单验证提示文字类型
-            tipSetType: 2,  // 恢复默认设置提示文字类型
-            tipSetDialog: false, // 恢复默认设置弹出是否显示
-            tipValidateDialog: false, // 表单验证弹窗是否显示
-            isBeforePurchase: false, // 预览的链接弹窗
-            restTime: '23:05:36' // 试用剩余时间
+            validateKey: true, // 关键词验证是否通过
+            tipValidateTxt: '游戏设置有误，请重新设置', // 表单验证提示文字类型
+            tipSetTxt: '确认恢复全部默认设置吗?',  // 恢复默认设置提示文字类型
+            isSetOpen: false, // 恢复默认设置弹出是否显示
+            isValidateOpen: false, // 表单验证弹窗是否显示
+            isPurchaseOpen: false, // 预览的链接弹窗
+            restTime: '23:05:36', // 试用剩余时间
+            purchaseUrl: 'www.idouzzi.com', // 购买链接
+            previewUrl: 'www.idouzi.com' // 预览链接
         }
     },
 
@@ -285,13 +300,6 @@ export default {
         // 计算游戏结果状态
         gameResults() {
             return this.$store.state.gameResults;
-        },
-
-        // 滚动区域的高度
-        scrollH() {
-            let scrollH = 0;
-            this.curTab === 3 ? scrollH = 810 : scrollH = 700;
-            return scrollH + 'px';
         }
     },
 
@@ -335,13 +343,14 @@ export default {
 
             // 其次对游戏逻辑进行校验
             if(!_this.normalValidate()) {
-                // _this.tipValidateDialog = true;
-                // return false;
+                _this.isValidateOpen = true;
+                return false;
             }
 
             // 是否为试用用户判断
-            if(1) {
-                _this.isBeforePurchase = true;
+            if(true) {
+                _this.isPurchaseOpen = true;
+                return true;
             }
             
             _this.$http('url', {});
@@ -349,15 +358,15 @@ export default {
         },
 
         // 弹出确认恢复默认设置弹出
-        confirmDefault() {
+        confirmDefault() { 
             let _this = this;
 
-            _this.tipSetDialog = true;
+            _this.isSetOpen = true;
         },
 
         // 关闭试用弹窗
         closePurchaseDialog() {
-            this.isBeforePurchase = false;
+            this.isPurchaseOpen = false;
         },
 
         // 恢复默认值
@@ -385,7 +394,7 @@ export default {
             
             // 校验关键词
             if(!_this.validateKey) {
-                _this.tipValidateType = 3;
+                _this.tipValidateTxt = '游戏关键词设置错误';
                 return false;
             }
 
@@ -394,19 +403,19 @@ export default {
                 switch (key) {
                     case 'name': {
                         if(gameBase[key].lenth > 12 || gameBase[key].trim() === '') {
-                            _this.tipValidateType = 4;
+                            _this.tipValidateTxt = '游戏名称填写错误';
                             return false;
                         }
                     }
                     case 'keyword': {
                         if(gameBase[key].lenth > 20 || gameBase[key].trim() === '') {
-                            _this.tipValidateType = 3;
+                            _this.tipValidateTxt = '游戏关键词设置错误';
                             return false;
                         }
                     }
                     case 'description': {
                         if(gameBase[key].lenth > 500 || gameBase[key].trim() === '') {
-                            _this.tipValidateType = 5;
+                            _this.tipValidateTxt = '游戏描述填写错误';
                             return false;
                         }
                     }
@@ -447,7 +456,7 @@ export default {
 
                 // 跳出循环
                 if(!validate) {
-                    _this.tipValidateType = 6;
+                    _this.tipValidateTxt = '游戏问题填写错误';
                     return false;
                 }
             })
@@ -482,7 +491,7 @@ export default {
 
                 // 跳出循环
                 if(!validate) {
-                     _this.tipValidateType = 7;
+                     _this.tipValidateTxt = '游戏结果设置有误';
                     return false;
                 }
             });
@@ -544,7 +553,8 @@ export default {
         vGameask,
         vGamebase,
         vGameresult,
-        vTipDialog
+        vTipDialog,
+        vQrcode
     }
 }
 </script>
@@ -561,195 +571,197 @@ export default {
         outline: none;
     }
 
-    /* 包裹外盒 */
-    .box {
+    .setgame {
         width: 1000px;
-        margin: 20px auto;
-        padding: 39px 16px;
-        border-radius: 5px;
-        background: #fff;
-        box-shadow: 0 1px 5px 0 rgba(0, 0, 0, .1);
+        margin: 0 auto;
 
-        .content {
-            display: flex;
-            padding: 50px 0 0 0;
-            border-top: 1px solid #D8D8D8;
-            border-bottom: 1px solid #D8D8D8;
-            font-size: 0;
-
-            /* 手机预览 */
-            .phone-wrap {
-                width: 360px;
-                padding-left: 41px;
-                background: pink;
-                height: 676px;
-            }
-
-            /* 问题设置 */
-            .set-wrap {
-                width: 608px;
-                padding: 0 49px 0 67px;
-                overflow: hidden;
-
-                /* tab */
-                .tabs {
-                    height: 36px;
-                    border-bottom: 1px solid #d8d8d8;
-
-                    .tab {
-                        display: inline-block;
-                        width: 164px;
-                        text-align: center;
-                        font-size: 14px;
-                        color: #999;
-                        line-height: 34px;
-                        cursor: default;
-
-                        &.active {
-                            color: #ff981a;
-                            border-bottom: 2px solid #ff9819;
-                        }
-                    }
-                }
-
-                /* 滚动样式 */
-                .scrollbar {
-                    margin: 8px 0;
-                }
-
-                /* 设置外盒 */
-                .sets {
-                    text-align: left;
-                }
+        .top {
+            text-align:left;
+            font-size: 16px;
+            color: #666;
+            cursor: default;
+            
+            .level-2 {
+                color: #FF981A;
             }
         }
 
-        /* 按钮样式 */
-        .btns {
-            display: flex;
-            justify-content: flex-end;
-            font-size: 14px;
-            line-height: 40px;
+        /* 包裹外盒 */
+        .box {
+            margin-top: 16px;
+            padding: 39px 16px;
+            border-radius: 5px;
+            background: #fff;
+            box-shadow: 0 1px 5px 0 rgba(0, 0, 0, .1);
 
-            .btn {
-                .btn-base;
-                width: 120px;
-                height: 40px;
-                margin-top: 20px;
-            }
-
-            .left {
-                width: 265px;
-                margin-right: 120px;
+            .content {
+                display: flex;
+                padding: 50px 0 0 0;
+                border-top: 1px solid #D8D8D8;
+                border-bottom: 1px solid #D8D8D8;
                 font-size: 0;
 
-                .btn {
-                    font-size: 14px;
+                /* 手机预览 */
+                .phone-wrap {
+                    width: 360px;
+                    padding-left: 41px;
+                    background: pink;
+                    height: 676px;
+                }
 
-                    &:first-child {
-                        margin-right: 20px;
+                /* 问题设置 */
+                .set-wrap {
+                    width: 608px;
+                    padding: 0 49px 0 67px;
+                    overflow: hidden;
+
+                    /* tab */
+                    .tabs {
+                        height: 36px;
+                        border-bottom: 1px solid #d8d8d8;
+
+                        .tab {
+                            display: inline-block;
+                            width: 164px;
+                            text-align: center;
+                            font-size: 14px;
+                            color: #999;
+                            line-height: 34px;
+                            cursor: default;
+
+                            &.active {
+                                color: #ff981a;
+                                border-bottom: 2px solid #ff9819;
+                            }
+                        }
+                    }
+
+                    /* 滚动样式 */
+                    .scrollbar {
+                        margin: 8px 0;
+                    }
+
+                    /* 设置外盒 */
+                    .sets {
+                        text-align: left;
                     }
                 }
             }
 
-            .right {
-                width: 200px;
+            /* 按钮样式 */
+            .btns {
+                display: flex;
+                justify-content: flex-end;
+                font-size: 14px;
+                line-height: 40px;
 
                 .btn {
-                    height: 38px;
-                    margin: 21px 0 0 0;
-                    color: #FFC44E;
-                    border: 1px solid #FFC44E;
-                    background: #fff;
+                    .btn-base;
+                    width: 120px;
+                    height: 40px;
+                    margin-top: 20px;
                 }
+
+                .left {
+                    width: 265px;
+                    margin-right: 120px;
+                    font-size: 0;
+
+                    .btn {
+                        font-size: 14px;
+
+                        &:first-child {
+                            margin-right: 20px;
+                        }
+                    }
+                }
+
+                .right {
+                    width: 200px;
+
+                    .btn {
+                        height: 38px;
+                        margin: 21px 0 0 0;
+                        color: #FFC44E;
+                        border: 1px solid #FFC44E;
+                        background: #fff;
+                    }
+                }
+                
+
             }
-            
 
-        }
-
-        /* 试用提示框 */
-        .before-purchase {
-            .el-dialog {
-                width: 600px;
-                font-size: 14px;
-                line-height: 20px;
-
-                .el-dialog__header {
+            /* 试用提示框 */
+            .before-purchase {
+                .el-dialog {
                     width: 600px;
-                    padding: 10px 20px;
-                    background: #F8F8F8;
-                    border-radius: 5px 5px 0 0;
-                    box-shadow: inset 0 -1px 0 0 #E6E6E6;
-                }
+                    font-size: 14px;
+                    line-height: 20px;
 
-                .el-dialog__body {
-                    padding: 28px 90px 57px 90px;
-                    text-align: left;
-                    color: #1A1A1A;
+                    .el-dialog__header {
+                        width: 600px;
+                        padding: 10px 20px;
+                        background: #F8F8F8;
+                        border-radius: 5px 5px 0 0;
+                        box-shadow: inset 0 -1px 0 0 #E6E6E6;
+                    }
 
-                    .contents {
-                        display: flex;
-                        flex-flow: column;
+                    .el-dialog__body {
+                        padding: 28px 90px 57px 90px;
+                        text-align: left;
+                        color: #1A1A1A;
 
-                        .title {
+                        .contents {
                             display: flex;
-                            justify-content: center;
-                            font-size: 28px;
-                            line-height: 40px;
+                            flex-flow: column;
 
-                            .tip {
-                                margin-right: 18px;
-                                color: #1A1A1A;
+                            .title {
+                                display: flex;
+                                justify-content: center;
+                                font-size: 28px;
+                                line-height: 40px;
+
+                                .tip {
+                                    color: #1A1A1A;
+                                }
                             }
 
-                            .rest-time {
-                                color: #FF981A;
-                            }
-                        }
+                            .pics {
+                                display: flex;
+                                justify-content: space-between;
+                                width: 100%;
 
-                        .desc {
-                            width: 266px;
-                            margin: 0 auto;
-                            text-align: center;
-                            line-height: 20px;
-                            font-size: 14px;
-                            color: #999;
-                        }
-
-                        .pics {
-                            display: flex;
-                            justify-content: space-between;
-                            width: 100%;
-
-                            .left-pic, .right-pic {
-                                text-align: center;
-                                font-size: 0;
-                                
-                                .txt {
-                                    width: 130px;
+                                .left-pic, .right-pic {
                                     text-align: center;
-                                    margin-top: 30px;
-                                    font-size: 14px;
-                                    color: #222;
-                                }
-
-                                img {
-                                    display: block;
-                                    width: 130px;
-                                    height: 130px;
-                                    margin-top: 5px;
                                     font-size: 0;
-                                }
+                                    
+                                    .txt {
+                                        width: 130px;
+                                        text-align: center;
+                                        margin-top: 30px;
+                                        font-size: 14px;
+                                        color: #222;
+                                    }
 
-                                .pic-bottom {
-                                    margin-top: 20px;
-                                    text-align: left;
-                                    line-height: 28px;
-                                    font-size: 14px;
-                                    color: #666;
+                                    .qrcode {
+                                        margin-top: 10px;
+                                        text-align: left;
+                                    }
 
-                                    .cash {
-                                        color: #FF981A;
+                                    .pic-bottom {
+                                        margin-top: 10px;
+                                        text-align: left;
+                                        line-height: 28px;
+                                        font-size: 14px;
+                                        color: #666;
+
+                                        .rest-time, .cash {
+                                            color: #FF981A;
+                                        }
+
+                                        .time-tip {
+                                            margin-left: -20px;
+                                        }
                                     }
                                 }
                             }
@@ -758,8 +770,7 @@ export default {
                 }
             }
         }
-
-        }
+    }
 </style>
 
 

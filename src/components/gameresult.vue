@@ -53,7 +53,7 @@
             </div>
         </el-form>
         <!-- 提示弹出框 -->
-        <v-tipDialog :isOpen.sync="tipDialog" @confirm="sub" :type="tipType"></v-tipdialog>
+        <v-tipDialog :isOpen.sync="tipDialog" @confirm="sub" :txt="tipTxt" title="操作提示"></v-tipdialog>
 
     </div>
 </template>
@@ -74,7 +74,7 @@ export default {
             },
             tipDialog: false, // 提示弹窗状态
             delIndex: 0, // 点击的删除索引
-            tipType: 0, // 提示类型
+            tipTxt: , // 提示弹窗文字
             picIndex: 0 // 当前选择图片索引
         }
     },

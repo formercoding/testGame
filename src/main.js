@@ -10,7 +10,7 @@ import  './assets/less/common.less'
 import Vuebar from 'vuebar';
 Vue.use(Vuebar);
 
-import { Form, FormItem, Input, Radio, Dialog, Button, RadioGroup} from 'element-ui'
+import { Form, FormItem, Input, Radio, Dialog, Button, RadioGroup, Pagination, Loading} from 'element-ui'
 Vue.use(Form)
 Vue.use(FormItem)
 Vue.use(Input)
@@ -18,6 +18,8 @@ Vue.use(Radio)
 Vue.use(Dialog)
 Vue.use(RadioGroup)
 Vue.use(Button)
+Vue.use(Pagination)
+Vue.use(Loading)
 
 Vue.use(router)
 

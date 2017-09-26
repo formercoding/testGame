@@ -80,7 +80,7 @@
                     :targetIndex.sync="targetIndex">
                 </v-dialog>
                 <!-- 提示弹出框 -->
-                <v-tipDialog :isOpen.sync="tipDialog" @confirm="sub" :type="tipType"></v-tipdialog>
+                <v-tipDialog :isOpen.sync="tipDialog" @confirm="sub" :txt="tipTxt" title="操作提示"></v-tipdialog>
             </div>    
         </el-form>
     </div>
@@ -97,7 +97,7 @@ export default {
             delIndex: 0, // 点击的删除索引
             goIndex: 0, // 跳转问题所在索引
             goIndexs: 0, // 跳转选项所在索引
-            tipType: 0 // 提示类型
+            tipTxt: '确认删除?' // 提示文字
         }
     },
 
@@ -117,7 +117,6 @@ export default {
                 let _this = this;
                 return _this.gameQuestions[_this.goIndex].options[_this.goIndexs].target.type;    
             }
-            
         },
 
         // 跳转选项跳转选项
@@ -160,7 +159,7 @@ export default {
                 gameQuestions = _this.gameQuestions;
 
             _this.delIndex = index;
-            _this.tipType = 0;
+            _this.tipTxt = '确认删除？';
 
             // 验证关联性
             gameQuestions.forEach((question) => {
@@ -170,7 +169,7 @@ export default {
                     // 验证是否关联
                     if(target.type === 0 && target.issueOrResultId === index) {
                         // 切换弹窗类型
-                        _this.tipType = 1;
+                        _this.tipTxt = '该问题已被关联，确认删除？';
                     }
                 })
             });

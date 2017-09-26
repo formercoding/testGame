@@ -13,7 +13,7 @@
                 <div class="scroll-wrap">
                     <div class="scroll" v-bar>
                         <ul class="asks">
-                            <li v-for="(item, index) in gameQuestions" 
+                            <li v-for="(item, index) in 20" 
                                 :key="index" 
                                 :class="{active: targetIndex === index && targetType === 0}"
                                 @click="setOptionTarget(0, index)"
@@ -21,6 +21,7 @@
                                 <span class="check-box">
                                     <span class="check"></span>
                                 </span>
+                                <span>
                                     {{'问题' + calculateIndex(index)}}
                                 </span>
                             </li>
@@ -173,12 +174,13 @@ export default {
             /* 内容区域 */
             .content {
                 padding: 0 40px;
+                border-bottom: none;
 
                 /* 滚动区域 */
                 .scroll-wrap {
                     display: inline-block;
                     border: 1px solid #CCCCCC;
-                    padding: 10px;
+                    padding: 10px 0px 10px 10px;
                     background: #FFFFFF;
 
                     .scroll {
@@ -188,7 +190,12 @@ export default {
                             align-items: center;
                             line-height: 26px;
                             color: #212121;
+                            font-size: 14px;
                             cursor: default;
+
+                            &:first-child {
+                                margin-top: -4px;
+                            }
                     
                             /* 勾选样式 */
                             .check-box {
@@ -198,7 +205,6 @@ export default {
                                 margin-right: 6px;
                                 border: 1px solid #ccc;
                                 border-radius: 50%;
-                                
 
                                 .check {
                                     position: absolute;
