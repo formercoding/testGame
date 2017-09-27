@@ -162,7 +162,7 @@ export default {
             // 根据不同的按钮位置来改变不同位置的图片
             if(index === 0) {
                 gameBase.image = url;
-            } else if(type === 1) {
+            } else if(index === 1) {
                 let share = gameBase.share;
                 share.shareConfig.shareImage = url;
             }

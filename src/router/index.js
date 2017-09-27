@@ -18,6 +18,9 @@ export default new Router({
     }, {
       path: '/edit',
       redirect: '/edit/new'
+    }, {
+        path: '/',
+        redirect: '/list'
     }
   ]
 })

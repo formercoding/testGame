@@ -224,6 +224,7 @@ export default {
     .lists {
         width: 1000px;
         margin: 10px auto;
+        margin-top: 10px;
 
         /* 顶部信息 */
         .top {
@@ -259,6 +260,7 @@ export default {
                     padding: 0 10px;
                     border-radius: 3px;
                     background: #FF981A;
+                    box-sizing: content-box;
                     cursor: pointer;
 
                     .icon-new {
@@ -485,6 +487,7 @@ export default {
                                 width: 252px;
                                 overflow: hidden;
                                 text-overflow: ellipsis;
+                                font-size: 12px;
                                 border: none;
                                 outline: none;
                                 background: #fff;
@@ -498,7 +501,9 @@ export default {
                             }
 
                             .copy-btn {
+                                font-size: 12px;
                                 color: #FF981A;
+                                box-sizing: content-box;
                                 cursor: pointer;
                             }
                         }

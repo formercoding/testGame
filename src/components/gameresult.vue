@@ -325,6 +325,7 @@ export default {
                         color: #FF6A4D;
                         line-height: 12px;
                         border: 2px solid #FF6A4D;
+                        box-sizing: content-box;
                         cursor: default;
                     }
 
@@ -336,6 +337,7 @@ export default {
                         color:  #7ED321;
                         line-height: 15px;
                         border: 2px solid  #7ED321;
+                        box-sizing: content-box;
                         cursor: default;
 
                     }

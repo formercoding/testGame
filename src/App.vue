@@ -17,9 +17,9 @@
 </template>
 <script>
 import BUS from './assets/js/bus'
-import scrollbar from './components/scrollbar'
-import swiper from './components/swiper'
-import hammer from './components/hammer'
+// import scrollbar from './components/scrollbar'
+// import swiper from './components/swiper'
+// import hammer from './components/hammer'
 
 import vSetgame from './components/setgame'
 
@@ -39,9 +39,6 @@ export default {
     }
   },
   created() {
-    console.log($(document));
-    console.log('busname', BUS.name);
-    console.log(this.$store.state.count);
     this.$http({
       method: 'post',
       url: '/user',
@@ -57,9 +54,9 @@ export default {
     // }, 50)
   },
   components: {
-    scrollbar,
-    swiper,
-    hammer,
+    // scrollbar,
+    // swiper,
+    // hammer,
     vSetgame
   }
 }
@@ -72,14 +69,9 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
 }
 .run {
   position: relative;
   left: 0;
-}
-.wrap {
-  width: 1200px;
-  margin: 0 auto;
 }
 </style>

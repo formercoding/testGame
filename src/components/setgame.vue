@@ -26,9 +26,8 @@
                     <!-- 设置内容组件 -->
                     <div v-bar id="scrollEle"
                             class="scrollbar"
-                            :style="{maxHeight: scrollH}"
                             ref="scrollbar">
-                        <div class="sets">
+                        <div class="sets" :style="{height: scrollH}">
                             <v-gamebase v-show="curTab === 1" 
                                         :validateKey.sync="validateKey"></v-gamebase>
                             <v-gameresult v-show="curTab === 2"></v-gameresult>
@@ -589,7 +588,13 @@ export default {
             color: #666;
             cursor: default;
             
+            .level-1 {
+                font-size: 16px;
+                color: #FF981A;
+            }
+            
             .level-2 {
+                font-size: 16px;
                 color: #FF981A;
             }
         }
@@ -626,6 +631,7 @@ export default {
                     /* tab */
                     .tabs {
                         height: 36px;
+                        font-size: 0;
                         border-bottom: 1px solid #d8d8d8;
 
                         .tab {

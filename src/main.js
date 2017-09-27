@@ -7,8 +7,8 @@ import router from './router'
 import store from './store'
 import axios from 'axios'
 import  './assets/less/common.less'
-import Vuebar from 'vuebar';
-Vue.use(Vuebar);
+import Vuebar from 'vuebar'; 
+import './../static/reset.css';
 
 import { Form, FormItem, Input, Radio, Dialog, Button, RadioGroup, Pagination, Loading} from 'element-ui'
 Vue.use(Form)
@@ -20,11 +20,11 @@ Vue.use(RadioGroup)
 Vue.use(Button)
 Vue.use(Pagination)
 Vue.use(Loading)
-
 Vue.use(router)
 
-
-
+// node_modules/vuebar/vuebar.js
+// 将插件的最后几行中的Vue.use(Vuebar)删除或注释
+Vue.use(Vuebar);
 
 
 

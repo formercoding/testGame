@@ -22,6 +22,7 @@ export default {
 
     data() {
         return {
+            ajaxUrl: 'http://medialibs-dev.idouzi.com/api/upload',
             limit: 1000, // 图片上传限制
             url: 'ss', // 图片上传地址
             txts: ['上传图片', '选择图片'] 
@@ -72,13 +73,20 @@ export default {
 
             formData.append('data', file);
 
-            // 上传图片
-            _this.$http.post(_this.url, formData).then((res) => {
-                _this.urlStr = res.url;
-            }, () => {
-                console.log('上传失败');
+            // 获取签名
+             _this.$http.post('http://qa-dev.idouzi.com/supplier/sign-medialibs').then((res) => {
+                console.log('res', res);
+            }, (res) => {
+                console.log('res', res)
                 _this.$emit('upload', _this.flag, 'http://img.redocn.com/sheying/20151230/xiajiahejingguandaifengjingsheyingtupian_5693692.jpg');
             });
+
+            // 上传图片
+            // _this.$http.post(_this.ajaxUrl, formData).then((res) => {
+            //     _this.urlStr = res.url;
+            // }, (res) => {
+            //     _this.$emit('upload', _this.flag, 'http://img.redocn.com/sheying/20151230/xiajiahejingguandaifengjingsheyingtupian_5693692.jpg');
+            // });
         }
     }
 }
