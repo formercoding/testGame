@@ -9,8 +9,9 @@ import axios from 'axios'
 import  './assets/less/common.less'
 import Vuebar from 'vuebar'; 
 import './../static/reset.css';
+import './../static/reset.css';
 
-import { Form, FormItem, Input, Radio, Dialog, Button, RadioGroup, Pagination, Loading} from 'element-ui'
+import { Form, FormItem, Input, Radio, Dialog, Button, RadioGroup, Pagination, Loading, Message} from 'element-ui'
 Vue.use(Form)
 Vue.use(FormItem)
 Vue.use(Input)
@@ -20,6 +21,8 @@ Vue.use(RadioGroup)
 Vue.use(Button)
 Vue.use(Pagination)
 Vue.use(Loading)
+Vue.use(Message)
+
 Vue.use(router)
 
 // node_modules/vuebar/vuebar.js
