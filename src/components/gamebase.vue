@@ -21,7 +21,7 @@
                 <el-input v-model="gameBase.keyword" 
                           :maxlength="20"
                           @blur="syncData"
-                          placeholder="请输入关键词..." 
+                          placeholder="请输入关键词..."
                           class="w-300">
                 </el-input>
                 <span class="input-num">{{gameBase.keyword.length}}/20</span>

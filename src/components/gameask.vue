@@ -167,7 +167,6 @@ export default {
                 target = curOption.target;
 
             // 跳转目标修改
-            console.log('settt',  _this.targetIndex, _this.targetType)
             target.type = _this.targetType;
             target.issueOrResultId = _this.targetIndex;
 
@@ -181,12 +180,10 @@ export default {
          * @param {Number} index 跳转索引
          */
         targetTxt(type, index) {
-            console.log(type, index, 'top');
             if(type === -1 || index === -1) { 
                 return '选择';
             } else {
                 index = index < 9 ? '0' + (index + 1) : (index + 1);
-                console.log(index, 'ddddd');
                 if(type === 0) {
                     return '问题' + index;
                 } else {
@@ -363,7 +360,6 @@ export default {
                     question.options.forEach((option)=> {
                         let target = option.target;
 
-                        console.log('target', target.type, target.issueOrResultId)
                         // 当选项的关联索引 = 删除索引 删除关联性
                         if(target.type === 0 && target.issueOrResultId === _this.delIndex) {
 

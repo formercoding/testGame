@@ -1,15 +1,15 @@
 <template>
     <div class="lists">
         <div class="top">
-            <router-link :to="{ name: 'edit', params: { eventId: 'new' }}" class="go-back">
+            <router-link class="go-back" :to="{ name: 'edit', params: { eventId: 'new' }}">
                 返回
             </router-link>
             <div class="cur">
                 <div class="txt">问答测试游戏功能列表</div>
-                <a class="new-edit">
+                <router-link :to="{ name: 'edit', params: { eventId: 0 }}" class="new-edit">
                     <span class="icon-new"></span>
                     <span class="new-txt">新建游戏</span>
-                </a>
+                </router-link>
             </div>
         </div>
         <div class="content">
@@ -36,7 +36,9 @@
                     <span class="uv">{{list.uv}}</span>
                     <span class="state">{{list.state}}</span>
                     <span class="handle">
-                        <span class="open" @click="changeState(list.shareUrl, index)">开启</span>
+                        <span class="open"
+                              :style="disabledSty(list.state)" 
+                              @click="changeState(list.shareUrl, index)">{{(stateTxt(list.state))}}</span>
                         <span class="edit" @click="edit(list.eventId)">编辑</span>
                         <span class="share" @click="share(list.shareUrl)">分享</span>
                     </span>
@@ -73,6 +75,7 @@
     </div>
 </template>
 <script>
+import Tool from './../assets/js/common.js'
 import vQrcode from 'qrcode.vue'
 import Clipboard from 'clipboard'
 export default {
@@ -83,9 +86,9 @@ export default {
             isOpen: false, // 弹窗开启状态
             ajaxUrl: {
                 changeState: 'www.wqw.qw',
-                list: 'ewwe.adh.com'
+                list: Tool.editUrl('/supplier/event-list')
             },
-            page: 1,
+            page: 0,
             rows: [{ // list	
                 createdTime: '2013-03-22 12:00', // 活动创建时间
                 eventId: 999, // 活动ID
@@ -122,11 +125,70 @@ export default {
     },
 
     created() {
+        let _this = this;
         // 复制链接
         new Clipboard('.copy-btn');
+
+        // 数据请求
+        _this.$http({
+            url: _this.ajaxUrl.list,
+            method: 'post',
+            params: {
+                page: _this.page,
+                rows: 10
+            }
+        }).then((res) => {
+            let data = res.data;
+
+            if(data.return_code === 'SUCCESS') {
+                let msg = data.return_msg;
+
+                _this.rows = msg.lists;
+            }
+        }, (res) => {
+
+        })      
     },
 
     methods: {
+        /**
+         * 判断是否禁用
+         * @param {Number} state 按钮状态 
+         * @param {Object||Undefined} 按钮禁用样式
+         */
+        disabledSty(state) {
+            if(state === '违规') {
+                return {
+                    cursor: 'text'
+                }
+            }
+        },
+
+        /**
+         * 根据不同的状态返回不同的操作按钮文字
+         * @param {String} state 活动状态
+         * @return {String} 开启或关闭
+         */
+        stateTxt(state) {
+            let txt;
+
+            switch(state) {
+                case '开启': {
+                    txt = '关闭';
+                    break;
+                }
+                case '关闭': {
+                    txt = '开启';
+                    break;
+                }
+                case '违规': {
+                    txt = '违规'
+                }
+            }
+
+            return txt;
+        },
+
         /**
          * 更新列表
          * @param {Number} curPage 当前分页
@@ -153,7 +215,7 @@ export default {
 
         /**
          * 进入编辑页面
-         * @param {Number} eventId 活动ID
+         * @param {String} eventId 活动ID
          */
         edit(eventId) {
             this.$router.push({ name: 'edit', params: { eventId: eventId }});
@@ -373,11 +435,11 @@ export default {
                 }
 
                 .participants {
-                    width: 42px;
+                    width: 50px;
                 }
 
                 .share-persons {
-                    width: 42px;
+                    width: 50px;
                 }
 
                 .pv {

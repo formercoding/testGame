@@ -143,6 +143,7 @@ import vGameresult from './gameresult'
 import vPhone from './phone'
 import vTipDialog from './tipdialog'
 import vQrcode from 'qrcode.vue'
+import Idouzi from '@idouzi/idouzi-tools'
 export default {
     data() {
         return {
@@ -160,10 +161,18 @@ export default {
     },
 
     created() {
-        // eventId
-        console.log(this.$route.params.eventId)
+        let _this = this,
+            eventId = _this.$route.params.eventId;
 
-        let _this = this;
+            if(eventId === 'new') {
+
+                let theme = Idouzi.getQueryValue('theme') || 0000;
+                _this.getData('theme', theme);   
+            } else {
+
+                let eventId = _this.$route.params.eventId
+                _this.getData('eventId', eventId);
+            }
 
         // 游戏数据请求
         this.$http({
@@ -174,82 +183,82 @@ export default {
         }).catch(() => {
 
             // 设置游戏基础状态
-            _this.$store.commit('setGameBase', {
-                description: 'wulihang', // 游戏简介做多500个字符
-                image: 'http://bbs.cguse.com/attachments/month_1004/1004241424c162021c314fa9c0.jpg', // 游戏简介图片地址
-                keyword: '共享测试游戏', // 关键字
-                name: '共享测试游戏', // 游戏标题最多12个字符
-                share: { // 分享的设置
-                    shareConfig: { // 分享设置
-                        shareContent: '姜青铜', // 分享描述
-                        shareImage: 'http://bbs.cguse.com/attachments/month_1004/1004241424c162021c314fa9c0.jpg', // 分享图片地址
-                        shareTitle: '玩游戏啦', // 分享标题
-                    },
-                    shareType: 'true' // 是否自定义分享
-                } 
-            });
+            // _this.$store.commit('setGameBase', {
+            //     description: 'wulihang', // 游戏简介做多500个字符
+            //     image: 'http://bbs.cguse.com/attachments/month_1004/1004241424c162021c314fa9c0.jpg', // 游戏简介图片地址
+            //     keyword: '共享测试游戏', // 关键字
+            //     name: '共享测试游戏', // 游戏标题最多12个字符
+            //     share: { // 分享的设置
+            //         shareConfig: { // 分享设置
+            //             shareContent: '姜青铜', // 分享描述
+            //             shareImage: 'http://bbs.cguse.com/attachments/month_1004/1004241424c162021c314fa9c0.jpg', // 分享图片地址
+            //             shareTitle: '玩游戏啦', // 分享标题
+            //         },
+            //         shareType: 'true' // 是否自定义分享
+            //     } 
+            // });
 
-            // 设置游戏规则状态
-            _this.$store.commit('setGameQuestions', [
-                {
-                    _id: 1, // 问题序号
-                    question: { // 问题文字描述
-                        image: 'http://bbs.cguse.com/attachments/month_1004/1004241424c162021c314fa9c0.jpg', // 问题图片地址
-                        name: '你是不是傻', // 问题描述
-                    }, 
-                    options: [ // 问题选项数组
-                        {
-                            name: '是傻', // 答案文字描述
-                            target: {
-                                type: -1,
-                                issueOrResultId: -1
-                            }
-                        }, {
-                            name: '不傻', // 答案文字描述
-                            target: {
-                                type: -1,
-                                issueOrResultId: -1
-                            }
-                        }
-                    ]
-                }, {
-                    _id: 0, // 问题序号
-                    question: { // 问题文字描述
-                        image: 'http://bbs.cguse.com/attachments/month_1004/1004241424c162021c314fa9c0.jpg', // 问题图片地址
-                        name: '你是傻逼嘛', // 问题描述
-                    }, 
-                    options: [ // 问题选项数组
-                        {
-                            name: '傻哦', // 答案文字描述
-                            target: {
-                                type: -1,
-                                issueOrResultId: -1
-                            }
-                        }, {
-                            name: '不傻哦', // 答案文字描述
-                            target: {
-                                type: -1,
-                                issueOrResultId: -1
-                            }
-                        }
-                    ]  
-                }
-            ]);
+            // // 设置游戏规则状态
+            // _this.$store.commit('setGameQuestions', [
+            //     {
+            //         _id: 1, // 问题序号
+            //         question: { // 问题文字描述
+            //             image: 'http://bbs.cguse.com/attachments/month_1004/1004241424c162021c314fa9c0.jpg', // 问题图片地址
+            //             name: '你是不是傻', // 问题描述
+            //         }, 
+            //         options: [ // 问题选项数组
+            //             {
+            //                 name: '是傻', // 答案文字描述
+            //                 target: {
+            //                     type: -1,
+            //                     issueOrResultId: -1
+            //                 }
+            //             }, {
+            //                 name: '不傻', // 答案文字描述
+            //                 target: {
+            //                     type: -1,
+            //                     issueOrResultId: -1
+            //                 }
+            //             }
+            //         ]
+            //     }, {
+            //         _id: 0, // 问题序号
+            //         question: { // 问题文字描述
+            //             image: 'http://bbs.cguse.com/attachments/month_1004/1004241424c162021c314fa9c0.jpg', // 问题图片地址
+            //             name: '你是傻逼嘛', // 问题描述
+            //         }, 
+            //         options: [ // 问题选项数组
+            //             {
+            //                 name: '傻哦', // 答案文字描述
+            //                 target: {
+            //                     type: -1,
+            //                     issueOrResultId: -1
+            //                 }
+            //             }, {
+            //                 name: '不傻哦', // 答案文字描述
+            //                 target: {
+            //                     type: -1,
+            //                     issueOrResultId: -1
+            //                 }
+            //             }
+            //         ]  
+            //     }
+            // ]);
 
-            // 设置游戏结果
-            _this.$store.commit('setGameResults', [
-                {
-                    _id: 0, // 测试结果序号
-                    content: '姜青铜', // 测试结果描述
-                    image: 'http://bbs.cguse.com/attachments/month_1004/1004241424c162021c314fa9c0.jpg', // 测试结果图片地址
-                    name: '你是姜青铜', // 测试结果标题
-                }, {
-                    _id: 0, // 测试结果序号
-                    content: '姜青铜', // 测试结果描述
-                    image: 'http://bbs.cguse.com/attachments/month_1004/1004241424c162021c314fa9c0.jpg', // 测试结果图片地址
-                    name: '你是姜青铜', // 测试结果标题
-                }
-            ]);
+            // // 设置游戏结果
+            // _this.$store.commit('setGameResults', [
+            //     {
+            //         _id: 0, // 测试结果序号
+            //         content: '姜青铜', // 测试结果描述
+            //         image: 'http://bbs.cguse.com/attachments/month_1004/1004241424c162021c314fa9c0.jpg', // 测试结果图片地址
+            //         name: '你是姜青铜', // 测试结果标题
+            //     }, {
+            //         _id: 0, // 测试结果序号
+            //         content: '姜青铜', // 测试结果描述
+            //         image: 'http://bbs.cguse.com/attachments/month_1004/1004241424c162021c314fa9c0.jpg', // 测试结果图片地址
+            //         name: '你是姜青铜', // 测试结果标题
+            //     }
+            // ]);
 
             // 存储默认值
             let state = _this.$store.state,
@@ -311,6 +320,14 @@ export default {
     },
 
     methods: {
+        /**
+         * 游戏数据请求
+         * @param 
+         */
+        getData() {
+
+        },
+
         /**
          * 深拷贝
          * @param {Object || Array} obj 拷贝对象或数组
