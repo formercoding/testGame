@@ -100,11 +100,17 @@ let entryHtml = glob.sync(PAGE_PATH + '/*/*.html')
 let arr = []
 entryHtml.forEach((filePath) => {
     let filename = filePath.substring(filePath.lastIndexOf('\/') + 1, filePath.lastIndexOf('.'))
+
+    let formatFileName = process.env.NODE_ENV === 'production' ? 
+    path.resolve(__dirname, '../../../views/supplier/' + filename + '.php')
+    : filename + '.html';
+
     let conf = {
         // 模板来源
         template: filePath,
         // 文件名称
-        filename: filename + '.html',
+        
+        filename: formatFileName,
         // 页面模板需要加对应的js脚本，如果不加这行则每个页面都会引入所有的js脚本
         chunks: ['manifest', 'vendor', filename],
         inject: true

@@ -75,7 +75,7 @@
     </div>
 </template>
 <script>
-import Tool from './../assets/js/common.js'
+import Tool from './../pages/index/assets/js/common.js'
 import vQrcode from 'qrcode.vue'
 import Clipboard from 'clipboard'
 export default {
@@ -328,7 +328,7 @@ export default {
                     .icon-new {
                         width: 20px;
                         height: 20px;
-                        background: url('../assets/image/new-edit.png');
+                        background: url('../pages/index/assets/image/new-edit.png');
                     }
 
                     .new-txt {

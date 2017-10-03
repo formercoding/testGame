@@ -331,7 +331,7 @@ export default {
                     cursor: default;
                     text-align: center;
                     font-size: 14px;
-                    background: url('../assets/image/close.png');
+                    background: url('../pages/create/assets/image/close.png');
                 }
             }
 

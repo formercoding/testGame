@@ -530,7 +530,7 @@ export default {
                                 height: 16px;
                                 cursor: default;
                                 text-align: center;
-                                background: url('../assets/image/close.png');
+                                background: url('../pages/create/assets/image/close.png');
                             }
                         }
 

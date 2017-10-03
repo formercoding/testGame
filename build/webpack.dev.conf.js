@@ -32,5 +32,5 @@ module.exports = merge(baseWebpackConfig, {
     //   inject: true
     // }),
     new FriendlyErrorsPlugin()
-  ].contact(utils.htmlPlugin())
+  ].concat(utils.htmlPlugin())
 })

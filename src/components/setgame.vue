@@ -144,9 +144,14 @@ import vPhone from './phone'
 import vTipDialog from './tipdialog'
 import vQrcode from 'qrcode.vue'
 import Idouzi from '@idouzi/idouzi-tools'
+import Tool from './../pages/index/assets/js/common.js'
 export default {
     data() {
+
         return {
+            ajaxUrl: {
+                getDataUrl: Tool.editUrl('/supplier/get-create-event-data'),
+            },
             curTab: 1, // 当前tab 1基础设置 2测试结果设置 3问题设置
             validateKey: true, // 关键词验证是否通过
             tipValidateTxt: '游戏设置有误，请重新设置', // 表单验证提示文字类型
@@ -161,23 +166,13 @@ export default {
     },
 
     created() {
-        let _this = this,
-            eventId = _this.$route.params.eventId;
+        let _this = this;
 
-            if(eventId === 'new') {
-
-                let theme = Idouzi.getQueryValue('theme') || 0000;
-                _this.getData('theme', theme);   
-            } else {
-
-                let eventId = _this.$route.params.eventId
-                _this.getData('eventId', eventId);
-            }
+        _this.getData();
+            
 
         // 游戏数据请求
         this.$http({
-            method: 'post',
-            url: '123.3.3.3'
         }).then(() => {
             console.log('success');
         }).catch(() => {
@@ -322,10 +317,21 @@ export default {
     methods: {
         /**
          * 游戏数据请求
-         * @param 
          */
         getData() {
-
+            let _this = this,
+                create = Idouzi.getQueryValue('from'),
+                eventId = Idouzi.getQueryValue('eventId') || 0,
+                themeId = Idouzi.getQueryValue('themeId') || 0;
+            
+            _this.$http({
+                url: _this.ajaxUrl.getDataUrl,
+                method: 'post',
+                params: {
+                    eventId: eventId,
+                    themeId: themeId
+                }
+            });
         },
 
         /**
@@ -634,8 +640,7 @@ export default {
                 /* 手机预览 */
                 .phone-wrap {
                     width: 360px;
-                    padding-left: 41px;
-                    background: pink;
+                    padding-left: 39px;
                     height: 676px;
                 }
 
