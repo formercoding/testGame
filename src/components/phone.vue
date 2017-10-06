@@ -76,12 +76,12 @@
                         </audio>
                         <div class="music icon" :style="musicBg"></div>
                     </div>
-                    <div class="item-wrap flex" v-bar>
+                    <div class="item-wrap" v-bar>
                         <div class="item">
                             <!-- 题目描述 -->
                             <div class="desc">
                                 <div class="txt">
-                                    {{curQuestion.question.name}}
+                                    {{'Q3、' + curQuestion.question.name}}
                                 </div>
                                 <img class="pic" :src="curQuestion.question.image">
                             </div>
@@ -350,7 +350,7 @@ export default {
         .show {
             width: 244px;
             height: 500px;
-            padding: 96px 20px 71px 20px;
+            padding: 96px 19px 71px 20px;
             background-repeat: no-repeat;
             overflow: hidden;
 
@@ -444,6 +444,7 @@ export default {
             /* 问答页 */
             .question {
                 justify-content: space-between;
+                position: relative;
                 height: 100%;
                 text-align: left;
                 font-size: 12px;
@@ -456,11 +457,15 @@ export default {
                     transition: transform 0.2s linear;
 
                     .item {
-                        width: 100%;
+                        width: 165px !important;
+                        height: 219px !important;
                         padding: 0 20px 0 20px;
+                        padding-right: 40px !important;
+                        text-align: justify;
                         
                         /* 问题描述 */
                         .desc {
+                            width: 165px;
                             padding-bottom: 4px;
 
                             .pic {
@@ -473,12 +478,17 @@ export default {
 
                         /* 问题选项 */
                         .opts {
+                            width: 165px;
+                            
                             .opt {
                                 align-items: center;
                                 margin-top: 8px;
                                 font-size: .36rem;
 
                                 .handler {
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
                                     width: 27px;
                                     height: 27px;
                                     font-size: 17px;
