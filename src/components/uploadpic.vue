@@ -204,6 +204,9 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+    /* 主题颜色 */
+    @color: #FF981A;
+    
     .uploadpic {
         position: relative;
         display: inline-block;
@@ -227,7 +230,7 @@ export default {
             border: none;
             border-radius: 3px;
             outline: none;
-            background: #ff981a;
+            background: @color;
 
             &.disabled {
                 background: #fff;

@@ -296,6 +296,9 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+    /* 主题颜色 */
+    @color: #FF981A;
+    
     .phone {
         /* 切换预览页面tab */
         display: flex;
@@ -361,8 +364,8 @@ export default {
                 }
 
                 &.active {
-                    color: #FF981A;
-                    border-bottom: 2px solid #FF981A;
+                    color: @color;
+                    border-bottom: 2px solid @color;
 
                     .arrow {
                         display: block;

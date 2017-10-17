@@ -1,84 +1,5 @@
-/* element style */
-.el-form {
-    /* 修改item下边距 */
-    .el-form-item {
-        margin-bottom: 20px;
-
-    }
-    /*  修改星号 */
-    .el-form-item.is-required {
-        .el-form-item__label:before {
-            display: none;
-        }
-
-        .el-input:after {
-            content: "*";
-            position: absolute;
-            right: -20px;
-            font-size: 24px;
-            line-height: 40px;
-            color: #FF6A4D;
-        }
-    }
-
-    /* 验证错误颜色 */
-    .el-form-item.is-error {
-        .el-form-item__content {
-            .el-input__inner {
-                border: 1px solid #ff4949;
-            }
-
-            .el-textarea__inner {
-                border: 1px solid #ff4949;
-            }  
-        }
-    }
-    /* input边框行高修改*/
-    .el-form-item__label {
-        padding: 9px 12px 9px 0;
-        text-align: left;
-        color: #666;
-    }
-
-    /* 表单颜色更改 */
-    .el-form-item__content {
-        line-height: 32px;
-
-        .el-input__inner {
-            height: 32px;
-            border: 1px solid #999999;
-            border-radius: 3px;
-
-            &:focus {
-                border-color:  #FF981A;
-            }
-
-            &:focus + .input-num {
-                display: none;
-            }
-            
-        }
-
-        .el-textarea__inner {
-            height: 100%;
-            border: 1px solid #999999;
-            border-radius: 3px;
-
-            &:focus {
-                border-color:  #FF981A;
-            }
-        }
-    }
-}
-
-/* 单选按钮颜色更改 */
-.el-radio__input.is-checked .el-radio__inner {
-    border-color:#FF981A;
-    background: #FF981A;
-}
-.el-radio+.el-radio {
-    margin-left: 0;
-}
+/* 主题颜色 */
+@color: #FF981A;
 
 /* 提示框样式 */
 .el-message {
@@ -117,6 +38,7 @@
     }
 }
 
+/* 弹出提示样式 */
 .el-popover {
     min-width: 0;
     padding: 5px;
@@ -126,63 +48,10 @@
 .flex {
     display: flex;
 }
+
 .flex-col {
     display: flex;
     flex-direction: column;
 }
-
-
-/* 滚动条样式 */
-.vb > .vb-dragger {
-    z-index: 5;
-    width: 4px;
-    right: 0;
-    border-radius: 4px;
-    background-color: #666;
-}
-
-.vb > .vb-dragger > .vb-dragger-styler {
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    -webkit-transform: rotate3d(0,0,0,0);
-    transform: rotate3d(0,0,0,0);
-    -webkit-transition:
-        background-color 100ms ease-out,
-        margin 100ms ease-out,
-        height 100ms ease-out;
-    transition:
-        background-color 100ms ease-out,
-        margin 100ms ease-out,
-        height 100ms ease-out;
-    margin: 0;
-    border-radius: 20px;
-    height: calc(100% - 10px);
-    display: block;
-}
-
-.vb.vb-scrolling-phantom > .vb-dragger > .vb-dragger-styler {
-    background-color: #666;
-}
-
-.vb > .vb-dragger:hover > .vb-dragger-styler {
-    background-color: rgba(48, 121, 244,.5);
-    margin: 0px;
-    height: 100%;
-}
-
-.vb.vb-dragging > .vb-dragger > .vb-dragger-styler {
-    background-color: rgba(48, 121, 244,.5);
-    margin: 0px;
-    height: 100%;
-}
-
-.vb.vb-dragging-phantom > .vb-dragger > .vb-dragger-styler {
-    background-color: rgba(48, 121, 244, .5);
-}
-
-.flex {
-    display: flex;
-}
-
 
 

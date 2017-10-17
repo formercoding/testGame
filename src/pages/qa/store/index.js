@@ -1,10 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import actions from './actions.js';
-import getters from './getters.js';
-import mutations from './mutations.js';
-
 Vue.use(Vuex);
 
 export default new Vuex.Store({
@@ -79,8 +75,6 @@ export default new Vuex.Store({
             }
         ]
     },
-    actions,
-    getters,
     mutations: {
         /**
          * 设置游戏基础设置
@@ -129,8 +123,5 @@ export default new Vuex.Store({
         setCurR(state, index) {
             state.tabState.curR = index;
         },
-        
-
-
     }
 });

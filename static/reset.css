@@ -23,6 +23,7 @@ textarea {
 }
 button {
     cursor: pointer;
+    outline: none;
 }
 
 

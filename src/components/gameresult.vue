@@ -268,6 +268,9 @@ export default {
                     })
                 });
 
+                // 将当前答案设置为 0 默认值
+                _this.changeR(0);
+                
                 // 删除问题
                 gameResults.splice(_this.delIndex, 1);
 
@@ -319,11 +322,14 @@ export default {
 }
 </script>
 <style lang="less">
+    /* 主题颜色 */
+    @color: #FF981A;
+    
     /* 按钮样式 居中背景 */
     .btn-base {
         padding: 0;
         color: #fff;
-        background: #ff981a;
+        background: @color;
         border: none;
         border-radius: 3px;
         outline: none;

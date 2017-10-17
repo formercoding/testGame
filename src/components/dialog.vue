@@ -139,6 +139,9 @@ export default {
 };
 </script>
 <style lang="less">
+    /* 主题颜色 */
+    @color: #FF981A;
+
     /* 弹出框 */
     .el-dialog {
         width: 425px;
@@ -276,7 +279,7 @@ export default {
                     width: 80px;
                     height: 32px;
                     font-size: 12px;
-                    background: #FF981A;
+                    background: @color;
                     border-radius: 3px;
                     border: none;
                     outline: none;

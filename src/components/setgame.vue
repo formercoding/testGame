@@ -1400,13 +1400,14 @@ export default {
 }
 </script>
 <style lang="less">
-
+    /* 主题颜色 */
+    @color: #FF981A;
+    
     /* 颜色 按钮基本样式 */
-    @themeColor: #ff981a;
     .btn-base {
         padding: 0;
         color: #fff;
-        background: #ff981a;
+        background: @color;
         border: none;
         border-radius: 3px;
         outline: none;
@@ -1429,7 +1430,7 @@ export default {
             
             .level-2 {
                 font-size: 16px;
-                color: #FF981A;
+                color: @color;
             }
         }
 
@@ -1477,7 +1478,7 @@ export default {
                             cursor: pointer;
 
                             &.active {
-                                color: #ff981a;
+                                color: @color;
                                 border-bottom: 2px solid #ff9819;
                             }
                         }
@@ -1603,7 +1604,7 @@ export default {
                                         color: #666;
 
                                         .rest-time, .cash {
-                                            color: #FF981A;
+                                            color: @color;
                                         }
 
                                         .time-tip {

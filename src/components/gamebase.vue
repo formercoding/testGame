@@ -316,11 +316,14 @@ export default {
 }
 </script>
 <style lang="less">
+    /* 主题颜色 */
+    @color: #FF981A;
+    
     /* 按钮样式 居中背景 */
     .btn-base {
         padding: 0;
         color: #fff;
-        background: #ff981a;
+        background: @color;
         border: none;
         border-radius: 3px;
         outline: none;

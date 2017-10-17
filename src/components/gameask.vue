@@ -426,8 +426,13 @@ export default {
                     })
                 });
 
+                // 设置当前问题索引为 0 默认值
+                _this.changeQ(0);
+
                 // 删除问题
                 gameQuestions.splice(_this.delIndex, 1);
+
+                
             }
 
             // 同步vuex数据
@@ -474,12 +479,14 @@ export default {
 }
 </script>
 <style lang="less">
-
+    /* 主题颜色 */
+    @color: #FF981A;
+    
     /* 按钮样式 背景居中 */
     .btn-base {
         padding: 0;
         color: #fff;
-        background: #ff981a;
+        background: @color;
         border: none;
         border-radius: 3px;
         outline: none;
@@ -678,7 +685,7 @@ export default {
                             cursor: pointer;
                         }
                         .target.active {
-                            color: #FF981A;
+                            color: @color;
                         }
                     }
                 }
@@ -698,8 +705,8 @@ export default {
                         background: #fff;
 
                         &:hover {
-                            color: #FF981A;
-                            border: 1px solid #FF981A;
+                            color: @color;
+                            border: 1px solid @color;
                         }
                     }
                 }

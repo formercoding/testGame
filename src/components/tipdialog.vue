@@ -63,65 +63,70 @@ export default {
 };
 </script>
 <style lang="less">
-.tip-dialog {
-    .el-dialog {
-        width: 360px;
-        font-size: 14px;
-        line-height: 20px;
+    /* 主题颜色 */
+    @color: #FF981A;
 
-        .el-dialog__header {
+    .tip-dialog {
+        .el-dialog {
             width: 360px;
-            padding: 10px 20px;
-            background: #F8F8F8;
-            border-radius: 5px 5px 0 0;
-            
-        }
-
-        .el-dialog__title {
             font-size: 14px;
-        }
-
-        .el-dialog__headerbtn {
-            font-size: 12px;
             line-height: 20px;
 
-            &:hover {
-                color: #bfcbd9;
+            .el-dialog__header {
+                width: 360px;
+                padding: 10px 20px;
+                background: #F8F8F8;
+                border-radius: 5px 5px 0 0;
+                
             }
-        }
 
-        .el-dialog__body {
-            height: 100px;
-            padding: 20px 20px 0 20px;
-            text-align: left;
-            color: #1A1A1A;
-        }
+            .el-dialog__title {
+                font-size: 14px;
+            }
 
-        .el-dialog__footer {
-            padding: 0 20px 20px 0;
-            text-align: right;
-            border-radius: 0 0 5px 5px;
-
-
-            .el-button {
-                vertical-align: top;
-                width: 80px;
-                height: 32px;
+            .el-dialog__headerbtn {
                 font-size: 12px;
-                color: #999;
-                border: 1px solid #ccc;
-                border-radius: 3px;
-                outline: none;
+                line-height: 20px;
 
-                &.el-button--primary {
-                    color: #fff;
-                    border: none;
-                    background: #FF981A;
+                &:hover {
+                    i {
+                        color: #bfcbd9;
+                    }
+                }
+            }
+
+            .el-dialog__body {
+                height: 100px;
+                padding: 20px 20px 0 20px;
+                text-align: left;
+                color: #1A1A1A;
+            }
+
+            .el-dialog__footer {
+                padding: 0 20px 20px 0;
+                text-align: right;
+                border-radius: 0 0 5px 5px;
+
+
+                .el-button {
+                    vertical-align: top;
+                    width: 80px;
+                    height: 32px;
+                    font-size: 12px;
+                    color: #999;
+                    border: 1px solid #ccc;
+                    border-radius: 3px;
+                    outline: none;
+
+                    &.el-button--primary {
+                        color: #fff;
+                        border: none;
+                        background: @color;
+                    }
                 }
             }
         }
     }
-}
 </style>
 
 

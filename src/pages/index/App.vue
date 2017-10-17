@@ -7,7 +7,6 @@
             <div class="cur">
                 <div class="txt">问答测试游戏功能列表</div>
                 <a :href="createLink" class="new-edit">
-                    <span class="icon-new"></span>
                     <span class="new-txt">新建游戏</span>
                 </a>
             </div>
@@ -17,61 +16,61 @@
         <div class="content">
 
             <!-- 列表头部 -->
-            <div class="list-top">
-                <span class="title">测试名称</span>
-                <span class="created-time">创建时间</span>
-                <span class="participants">参与人数</span>
-                <span class="share-persons">分享人数</span>
-                <span class="pv">PV</span>
-                <span class="uv">UV</span>
-                <span class="state">状态</span>
-                <span class="handle">操作</span>
-            </div>
+            <ul class="list-top">
+                <li class="item title">测试名称</li>
+                <li class="item created-time">创建时间</li>
+                <li class="item participants">参与人数</li>
+                <li class="item share-persons">分享人数</li>
+                <li class="item pv">PV</li>
+                <li class="item uv">UV</li>
+                <li class="item state">状态</li>
+                <li class="item handle">操作</li>
+            </ul>
 
             <!-- 活动列表 -->
             <div class="list-wrap" 
                  v-loading="loading"
                  element-loading-text="拼命加载中">
-                <div class="list" v-for="(list, index) in rows" :key="index">
-                    <span :title="list.title" class="title">
+                <ul class="list" v-for="(list, index) in rows" :key="index">
+                    <li :title="list.title" class="item title">
                         {{ list.title }}
-                    </span>
-                    <span :title="list.createdTime" class="created-time">
+                    </li>
+                    <li :title="list.createdTime" class="item created-time">
                         {{ list.createdTime }}
-                    </span>
-                    <span :title="list.participants" class="participants">
+                    </li>
+                    <li :title="list.participants" class="item participants">
                         {{ list.participants }}
-                    </span>
-                    <span :title="list.sharePeoples" class="share-persons">
+                    </li>
+                    <li :title="list.sharePeoples" class="item share-persons">
                         {{ list.sharePeoples }}
-                    </span>
-                    <span :title="list.pv" class="pv">
+                    </li>
+                    <li :title="list.pv" class="item pv">
                         {{ list.pv }}
-                    </span>
-                    <span :title="list.uv" class="uv">
+                    </li>
+                    <li :title="list.uv" class="item uv">
                         {{ list.uv }}
-                    </span>
-                    <span :title="list.state" class="state">
+                    </li>
+                    <li :title="list.state" class="item state">
                         {{ list.state }}
-                    </span>
+                    </li>
 
                     <!-- 活动处理 -->
-                    <span class="handle">
+                    <li class="handle">
 
                         <!-- 开启或关闭活动 -->
-                        <span class="open"
-                              :style="disabledSty(list.state)" 
-                              @click="handlerConfirm(list.eventId, index)">
+                        <button class="btn open"
+                              :disabled="list.state === '违规'" 
+                              @click="handlerConfirm(index)">
                               {{ stateTxt(list.state) }}
-                        </span>
+                        </button>
 
                         <!-- 编辑活动 -->
-                        <span class="edit" @click="edit(list.eventId)">编辑</span>
+                        <button class="btn edit" @click="edit(list.eventId)">编辑</button>
 
                         <!-- 分享活动 -->
-                        <span class="share" @click="share(list.shareUrl)">分享</span>
-                    </span>
-                </div>
+                        <button class="btn share" @click="share(list.shareUrl)">分享</button>
+                    </li>
+                </ul>
             </div>
 
             <!-- pagination 数据大于十条达到分页标准才分页 -->
@@ -87,7 +86,7 @@
             <!-- 分享弹窗 -->
             <el-dialog
                 title="分享链接"
-                :visible.sync="isOpen"
+                :visible.sync="isShareOpen"
                 :modal-append-to-body="false"
                 :url="shareUrl"
                 class="share-dialog"
@@ -115,8 +114,7 @@
                                 :value="shareUrl" 
                                 :title="shareUrl"
                                 readonly>
-                            <span class="split"></span>
-                            <span class="copy-btn" data-clipboard-target="#url" v-popover:popover1>复制链接</span>     
+                            <button class="copy-btn" data-clipboard-target="#url" v-popover:popover1>复制链接</button>     
                         </div>
                     </div>
             </el-dialog>
@@ -124,7 +122,7 @@
 
         <!-- 提示弹出框 操作活动二次确认 -->
         <v-tipDialog 
-            :isOpen.sync="isHandleOpen" 
+            :isOpen.sync="isHandleOpen"
             title="提示"
             @confirm="changeState"
             class="confrimDialog"
@@ -148,12 +146,11 @@ export default {
 
         return {
             isHandleOpen: false, // 活动操作弹窗
-            stateId: '', // 当前操作活动ID
             stateIndex: 0, // 当前操作活动索引
             tipTxt: '', // 操作提示
             loading: true, // 加载条状态
             shareUrl: '', // 分享的链接
-            isOpen: false, // 弹窗开启状态
+            isShareOpen: false, // 弹窗开启状态
             createLink: `create?from=create&themeId=${themeId}`,  // 新建链接
             editLink: `create?from=edit&themeId=${themeId}`, // 编辑链接
 
@@ -166,14 +163,14 @@ export default {
             total: 0, // 数据总条数
 
             rows: [{ // 活动list	
-                createdTime: '', // 活动创建时间
+                createdTime: '数据大于十条达到分页标准才分页', // 活动创建时间
                 eventId: 0, // 活动ID
                 participants: 0, // 游戏参与人数
                 pv: 0, // 游戏pv
                 sharePeoples: 0, // 分享人数
-                shareUrl: '', // 活动链接url（分享）
-                state: '', // 游戏状态（开启，关闭，违规）
-                title: '', // 测试名称
+                shareUrl: '数据大于十条达到分页标准才分页', // 活动链接url（分享）
+                state: '开启', // 游戏状态（开启，关闭，违规）
+                title: '数页', // 测试名称
                 uv: 0 // 游戏uv
             }],
         }
@@ -220,14 +217,17 @@ export default {
                 rows: 10
             }
         }).then((res) => {
-            let data = res.data;
-
-            if(data.return_code === 'SUCCESS') {
-                let msg = data.return_msg;
+            let resData = res.data;
+                msg = resData.return_msg;
+            
+            if(resData.return_code === 'SUCCESS') {
 
                 _this.total = msg.totalPage;
                 _this.rows = msg.lists;
-            } 
+            } else {
+                // 显示错误信息
+                _this.$message(msg);
+            }
 
             // 关闭加载条
             _this.loading = false;
@@ -246,11 +246,10 @@ export default {
          * @param {String} 当前操作的活动ID eventId 
          * @param {Number} 当前操作的活动索引 index
          */
-        handlerConfirm(eventId, index) {
+        handlerConfirm(index) {
             let _this = this,
                 state = _this.rows[index].state;
 
-            _this.stateId = eventId;
             _this.stateIndex = index;
 
 
@@ -289,19 +288,6 @@ export default {
                     message: '请求错误，请刷新重试',
                     duration: 2000
                 });
-            }
-        },
-
-        /**
-         * 判断是否禁用样式
-         * @param {Number} state 按钮状态 
-         * @param {Object||Undefined} 按钮禁用样式
-         */
-        disabledSty(state) {
-            if(state === '违规') {
-                return {
-                    cursor: 'text'
-                }
             }
         },
 
@@ -348,12 +334,15 @@ export default {
                     rows: 10
                 }
             }).then((res) => {
+                let resData = res.data,
+                    msg = resData.return_msg;
 
-                if(res.status === 200) {
-                    
-                    let msg = res.data.return_msg;
+                if(resData.return_code === 200) {
                     _this.rows = msg.lists;
                     _this.totalPage = msg.totalPage;
+                } else {
+                    // 显示错误信息
+                    _this.$message(msg);
                 }
 
                 _this.loading = false;
@@ -383,19 +372,18 @@ export default {
             let _this = this;
 
             _this.shareUrl = url;
-            _this.isOpen = true;
+            _this.isShareOpen = true;
         },
 
         /**
          * 更改活动状态
-         * @param {Number} eventId 活动ID
-         * @param {Number} index 当前活动所在列表索引
          */
         changeState() {
             let _this = this,
-                eventId = _this.stateId,
                 index = _this.stateIndex,
-                state = _this.rows[index].state;
+                curList = _this.rows[index],
+                eventId = curList[index].eventId,
+                state = curList[index].state;
             
             // 状态为违规时无法操作 退出函数
             if(state === '违规') {
@@ -421,18 +409,14 @@ export default {
                 data: qs.stringify(data),
                 timeout: 10000
             }).then((res) => {
-
                 let resData = res.data;
+
                 // 请求成功 修改state状态
                 if(resData.return_code === 'SUCCESS') {
-
                     _this.rows[index].state = data.state;
                 } else {
-
-                    _this.$message({
-                        message: resData.return_msg,
-                        duration: 2000
-                    });
+                    // 显示错误信息
+                    _this.$message(resData.return_msg);
                 }
 
             }).catch((error) => {
@@ -451,6 +435,9 @@ export default {
 }
 </script>
 <style lang="less">
+    /* 主题颜色 */
+    @color: #FF981A;
+
     .lists {
         width: 1000px;
         margin: 10px auto;
@@ -463,7 +450,7 @@ export default {
             .go-back {
                 font-size: 16px;
                 color: #666;
-                cursor: default;
+                cursor: pointer;
             }
 
             .cur {
@@ -478,7 +465,7 @@ export default {
                     font-size: 18px;
                     color: #666;
                     line-height: 18px;
-                    border-left: 2px solid #FF981A
+                    border-left: 2px solid @color
                 }
 
                 .new-edit {
@@ -489,11 +476,12 @@ export default {
                     height: 32px;
                     padding: 0 10px;
                     border-radius: 3px;
-                    background: #FF981A;
+                    background: @color;
                     box-sizing: content-box;
                     cursor: pointer;
 
-                    .icon-new {
+                    &:before {
+                        content: '';
                         width: 20px;
                         height: 20px;
                         background: url('assets/image/new-edit.png');
@@ -538,11 +526,11 @@ export default {
                 /* loading */ 
                 .el-loading-spinner {
                     .path {
-                        stroke: #FF981A;
+                        stroke: @color;
                     }
 
                     .el-loading-text {
-                        color: #FF981A;
+                        color: @color;
                     }
                     
                 }
@@ -562,7 +550,7 @@ export default {
                 color: #666;
 
                 &:hover {
-                    border: 1px solid #FF981A;
+                    border: 1px solid @color;
                 }
 
                 .state {
@@ -574,13 +562,16 @@ export default {
                     justify-content: space-between;
                     align-items: center;
 
-                    span {
+                    .btn {
                         width: 52px;
                         height: 28px;
+                        padding: 0;
+                        background: #fff;
                         line-height: 28px;
                         border: 1px solid #ccc;
                         border-radius: 3px;
                         cursor: pointer;
+                        outline: none;
                     }
                 }
             }
@@ -628,7 +619,7 @@ export default {
             }
 
             .list {
-                span {
+                & > .item {
                     overflow: hidden;
                     white-space: nowrap;
                     text-overflow: ellipsis;
@@ -643,19 +634,19 @@ export default {
 
             .el-pagination {
                 button:hover {
-                    color: #FF981A;
+                    color: @color;
                 }
             }
 
             .el-pager {
                 li:hover {
-                    color: #FF981A;
+                    color: @color;
                 }
 
                 li.active {
                     color: #fff;
-                    border-color: #FF981A;
-                    background-color: #FF981A;
+                    border-color: @color;
+                    background-color: @color;
                 }
             }
         }
@@ -666,13 +657,14 @@ export default {
                 width: 360px;
                 font-size: 14px;
                 line-height: 20px;
+                border-radius: 5px;
+                overflow: hidden;
 
                 .el-dialog__header {
                     width: 360px;
                     padding: 10px 20px;
                     text-align: left;
                     background: #F8F8F8;
-                    border-radius: 5px 5px 0 0;
 
                     .el-dialog__title {
                         color: #1A1A1A;
@@ -740,15 +732,17 @@ export default {
                                 width: 1px;
                                 height: 12px;
                                 margin: 0 5px 0 10px;
-                                background: #FF981A;
+                                background: @color;
                             }
 
                             .copy-btn {
                                 flex-shrink: 0;
                                 font-size: 12px;
-                                color: #FF981A;
+                                color: @color;
+                                border: none;
+                                border-left: 1px solid @color;
+                                background: #fff;
                                 box-sizing: content-box;
-                                cursor: pointer;
                             }
                         }
                         

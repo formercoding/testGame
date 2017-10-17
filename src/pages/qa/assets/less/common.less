@@ -1,3 +1,6 @@
+/* 主题颜色 */
+@color: #FF981A;
+
 /* element style */
 .el-form {
     /* 修改item下边距 */
@@ -51,7 +54,7 @@
             color: #666;
 
             &:focus {
-                border-color:  #FF981A;
+                border-color:  @color;
                 color: #666;
             }
         }
@@ -63,7 +66,7 @@
             color: #666;
 
             &:focus {
-                border-color:  #FF981A;
+                border-color:  @color;
             }
         }
     }
@@ -71,8 +74,8 @@
 
 /* 单选按钮颜色更改 */
 .el-radio__input.is-checked .el-radio__inner {
-    border-color:#FF981A;
-    background: #FF981A;
+    border-color:@color;
+    background: @color;
 }
 .el-radio+.el-radio {
     margin-left: 0;
@@ -111,7 +114,7 @@
 /* 加载条样式 */
 .el-loading-spinner {
     .path {
-        stroke: #FF981A;
+        stroke: @color;
     }
 }
 
