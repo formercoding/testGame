@@ -10,6 +10,8 @@
 </template>
 <script>
 import Idouzi from '@idouzi/idouzi-tools'
+import Tool from './../pages/index/assets/js/common.js'
+
 export default {
     props: {
         txtType: {
@@ -23,42 +25,32 @@ export default {
     },
 
     data() {
-        let ajaxUrl = {};
+        let ajaxUrl = {
+            getSignature: Tool.editUrl('/supplier/sign-medialibs')
+        };
         // 环境检测
         switch(Idouzi.getEnv()) {
             case 'dev': {
-                ajaxUrl = {
-                    getSignature: 'http://qa-dev.idouzi.com/supplier/sign-medialibs',
-                    uploadPic: 'http://medialibs-dev.idouzi.com/api/upload'
-                }
+                ajaxUrl.uploadPic = 'http://medialibs-dev.idouzi.com/api/upload';
                 break;
             }
             case 'test': {
-                ajaxUrl = {
-                    getSignature: 'http://qa-wx.idouzi.com/supplier/sign-medialibs',
-                    uploadPic: 'http://medialibs-wx.idouzi.com/api/upload'
-                }
+                ajaxUrl.uploadPic = 'http://medialibs-wx.idouzi.com/api/upload';
                 break;
             }
             case 'prod': {
-                ajaxUrl = {
-                    getSignature: 'http://qa-qq.idouzi.com/supplier/sign-medialibs',
-                    uploadPic: 'http://medialibs-qq.idouzi.com/api/upload'
-                }
+                ajaxUrl.uploadPic = 'http://medialibs-qq.idouzi.com/api/upload';
+                ajaxUrl.uploadPic = 'http://medialibs-dev.idouzi.com/api/upload';
                 break;
             }
-            default: {
-                ajaxUrl = {
-                    getSignature: 'http://qa-dev.idouzi.com/supplier/sign-medialibs',
-                    uploadPic: 'http://medialibs-dev.idouzi.com/api/upload'
-                }
-            }
+            default: ajaxUrl.uploadPic = 'http://medialibs-dev.idouzi.com/api/upload';
         }
         return {
             ajaxUrl: ajaxUrl, // ajax地址
             disabled: false, // 上传按钮状态
             signature: '', // 商家签名 
             limit: 1000, // 图片上传限制
+            overdure: 0
         }
     },
 
@@ -94,9 +86,14 @@ export default {
         getSignature(event) {
             let _this = this,
                 curTime = new Date().getTime(),
-                signature = window.sessionStorage.signature,
+                signature = unescape(window.sessionStorage.signature), // 没有为undefined
                 overdure = curTime - window.sessionStorage.signatureTime;
-            
+
+            // 读session中的签名是否存在 undefined -> string
+            if(signature !== 'undefined') {
+                signature = JSON.parse(signature);
+            }
+
             // 按钮禁用
             _this.disabled = 'disabled';
 
@@ -114,8 +111,8 @@ export default {
                 if(data.return_code === 'SUCCESS') {
                     let signature = data.return_msg.params;
                     
-                    _this.signature = JSON.stringify(signature);
-                    window.sessionStorage.signature = signature;
+                    _this.signature = signature;
+                    window.sessionStorage.signature = escape(JSON.stringify(signature));
                     window.sessionStorage.signatureTime = new Date().getTime();
 
                     _this.uploadPic(event);
@@ -141,7 +138,11 @@ export default {
                 target = event.target,
                 file = target.files[0];
 
-                console.log(target, 'dddddddddddevetn');
+                // 如果没有选择图片则退出
+                if(file === undefined) {
+                    _this.disabled = false;
+                    return false;
+                }
 
                 // 图片大小限制 1000个字节
                 if(file.size > _this.limit * 1024) {
@@ -171,12 +172,12 @@ export default {
             }
 
             formData.append('file', file);
-            console.log(formData);
+
             // 上传图片
             _this.$http({
                 url: _this.ajaxUrl.uploadPic,
                 method: 'post',
-                params: JSON.parse(_this.signature),
+                params: _this.signature,
                 data: formData
             }).then((res) => {
                 let data = res.data;
@@ -206,13 +207,16 @@ export default {
     .uploadpic {
         position: relative;
         display: inline-block;
+        overflow: hidden;
 
         .file {
             position: absolute;
+            left: -80px;
             top: 0;
-            width: 80px;
+            width: 160px;
             height: 32px;
             opacity: 0;
+            cursor: pointer;
         }
 
         .btn {

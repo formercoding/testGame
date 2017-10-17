@@ -10,86 +10,76 @@
                 首页
                 <span class="arrow"></span>
             </div>
-            <div class="tab" :class="{active: curTab === 2}" @click="changeTab(2)">
+            <div class="tab" :class="{active: curTab === 3}" @click="changeTab(3)">
                 问题页
                 <span class="arrow"></span>
             </div>
-            <div class="tab" :class="{active: curTab === 3}" @click="changeTab(3)">
+            <div class="tab" :class="{active: curTab === 2}" @click="changeTab(2)">
                 结果页
                 <span class="arrow"></span>
             </div>
         </div>
         <!-- 预览手机 -->
-        <div class="show" :style="imgBg('./static/phone.png')">
+        <div class="show">
+            <div class="show-inner" :style="imgBg(images.I002)">
+                <!-- 头部图片 -->
+                <!-- <img class="top-pic" src="http://pic.58pic.com/58pic/15/41/33/65N58PICxUd_1024.jpg" /> -->
+
                 <!-- 加载页 -->
                 <div class="loading" v-show="curTab === 0">
                     <img class="pic" :src="theme.images.I010">
                     <div class="close">3</div>
                 </div>
+
                 <!-- 游戏首页 -->
                 <div v-bar class="intro-wrap" v-show="curTab === 1">
-                    <div class="intro" :style="imgBg(images.I002)">
+                    <div class="intro">
+
                         <!-- 音乐图标 -->
                         <div class="music-wrap flex">
-                            <audio ref="audio"
-                                v-if="false"
-                                :src="theme.sounds.S001" 
-                                loop="loop"
-                                autoplay="autoplay">
-                                亲 您的浏览器不支持html5的audio标签
-                            </audio>
                             <div class="music icon" :style="musicBg"></div>
                         </div>
+
                         <div class="banner-wrap">
-                            <h1 class="title" :style="colorTitle">{{gameBase.name}}</h1>
-                            <img class="banner" :src="gameBase.image || 'http://bbs.cguse.com/attachments/month_1004/1004241424c162021c314fa9c0.jpg'">
+                            <h1 class="title" :style="colorTitle" v-show="gameBase.title">{{gameBase.title}}</h1>
+                            <img class="banner" :src="gameBase.image" v-show="gameBase.image">
                         </div>
                         <div class="desc">
-                            <p class="title" :style="txtStyle">你是西游记中的谁</p>
-                            <div class="gif-wrap" :style="txtStyle">
-                                <img class="gif" :src="images.I007">
+                            <p class="title" :style="txtStyle">{{gameBase.title}}</p>
+                            <div class="gif-wrap" :style="txtStyle" v-show="gameBase.title">
+                                <img class="gif" :src="images.I007" :style="gifLeft" >
                             </div>
                             <p class="txt" :style="txtStyle">{{gameBase.description}}</p>
                         </div>
                         <div class="start-wrap">
-                            <audio  ref="audio" 
-                                    v-if="false"
-                                    :src="theme.sounds.S002">
-                                    亲 您的浏览器不支持html5的audio标签
-                            </audio>
                             <img class="start" :src="images.I004">
                         </div>
                     </div>
                 </div>
+
                 <!-- 游戏问答页 -->
                 <div class="question flex-col"
-                     v-show="curTab === 2" 
-                     :style="imgBg(images.I002)">
+                        v-show="curTab === 3">
+
                     <!-- 音乐图标 -->
                     <div class="music-wrap flex">
-                        <audio ref="audio"
-                            v-if="false"
-                            :src="theme.sounds.S001" 
-                            loop="loop"
-                            autoplay="autoplay">
-                            亲 您的浏览器不支持html5的audio标签
-                        </audio>
                         <div class="music icon" :style="musicBg"></div>
                     </div>
                     <div class="item-wrap" v-bar>
                         <div class="item">
+                            
                             <!-- 题目描述 -->
                             <div class="desc">
                                 <div class="txt">
-                                    {{'Q3、' + curQuestion.question.name}}
+                                    {{`Q${curQ+1}、${curQuestion.question.name}`}}
                                 </div>
-                                <img class="pic" :src="curQuestion.question.image">
+                                <img class="pic" :src="curQuestion.question.image" v-show="curQuestion.question.image">
                             </div>
                             <!-- 问题选项 -->
                             <div class="opts">
                                 <div class="opt flex" 
-                                     v-for="(opt, index) in curQuestion.options" 
-                                     :key="opt.name">
+                                        v-for="(opt, index) in curQuestion.options" 
+                                        :key="opt.name">
                                     <div class="handler flex-mid-center"
                                         :style="handlerBg">
                                         <div class="order">{{optOrder(index)}}</div>
@@ -103,79 +93,74 @@
                     </div>
                     <div class="footer flex">
                         <img class="pic" :src="images.I006" :style="border">
-                        <img class="gif" :src="images.I007">
+                        <img class="gif" :src="images.I007" :style="gifLeft">
                     </div>
                 </div>
-                <div class="end">
-
+                <div class="end-wrap" 
+                        v-show="curTab === 2" 
+                        v-bar>
+                    <div class="end">
+                        <div class="share">
+                            <img class="pic" :src="supplierUrl">
+                            <div class="txt flex-col">
+                                <span class="txt-top">更多精彩</span>
+                                <span class="txt-bot">长按二维码</span>
+                            </div>
+                        </div>
+                        <div class="desc">
+                            <div class="msg" :style="color(txtColor.T002)">结果为：</div>
+                            <h1 class="title" :style="color(txtColor.T001)">{{curResult.name}}</h1>
+                            <img class="pic" :src="curResult.image" v-show="curResult.image">
+                            <div class="split" :style="bgColor(txtColor.T002)"></div>
+                            <div class="txt" :style="color(txtColor.T002)">{{curResult.content}}</div>
+                        </div>
+                        <a class="restart-wrap flex" >
+                            <img class="restart" :src="images.I008">
+                        </a>
+                    </div>
                 </div>
+            </div>
+        </div>
+        <!-- 模板预览 -->
+        <div class="preview">
+            <v-qrcode :value="eventUrl" :size="78" class="qrcode"></v-qrcode>
+            <div class="txt">模板预览</div>
         </div>
   </div>
 </template>
 <script>
+import vQrcode from 'qrcode.vue'
 export default {
-    data() {
-        return {
-            curTab: 0, // 当前tab
-            theme: { // 游戏主题
-                images: {
-                    I001: './static/播放-min.png', // 音乐背景
-                    I002: './static/bg01-min.png', // 页面背景图片
-                    I003: './static/停止播放-min.png', // 音乐关闭后背景图标
-                    I004: './static/首页-btn.gif', // 开始测试按钮图片
-                    I005: './static/U_option-min.png', // 选项背景
-                    I006: './static/BG3-min.png', // 问答页底部背景
-                    I007: './static/wwew.gif', // 进度gif
-                    I008: './static/btn-min.png', // 重新测试图片
-                    I009: './static/btn-active.png', // 选项被选中
-                    I010: './static/loading.png' // 背景图
-                },
-                texts: {
-                    color: {
-                        T001: '#000', // 标题颜色
-                        T002: '#000', // 内容颜色
-                        T003: '#fff', // 问题选项颜色
-                        T004: '#4A4A4a' // 底部虚线颜色
-                    }
-                }
-            },
-            curQuestion: {
-                question: { // 问题文字描述
-                    image: 'http://bbs.cguse.com/attachments/month_1004/1004241424c162021c314fa9c0.jpg', // 问题图片地址
-                    name: '你还记得最后唐僧取得经书回程时，那只驼他们过河的乌龟为何会发怒吗？会发怒吗？发怒吗？怒吗？吗？', // 问题描述
-                },
-                options: [ // 问题选项数组
-                    {
-                        name: '傻哦', // 答案文字描述
-                        target: {
-                            type: 0,
-                            issueOrResultId: 0
-                        }
-                    }, {
-                        name: '不傻哦', // 答案文字描述
-                        target: {
-                            type: 0,
-                            issueOrResultId: 0
-                        }
-                    }, {
-                        name: '不傻哦', // 答案文字描述
-                        target: {
-                            type: 1,
-                            issueOrResultId: 1
-                        }
-                    }, {
-                        name: '不傻哦', // 答案文字描述
-                        target: {
-                            type: 1,
-                            issueOrResultId: 0
-                        }
-                    }
-                ] 
-            }
-        }
+    props: {
+        theme: Object,
+        supplierUrl: String,
+        eventUrl: String
     },
 
     computed: {
+        // tab状态
+        curTab() {
+            return this.$store.state.tabState.curTab;
+        },
+
+        // 当前游戏问题
+        curQuestion() {
+            let curQ = this.$store.state.tabState.curQ;
+            
+            return this.$store.state.gameQuestions[curQ];
+        },
+
+        // 当前游戏问题索引
+        curQ() {
+            return this.$store.state.tabState.curQ;
+        },
+
+        // 当前游戏结果
+        curResult() {
+            let curR = this.$store.state.tabState.curR;
+            return this.$store.state.gameResults[curR];
+        },
+
         // 主题图片
         images() {
             return this.theme.images;
@@ -183,7 +168,7 @@ export default {
 
         // 主题颜色
         txtColor() {
-            return this.theme.texts.color;
+            return this.theme.texts;
         },
 
         gameBase() {
@@ -234,10 +219,46 @@ export default {
                 backgroundImage: `url(${this.images.I005})`,
                 color: this.txtColor.T003
             }
+        },
+
+        // 动画的left
+        gifLeft() {
+            let len = this.$store.state.gameQuestions.length,
+                curQ = this.$store.state.tabState.curQ,
+                pageW = 205,
+                gifW = 17;
+
+            let left = parseInt(205 * (curQ / len));
+
+            // 控制动画不超出边界
+            left = pageW - left > 17 ? left : pageW - left;
+
+            return {
+                left: `${left}px`
+            }
         }
     },
 
     methods: {
+        /**
+         * 背景颜色
+         * @param {String} color 颜色值 
+         */
+        bgColor(color) {
+            return {
+                backgroundColor: color
+            }
+        },
+
+        /**
+         * 文字颜色
+         * @param {String} color 颜色值 
+         */
+        color(color) {
+            return {
+                color: color
+            }
+        },
 
          /**
          * 返回选项对应的ABCD
@@ -254,7 +275,7 @@ export default {
          * @param {Number} index 切换的tab索引
          */
         changeTab(index) {
-            this.curTab = index;
+            this.$store.commit('setCurTab', index);
         },
 
         /**@argument
@@ -265,7 +286,12 @@ export default {
             return {
                 backgroundImage: `url(${url})`
             }
-        }
+        },
+
+    },
+
+    components: {
+        vQrcode
     }
 }
 </script>
@@ -274,7 +300,7 @@ export default {
         /* 切换预览页面tab */
         display: flex;
         justify-content: space-between;
-
+        position: relative;
         .nav {
             display: flex;
             flex-direction: column;
@@ -287,7 +313,8 @@ export default {
             cursor: pointer;
 
             .tab {
-                flex-grow: 1;
+                flex-grow: 0;
+                flex-basis: 25%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -303,8 +330,8 @@ export default {
                     display: none;
                     position: absolute;
                     top: 12px;
-                    right: -16px;
-                    width: 17px;
+                    right: -15px;
+                    width: 14px;
                     height: 12px;
                     background: #fff;
 
@@ -312,22 +339,24 @@ export default {
                         content: '';
                         position: absolute;
                         right: 0;;
-                        top: 9px;
+                        top: 6px;
                         width: 12px;
                         height: 1px;
                         background: #d8d8d8;
                         transform: rotate(-30deg);
+                        transform-origin: 12px 0;
                     }
 
                     &:after {
                         content: '';
                         position: absolute;
-                        right: 0;;
-                        top: 3px;
+                        right: 0;
+                        top: 6px;
                         width: 12px;
                         height: 1px;
                         background: #d8d8d8;
                         transform: rotate(30deg);
+                        transform-origin: 12px 0;
                     }
                 }
 
@@ -348,190 +377,338 @@ export default {
 
         /* 小手机 */
         .show {
-            width: 244px;
+            width: 245px;
             height: 500px;
-            padding: 96px 19px 71px 20px;
+            padding: 97px 20px 71px 20px;
+            background: url('http://idouziimg-10006892.image.myqcloud.com/20171012140040_16981');
             background-repeat: no-repeat;
             overflow: hidden;
 
-            /* 加载页 */
-            .loading {
-                position: relative;
-                z-index: 20;
-
-                .pic {
-                    width: 100%;
-                    height: 100%;
-                    z-index: 100;
-                }
-
-                .close {
-                    position: absolute;
-                    right: 12px;
-                    top: 12px;
-                    width: 17px;
-                    height: 17px;
-                    text-align: center;
-                    line-height: 18px;
-                    font-size: 12px;
-                    color: #fff;
-                    border-radius: 50%;
-                    background: rgba(0, 0, 0, .1);
-                }
-            }
-            /* 游戏首页 */
-            .intro {
-                position: relative;
-                width: 188px !important;
-                height: 285px !important;
-                padding: 43px 15px 0 15px;
-                overflow-x: hidden;
+            .show-inner {
+                width: 205px;
+                overflow: hidden;
                 background-repeat: repeat;
-                background-size: contain;  
+                background-size: contain;
+                border-top: none; 
+                
 
-                /* banner */
-                .banner-wrap {
-                    padding: 0 0 44px 0;
-                    font-size: 0;
-                    
-                    .title {
-                        font-size: 15px;
+                /* 顶部图片 */
+                .top-pic {
+                    width: 100%;
+                    height: 40px;
+                    background: #000;
+                }
+
+                /* 加载页 */
+                .loading {
+                    position: relative;
+                    z-index: 20;
+
+                    .pic {
+                        width: 205px;
+                        height: 330px;
+                        z-index: 100;
                     }
 
-                    .banner {
-                        display: block;
-                        width: 100%;
-                        margin-top: 22px;
+                    .close {
+                        position: absolute;
+                        right: 12px;
+                        top: 12px;
+                        width: 17px;
+                        height: 17px;
+                        text-align: center;
+                        line-height: 16px;
+                        font-size: 12px;
+                        color: #fff;
+                        border-radius: 50%;
+                        background: rgba(0, 0, 0, .1);
                     }
                 }
 
-                /* 游戏说明 */
-                .desc {
-                    text-align: justify;
-                    font-size: 12px;
-                    line-height: 24px;
+                .intro-wrap {
+                    height: 330px;
 
-                    .title {
-                        text-align: left;
-                    }
+                    /* 游戏首页 */
+                    .intro {
+                        position: relative;
+                        padding: 43px 15px 0 15px;
+                        overflow-x: hidden;
+                        background-repeat: repeat;
+                        background-size: contain;  
 
-                    .gif-wrap {
-                        height: 18px;
-                        text-align: left;
-                        font-size: 0;
+                        /* banner */
+                        .banner-wrap {
+                            font-size: 0;
+                            
+                            .title {
+                                word-wrap: break-word;
+                                word-break: break-all;
+                                text-align: center;
+                                font-size: 14px;
+                            }
 
-                        .gif {
-                            height: 18px;
-                        }
-                    }
-
-                    .txt {
-                        display: inline;
-                        padding-bottom: 3px;
-                    }
-                }
-
-                .start-wrap {
-                    padding: 28px 0;
-                    text-align: center;
-
-                    .start {
-                        width: 100px;
-                    }
-                }
-            }
-
-            /* 问答页 */
-            .question {
-                justify-content: space-between;
-                position: relative;
-                height: 100%;
-                text-align: left;
-                font-size: 12px;
-                line-height: 17px;
-                overflow-x: hidden;
-                background-repeat: no-repeat;
-
-                .item-wrap {
-                    margin-top: 33px;
-                    transition: transform 0.2s linear;
-
-                    .item {
-                        width: 165px !important;
-                        height: 219px !important;
-                        padding: 0 20px 0 20px;
-                        padding-right: 40px !important;
-                        text-align: justify;
-                        
-                        /* 问题描述 */
-                        .desc {
-                            width: 165px;
-                            padding-bottom: 4px;
-
-                            .pic {
+                            .banner {
                                 display: block;
-                                width: 100%;
-                                margin-top: 4px;
-                                font-size: 0;
+                                width: 174px;
+                                height: 98px;
+                                margin-top: 11px;
                             }
                         }
 
-                        /* 问题选项 */
-                        .opts {
-                            width: 165px;
-                            
-                            .opt {
-                                align-items: center;
-                                margin-top: 8px;
-                                font-size: .36rem;
+                        /* 游戏说明 */
+                        .desc {
+                            margin-top: 22px;
+                            text-align: justify;
+                            font-size: 12px;
+                            line-height: 24px;
 
-                                .handler {
-                                    display: flex;
-                                    align-items: center;
-                                    justify-content: center;
-                                    width: 27px;
-                                    height: 27px;
-                                    font-size: 17px;
-                                    background-size: contain;
-                                    background-position: center center;
-                                    background-repeat: no-repeat;
+                            .title {
+                                word-wrap: break-word;
+                                word-break: break-all;
+                                text-align: left;
+                            }
+
+                            .gif-wrap {
+                                height: 18px;
+                                text-align: left;
+                                font-size: 0;
+
+                                .gif {
+                                    height: 18px;
                                 }
                             }
 
                             .txt {
-                                margin-left: 8px;
+                                display: inline;
+                                padding-bottom: 3px;
+                                word-wrap: break-word;
+                                word-break: break-all;
+                            }
+                        }
+
+                        .start-wrap {
+                            padding: 28px 0;
+                            text-align: center;
+
+                            .start {
+                                width: 100px;
+                                margin: 0 auto;
                             }
                         }
                     }
                 }
 
-                /* 底部背景 */
-                .footer {
-                    flex-shrink: 0;
-                    align-items: bottom;
+                /* 问答页 */
+                .question {
+                    justify-content: space-between;
                     position: relative;
-                    height: 27px;
-                    margin: 10px 0 44px 0;
-                    overflow: hidden;
+                    height: 330px;
+                    text-align: left;
+                    font-size: 12px;
+                    line-height: 16px;
+                    overflow-x: hidden;
+                    background-repeat: repeat;
+                    background-size: contain;
 
-                    .pic {
-                        width: 100%;
+                    .item-wrap {
+                        height: 219px;
+                        margin-top: 33px;
+                        transition: transform 0.2s linear;
+
+                        .item {
+                            padding: 0 20px 0 20px;
+                            text-align: justify;
+                            
+                            /* 问题描述 */
+                            .desc {
+                                width: 165px;
+                                padding-bottom: 4px;
+                                word-wrap: break-word;
+                                word-break: break-all;
+
+                                .pic {
+                                    display: block;
+                                    width: 165px;
+                                    height: 93px;
+                                    margin-top: 4px;
+                                    font-size: 0;
+                                }
+                            }
+
+                            /* 问题选项 */
+                            .opts {
+                                width: 165px;
+                                
+                                .opt {
+                                    align-items: center;
+                                    margin-top: 8px;
+                                    font-size: .36rem;
+
+                                    .handler {
+                                        flex-shrink: 0;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        width: 27px;
+                                        height: 27px;
+                                        font-size: 16px;
+                                        background-size: contain;
+                                        background-position: center center;
+                                        background-repeat: no-repeat;
+                                    }
+                                }
+
+                                .txt {
+                                    word-wrap: break-word;
+                                    word-break: break-all;
+                                    margin-left: 8px;
+                                    word-wrap: break-word;
+                                    word-break: break-all;
+                                }
+                            }
+                        }
                     }
 
-                    .gif {
-                        position: absolute;
-                        left: 27px;
-                        bottom: 0;
-                        width: 27px;
+                    /* 底部背景 */
+                    .footer {
+                        flex-shrink: 0;
+                        align-items: bottom;
+                        position: relative;
                         height: 27px;
+                        padding-top: 22px;
+                        padding-bottom: 45px;
+                        overflow: hidden;
+
+                        .pic {
+                            width: 100%;
+                        }
+
+                        .gif {
+                            position: absolute;
+                            z-index: 5;
+                            bottom: 45px;
+                            width: 27px;
+                            height: 27px;
+                            transition: left linear 2s;
+                        }
                     }
                 }
+
+                /* 结果页 */
+                .end-wrap {
+                    height: 330px;
+                }
+                
+                .end {
+                    height: 330px;
+
+                    /* 分享二维码 */
+                    .share {
+                        display: flex;
+                        align-items: center;
+                        width: 205px;
+                        height: 44px;
+                        background: #000;
+                        opacity: .8;
+
+                        .pic {
+                            width: 30px;
+                            height: 30px;
+                            background: #f0f0f0;
+                            margin-left: 30px;
+                            font-size: 0;
+                        } 
+
+                        .txt {
+                            align-items: flex-start;
+                            justify-content: space-between;
+                            margin-left: 8px;
+                            font-size: 12px;
+                            color: #fff;
+                            line-height: 16px;
+                        }
+                    }
+
+                    /* 答案描述 */
+                    .desc {
+                        padding: 13px 0px 22px 20px;
+
+                        .msg {
+                            text-align: center;
+                            font-size: 12px;
+                            line-height: 12px;
+                        }
+
+                        .title {
+                            margin-top: 9px;
+                            text-align: center;
+                            font-size: 16px;
+                            line-height: 24px;
+                            word-wrap: break-word;
+                            word-break: break-all;
+                        }
+
+                        .pic {
+                            display: block;
+                            width: 166px;
+                            height: 93px;
+                            margin-top: 11px;
+                            font-size: 0;
+                        }
+                        
+                        .split {
+                            width: 16px;
+                            height: 3px;
+                            margin-top: 11px;
+                        }
+
+                        .txt {
+                            margin-top: 5px;
+                            text-align: justify;
+                            font-size: 12px;
+                            line-height: 16px;
+                            word-wrap: break-word;
+                            word-break: break-all;
+                        }
+                    }
+
+                    /* 重新测试 */
+                    .restart-wrap {
+                        justify-content: center;
+                        padding-left: 20px;
+                        padding-bottom: 43px;
+
+                        .restart {
+                            width: 98px;
+                            height: 24px;
+                        }
+                    }
+                }
+            }
+        }
+
+        /* 模板预览 */
+        .preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 521px;
+            right: 0;
+            width: 244px;
+
+            .txt {
+                display: inline-block;
+                margin-top: 8px;
+                font-size: 12px;
+                color: #999;
             }
         }
     }
     /* 游戏公共背景 音乐 */
     @keyframes rotate { /* 旋转动画 */
-        from {transform:rotate(0);}
+        from {transform: rotate(0);}
         to {transform: rotate(-360deg);}
     }
     .music-wrap {
@@ -542,9 +719,10 @@ export default {
         justify-content: flex-end;
         
         .music {
-            width: 17px;
-            height: 17px;
+            width: 18px;
+            height: 18px;
             background-size: contain;
+            background-repeat: no-repeat;
             animation: rotate 10s linear infinite;
         }
     }

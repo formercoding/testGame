@@ -51,8 +51,8 @@ export default {
     methods: {
         // 确认按钮
         confirm() {
-            this.$emit('confirm');
             this.$emit('update:isOpen', false);
+            this.$emit('confirm');
         },
 
         // 普通关闭按钮
@@ -75,6 +75,19 @@ export default {
             background: #F8F8F8;
             border-radius: 5px 5px 0 0;
             
+        }
+
+        .el-dialog__title {
+            font-size: 14px;
+        }
+
+        .el-dialog__headerbtn {
+            font-size: 12px;
+            line-height: 20px;
+
+            &:hover {
+                color: #bfcbd9;
+            }
         }
 
         .el-dialog__body {
@@ -103,6 +116,7 @@ export default {
                 &.el-button--primary {
                     color: #fff;
                     border: none;
+                    background: #FF981A;
                 }
             }
         }

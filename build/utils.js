@@ -99,8 +99,8 @@ exports.htmlPlugin = function() {
 let entryHtml = glob.sync(PAGE_PATH + '/*/*.html')
 let arr = []
 entryHtml.forEach((filePath) => {
-    let filename = filePath.substring(filePath.lastIndexOf('\/') + 1, filePath.lastIndexOf('.'))
-
+    let filename = filePath.substring(filePath.lastIndexOf('\/') + 1, filePath.lastIndexOf('.'));
+    
     let formatFileName = process.env.NODE_ENV === 'production' ? 
     path.resolve(__dirname, '../../../views/supplier/' + filename + '.php')
     : filename + '.html';

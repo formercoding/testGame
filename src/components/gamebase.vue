@@ -6,93 +6,136 @@
                  label-width="96px"
                  ref="form" 
                  class="base-form">
+
             <!-- 题目 -->
-            <el-form-item label="题目" prop="name" class="title">
-                <el-input v-model="gameBase.name" 
+            <el-form-item label="题目" prop="title" class="title">
+                <el-input v-model="gameBase.title"
                           :maxlength="12"
                           @blur="syncData"
+                          v-wordLimit                          
                           placeholder="请输入题目名称最多12字..." 
                           class="w-300">
                 </el-input>
-                <span class="input-num">{{gameBase.name.length}}/12</span>
+
+                <!-- 已输入字符数显示 -->
+                <span class="input-num">{{gameBase.title.length}}/12</span>
             </el-form-item>
+
             <!-- 关键词 -->
             <el-form-item label="关键词" prop="keyword" class="keys">
                 <el-input v-model="gameBase.keyword" 
                           :maxlength="20"
                           @blur="syncData"
+                          v-wordLimit
                           placeholder="请输入关键词..."
                           class="w-300">
                 </el-input>
+
                 <span class="input-num">{{gameBase.keyword.length}}/20</span>
             </el-form-item>
+
             <!-- 文字描述 -->
             <el-form-item label="文字描述" class="desc" prop="description">
                 <el-input type="textarea"
-                          :maxlength="150"
+                          :maxlength="500"
                           @blur="syncData"
+                          v-wordLimit                          
                           placeholder="请输入活动说明..."
                           v-model="gameBase.description" 
                           class="w-384"
                           resize="none">
                 </el-input>
-                <span class="input-num">{{gameBase.description.length}}/150</span>
+
+                <span class="input-num">{{gameBase.description.length}}/500</span>
             </el-form-item>
         </el-form>
+
         <!-- 图片描述 -->
         <div class="flex desc-pic">
             <span class="label">图片描述</span>
+
+            <!-- 图片展示 -->
             <div class="place-pic" v-show="hasIndexPic">
                 <img :src="gameBase.image">
                 <span class="close" @click="changePic(0, '')"></span>
             </div>
+
             <div class="flex-col upload">
+
+                <!-- 上传图片组件 -->
                 <div class="btn-wrap">
                     <v-uploadpic :flag="0" @upload="changePic" :txtType="1"></v-uploadpic>
                 </div>
+
+                <!-- 图片建议尺寸 -->
                 <span class="suggest">图片建议尺寸：640&times;365px</span>
                 <span class="suggest">图片支持格式：JPG、 JPEG、png</span>
             </div>
         </div>
-        <!-- 分享选择 -->
+
+        <!-- 分享设置 -->
         <div class="shareDefine flex">
             <span class="label">分享设置</span>
-            <el-radio-group v-model="gameBase.share.shareType" @blur="syncData">
-                <el-radio class="radio" label="false">默认设置</el-radio>
-                <el-radio class="radio" label="true">自定义设置</el-radio>
+
+            <!-- 是否自定义分享选项 -->
+            <el-radio-group v-model="gameBase.shareType" @blur="syncData">
+                <el-radio class="radio" :label="0">默认设置</el-radio>
+                <el-radio class="radio" :label="1">自定义设置</el-radio>
             </el-radio-group>
         </div>
+
         <!-- 分享设置 -->
-        <div class="share">
+        <div class="share" v-show="gameBase.shareType === 1">
             <div class="flex share-pic">
                 <span class="label">分享图片</span>
-                <img class="pic" :src="shareConfig.shareImage">
+
+                <!-- 图片展示 -->
+                <img class="pic" :src="gameBase.shareImage" v-show="gameBase.shareImage">
+
+                <!-- 图片上传组件 -->
                 <div class="btn-wrap">
                     <v-uploadpic :flag="1" @upload="changePic" :txtType="1"></v-uploadpic>
                 </div>
+
+                <!-- 图片建议尺寸 -->
                 <div class="flex-col">
                     <span class="suggest">图片尺寸：200&times;200px</span>
                     <span class="suggest">图片格式：JPG、JPEG、png</span>
                 </div>
             </div>
+            
             <!-- 分享设置表单 -->
-            <el-form :model="shareConfig" 
+            <el-form :model="gameBase" 
                      ref="shareForm" 
                      label-width="76px" 
                      class="share-form">
+
                 <!-- 分享标题 -->
                 <el-form-item label="分享标题" prop="shareTitle" class="title">
-                    <el-input v-model="shareConfig.shareTitle" class="w-260" @blur="syncData"></el-input>
+                    <el-input v-model="gameBase.shareTitle" 
+                              class="w-260"
+                              :maxlength="20"
+                              v-wordLimit
+                              placeholder="请输入分享标题最多20字..."
+                              @blur="syncData">
+                    </el-input>
+
+                    <span class="input-num">{{gameBase.shareTitle.length}}/20</span>
                 </el-form-item>
+
                 <!-- 分享描述 -->
                 <el-form-item label="分享描述"  class="desc" prop="shareContent">
                     <el-input type="textarea" 
-                              v-model="shareConfig.shareContent"
+                              v-model="gameBase.shareContent"
                               @blur="syncData"
+                              v-wordLimit
+                              placeholder="请输入分享描述最多30字..."
                               class="w-260"
                               resize="none"
-                              >
+                              :maxlength="30">
                     </el-input>
+
+                    <span class="input-num">{{gameBase.shareContent.length}}/30</span>
                 </el-form-item>
             </el-form>
         </div>
@@ -101,6 +144,8 @@
 <script>
 
 import vUploadpic from './uploadpic';
+import Idouzi from '@idouzi/idouzi-tools'
+import Tool from './../pages/qa/assets/js/common.js'
 
 export default {
     props: {
@@ -118,10 +163,10 @@ export default {
     data() {
         return {
             ajaxUrl: {
-                checkKeyword: 'www.fff.dd'
+                checkKeyword: Tool.editUrl('/supplier/check-keyword')
             },
             ruleBase: { // 基本设置校验
-                name: [
+                title: [
                     { required: true, message: '请输入题目名称', trigger: 'blur' }
                 ],
                 keyword: [
@@ -138,11 +183,6 @@ export default {
             return this.$store.state.gameBase;
         },
 
-        // 设置shareconfig为shareConfig
-        shareConfig() {
-            return this.$store.state.gameBase.share.shareConfig;
-        },
-
         // 是否存在首页图片
         hasIndexPic() {
             return this.gameBase.image !== '';
@@ -150,6 +190,25 @@ export default {
     },
 
     methods: {
+        /**
+         * ajax请求错误提示
+         * @param {Object} error 请求错误对象
+         */
+        showError(error) {
+            // 网络错误
+            if(error.response) {
+                this.$message({
+                    message: error.response.status + ':网络错误，请刷新重试',
+                    duration: 2000
+                });
+            } else { // 请求错误
+                this.$message({
+                    message: '请求错误，请刷新重试',
+                    duration: 2000
+                });
+            }
+        },
+        
         /**
          * 修改图片地址
          * @param {Number} index 要改变的图片索引
@@ -164,7 +223,7 @@ export default {
                 gameBase.image = url;
             } else if(index === 1) {
                 let share = gameBase.share;
-                share.shareConfig.shareImage = url;
+                gameBase.shareImage = url;
             }
 
             // 更新基础设置状态
@@ -187,31 +246,69 @@ export default {
                 gameBase = _this.gameBase;
 
             if (value) {
-                _this.$http.get(_this.ajaxUrl.checkKeyword, {
+
+                // 请求校验
+                _this.$http({
+                    url: _this.ajaxUrl.checkKeyword,
+                    methods: 'post',
                     params: {
                         keyword: value,
-                    },
-                    timeout: 10 * 1000
+                    }
                 }).then((res) => {
                     let resData = res.data;
 
                     // 验证是否通过
                     if(resData.return_code === 'SUCCESS') {
+
                         _this.$emit('update:validateKey', true);
                         callback();
+
                     } else {
-                        callback(new Error(resData.return_msg));
                         _this.$emit('update:validateKey', false);
+                        callback(new Error(resData.return_msg));
+
                     }
-                }, () => {
-                    callback(new Error('网络错误，请刷新后重试！'));
+                }).catch(() => {
+                    
                     _this.$emit('update:validateKey', false);
+                    callback(new Error('网络错误，请刷新后重试！'));
+
                 });
-            } else {
-                callback();
             }
         }
     },
+
+    directives: {
+        // 字数限制控制
+        wordLimit: {
+            inserted(el) {
+                let input = el.querySelector('.el-input__inner')
+                            || el.querySelector('.el-textarea__inner'),
+                    limitEl = el.parentNode.querySelector('.input-num');
+
+                // 隐藏字数限制提示
+                hideWordLimit();
+
+                // 监听表单聚焦事件显示字数限制提示
+                input.addEventListener('focus', showChangeNum, false);
+                // 表单修改事件显示字数
+                input.addEventListener('input', showChangeNum, false);
+                // 表单修改事件显示字数
+                input.addEventListener('blur', hideWordLimit, false);
+
+                // 改变字数限制字数
+                function showChangeNum() {
+                    limitEl.style.display = 'inline-block';
+                }
+
+                // 隐藏字数限制提示
+                function hideWordLimit() {
+                    limitEl.style.display = 'none';
+                }
+            }
+        }
+    },
+
 
     components: {
         vUploadpic
@@ -276,6 +373,10 @@ export default {
 
                 .w-300 {
                     width: 300px;
+
+                    .el-input__inner {
+                        padding-right: 45px;
+                    }
                 }
             }
 
@@ -283,10 +384,10 @@ export default {
             .desc {
                 .input-num {
                     position: absolute;
-                    right: 21px;
-                    bottom: -2px;
+                    right: 12px;
+                    bottom: -26px;
                     font-size: 12px;
-                    color: #ccc; 
+                    color: #ccc;
                 }
 
                 .w-384 {
@@ -328,10 +429,10 @@ export default {
                     right: -6px;
                     width: 16px;
                     height: 16px;
-                    cursor: default;
+                    cursor: pointer;
                     text-align: center;
                     font-size: 14px;
-                    background: url('../pages/create/assets/image/close.png');
+                    background: url('../pages/qa/assets/image/close.png');
                 }
             }
 
@@ -416,6 +517,8 @@ export default {
 
                 /* 分享标题 */
                 .title {
+                    position: relative;
+                    
                     .el-form-item__label {
                         padding-right: 0;
                         text-align: center;
@@ -423,21 +526,44 @@ export default {
 
                     .w-260 {
                         width: 260px;
+
+                        .el-input__inner {
+                            padding-right: 45px;
+                        }
+                    }
+
+                    .input-num {
+                        position: absolute;
+                        top: 0;
+                        right: 40px;
+                        line-height: 34px;
+                        font-size: 12px;
+                        color: #ccc;
                     }
                 }
 
                 /* 分享描述 */
                 .desc {
+                    position: relative;
                     margin: 20px 0 0 0;
 
                     .w-260 {
                         width: 260px;
-                        height: 52px;
+                        height: 54px;
                     }
 
                     .el-form-item__label {
                         padding-right: 0;
                         text-align: center;
+                    }
+
+                    .input-num {
+                        position: absolute;
+                        bottom: -5px;
+                        right: 40px;
+                        line-height: 32px;
+                        font-size: 12px;
+                        color: #ccc;
                     }
                 }
             }

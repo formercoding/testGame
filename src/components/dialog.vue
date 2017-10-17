@@ -15,6 +15,7 @@
                         <ul class="asks">
                             <li v-for="(item, index) in gameQuestions" 
                                 :key="index" 
+                                v-show="goIndex !== index"
                                 :class="{active: targetIndex === index && targetType === 0}"
                                 @click="setOptionTarget(0, index)"
                                 class="flex item">
@@ -42,7 +43,7 @@
                                 <span class="check-box">
                                     <span class="check"></span>
                                 </span>
-                                <span class="desc">{{resultsTxt(index)}}</span>
+                                <span class="desc" :title="resultsTxt(index)">{{resultsTxt(index)}}</span>
                             </li>
                         </ul>
                     </div>
@@ -67,6 +68,10 @@ export default {
             default: 0
         },
         targetType: {
+            type: Number,
+            default: 0
+        },
+        goIndex: {
             type: Number,
             default: 0
         }
@@ -106,7 +111,7 @@ export default {
          */
         resultsTxt(index) {
             let calculateIndex =  index < 9 ? '0' + (index + 1) : index + 1;
-            return calculateIndex + ' ' + this.gameResults[index].name;
+            return `答案${calculateIndex} ${this.gameResults[index].name}`;
         },
 
         /**
@@ -191,7 +196,7 @@ export default {
                             line-height: 26px;
                             color: #212121;
                             font-size: 14px;
-                            cursor: default;
+                            cursor: pointer;
 
                             &:first-child {
                                 margin-top: -4px;

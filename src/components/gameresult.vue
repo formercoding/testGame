@@ -11,8 +11,8 @@
                 <!-- 头部 -->
                 <div class="header flex">
                     <span class="txt">测试结果 {{calculateIndex(index)}}</span>
-                    <span class="sub" @click="delConfirm(index)">-</span>
-                    <span class="add" @click="add(index)">+</span>
+                    <span class="sub" @click="delConfirm(index)"></span>
+                    <span class="add" @click="add(index)"></span>
                 </div>
                 <!-- 题目 -->
                 <el-form-item  prop="name" class="title">
@@ -20,6 +20,8 @@
                               :maxlength="10"
                               placeholder="标题不超过10个字..."
                               @blur="syncData"
+                              v-wordLimit
+                              @focus="changeR(index)"
                               class="w-300">
                     </el-input>
                     <span class="input-num">{{resultData.name.length}}/10</span>
@@ -41,20 +43,21 @@
                 <!-- 结果描述 -->
                 <el-form-item class="desc" prop="content">
                     <el-input type="textarea" 
-                              :maxlength="150" 
+                              :maxlength="500" 
                               v-model="resultData.content"
                               placeholder="文字描述..."
                               @blur="syncData"
+                              v-wordLimit
+                              @focus="changeR(index)"
                               class="w-370" 
                               resize="none">
                     </el-input>
-                    <span class="input-num">{{resultData.content.length}}/150</span>
+                    <span class="input-num">{{resultData.content.length}}/500</span>
                 </el-form-item>
             </div>
         </el-form>
         <!-- 提示弹出框 -->
         <v-tipDialog :isOpen.sync="tipDialog" @confirm="sub" :txt="tipTxt" title="操作提示"></v-tipdialog>
-
     </div>
 </template>
 <script>
@@ -68,6 +71,7 @@ export default {
                 name: [
                     { required: true, message: '请输入标题', trigger: 'blur' }
                 ],
+                
                 content: [
                     { required: true, message: '请输入文字描述', trigger: 'blur' }
                 ]
@@ -92,6 +96,14 @@ export default {
     },
     
     methods: {
+        /**
+         * 改变当前结果
+         * @param {Number} index 结果索引
+         */
+        changeR(index) {
+            this.$store.commit('setCurR', index);
+        },
+
         /**
          * 修改图片地址
          * @param {Number} index 要改变的图片索引
@@ -119,15 +131,14 @@ export default {
             _this.tipTxt = '确认删除？';
 
             // 验证关联性
-            gameQuestions.forEach((question) => {
-                question.options.forEach((option)=> {
-                    let target = option.target;
+            gameQuestions.forEach((question, qIndex) => {
+                question.options.forEach((option, oIndex)=> {
 
                     // 验证是否关联
-                    if(target.type === 1 && target.issueOrResultId === index) {
+                    if(option.type === 1 && option.issueOrResultId === index) {
                         
                         // 切换弹窗类型
-                        _this.tipTxt = '该问题已被关联，是否确认删除？';
+                        _this.tipTxt = `该问题与问题${qIndex+1}的选项${oIndex+1}关联，是否确认删除？`;
                     }
                 })
             });
@@ -171,8 +182,13 @@ export default {
             let _this = this,
                 gameQuestions = _this.gameQuestions,
                 gameResults = _this.gameResults;
+
             // 控制答案个数20
-            if(gameResults.length === 20) {
+            if(gameResults.length === 10) {
+                _this.$message({
+                    message: '答案最多为10个',
+                    duration: 2000
+                });
                 return false;
             }
 
@@ -186,15 +202,14 @@ export default {
             // 问题的关联性更新
             gameQuestions.forEach((question) => {
                 question.options.forEach((option)=> {
-                    let target = option.target;
 
                     // 当选项的关联索引 <= 删除索引 关联性不变
 
                     // 当选项的关联索引 > 增加索引 关联结果后置一个单位
-                    if(target.type === 1 && target.issueOrResultId > index) {
+                    if(option.type === 1 && option.issueOrResultId > index) {
 
                         // 删除问题的关联目标
-                        target.issueOrResultId = target.issueOrResultId + 1;
+                        option.issueOrResultId = option.issueOrResultId + 1;
                     }
                 })
             });
@@ -210,44 +225,43 @@ export default {
          * 减少问题结果
          * @param {Number} index 问题结果索引
          */
-        sub(index) {
+        sub() {
             let _this = this,
                 gameResults = _this.gameResults,
                 gameQuestions = _this.gameQuestions;
 
-            // 防止全被删除 至少保留一题
-            if(gameResults.length === 1) {
+            // 防止全被删除 至少保留2题
+            if(gameResults.length === 2) {
 
                 // 当前结果为一时替换题目
-                gameResults.splice(index, 1, {
-                    _id: 0, // 测试结果序号
+                gameResults.splice(_this.delIndex, 1, {
+                    questionId: 0, // 测试结果序号
                     content: '', // 测试结果描述
                     image: '', // 测试结果图片地址
                     name: '', // 测试结果标题
                 });
 
-                // 此时结果个数为一，保留其关联性
+                // 此时结果个数为2，保留其关联性
 
-            } else { // 当前结果个数大于一
+            } else { // 当前结果个数大于2
 
                 // 更新 问题关联性
                 gameQuestions.forEach((question) => {
                     question.options.forEach((option)=> {
-                        let target = option.target;
 
                         // 当选项的关联索引 = 删除索引 删除关联性
-                        if(target.type === 1 && target.issueOrResultId === _this.delIndex) {
+                        if(option.type === 1 && option.issueOrResultId === _this.delIndex) {
 
                             // 删除问题的关联目标
-                            target.type = -1;
-                            target.issueOrResultId = -1;
+                            option.type = -1;
+                            option.issueOrResultId = -1;
                         }
                         
                         // 当选项的关联索引 > 删除索引 将关联性提前一个位置
-                        if(target.type === 1 && target.issueOrResultId > _this.delIndex) {
+                        if(option.type === 1 && option.issueOrResultId > _this.delIndex) {
 
                             // 提前问题的关联目标
-                            target.issueOrResultId = target.issueOrResultId - 1;
+                            option.issueOrResultId = option.issueOrResultId - 1;
                         }
 
                         // 当选项的关联索引 < 删除索引 关联性不变
@@ -255,7 +269,7 @@ export default {
                 });
 
                 // 删除问题
-                gameResults.splice(index, 1);
+                gameResults.splice(_this.delIndex, 1);
 
                 // 同时更新问题
                 _this.$store.commit('setGameQuestions', gameQuestions);
@@ -264,6 +278,37 @@ export default {
 
             // 更新游戏答案
             _this.syncData();
+        }
+    },
+
+    directives: {
+        // 字数限制控制
+        wordLimit: {
+            inserted(el) {
+                let input = el.querySelector('.el-input__inner')
+                            || el.querySelector('.el-textarea__inner'),
+                    limitEl = el.parentNode.querySelector('.input-num');
+
+                // 隐藏字数限制提示
+                hideWordLimit();
+
+                // 监听表单聚焦事件显示字数限制提示
+                input.addEventListener('focus', showChangeNum, false);
+                // 表单修改事件显示字数
+                input.addEventListener('input', showChangeNum, false);
+                // 表单修改事件显示字数
+                input.addEventListener('blur', hideWordLimit, false);
+
+                // 改变字数限制字数
+                function showChangeNum() {
+                    limitEl.style.display = 'inline-block';
+                }
+
+                // 隐藏字数限制提示
+                function hideWordLimit() {
+                    limitEl.style.display = 'none';
+                }
+            }
         }
     },
 
@@ -317,29 +362,18 @@ export default {
                     }
 
                     .sub {
-                        width: 16px;
-                        height: 16px;
+                        width: 20px;
+                        height: 20px;
                         margin-right: 20px;
-                        text-align: center;
-                        font-size: 24px;
-                        color: #FF6A4D;
-                        line-height: 12px;
-                        border: 2px solid #FF6A4D;
-                        box-sizing: content-box;
-                        cursor: default;
+                        background: url('../pages/qa/assets/image/sub.png');
+                        cursor: pointer;       
                     }
 
                     .add {
-                        width: 16px;
-                        height: 16px;
-                        text-align: center;
-                        font-size: 24px;
-                        color:  #7ED321;
-                        line-height: 15px;
-                        border: 2px solid  #7ED321;
-                        box-sizing: content-box;
-                        cursor: default;
-
+                        width: 20px;
+                        height: 20px;
+                        background: url('../pages/qa/assets/image/add.png');  
+                        cursor: pointer;       
                     }
                 }
 
@@ -388,9 +422,9 @@ export default {
                             right: -6px;
                             width: 16px;
                             height: 16px;
-                            cursor: default;
+                            cursor: pointer;
                             text-align: center;
-                            background: url('../pages/create/assets/image/close.png');
+                            background: url('../pages/qa/assets/image/close.png');
                         }
                     }
 
@@ -419,10 +453,10 @@ export default {
 
                     .input-num {
                         position: absolute;
-                        right: 53px;
-                        bottom: -2px;
+                        right: 43px;
+                        bottom: -26px;
                         font-size: 12px;
-                        color: #ccc; 
+                        color: #ccc;
                     }
 
                     .w-370 {

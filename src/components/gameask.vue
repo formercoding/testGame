@@ -9,9 +9,9 @@
             <div class="ask">
                 <!-- 头部 -->
                 <div class="header flex">
-                    <span class="txt">测试结果 {{calculateIndex(index)}}</span>
-                    <span class="sub" @click="delConfirm(index)">-</span>
-                    <span class="add" @click="add(index)">+</span>
+                    <span class="txt">测试问题 {{calculateIndex(index)}}</span>
+                    <span class="sub" @click="delConfirm(index)"></span>
+                    <span class="add" @click="add(index)"></span>
                 </div>
                 <!-- 问题描述 -->
                 <el-form-item class="title" prop="question.name"
@@ -19,14 +19,16 @@
                         required: true, message: '请输入选项描述', trigger: 'blur'
                     }">
                     <el-input type="textarea" 
-                              :maxlength="38"
-                              placeholder="请输入问题..."
+                              :maxlength="30"
+                              placeholder="请输入提问..."
                               v-model="askData.question.name"
                               @blur="syncData"
+                              @focus="changeQ(index)"
                               class="w-300"
+                              v-wordLimit
                               resize="none">
                     </el-input>
-                    <span class="input-num">{{askData.question.name.length}}/38</span>
+                    <span class="input-num">{{askData.question.name.length}}/30</span>
                     <!-- 描述图片 -->
                     <div class="flex desc-pic">
                         <div class="place-pic" v-show="askData.question.image !== ''">
@@ -52,31 +54,35 @@
                         required: true, message: '请输入选项描述', trigger: 'blur'
                     }">
                     <!-- 选项描述 -->
-                    <span class="key">A.</span>
+                    <span class="key">{{optionOrder(indexs)}}</span>
                     <el-input v-model="option.name" 
                               :maxlength="20"
-                              placeholder="不超过20个字" 
+                              placeholder="不超过20个字..." 
                               @blur="syncData"
+                              v-wordLimit
+                              @focus="changeQ(index)"
                               class="w-300">
                     </el-input>
                     <span class="input-num">{{option.name.length}}/20</span>
                     <!-- 选择跳转 -->
                     <span class="txt">跳转至</span>
                     <span class="target" 
-                          :class="{active: isTarget(option.target.type, option.target.issueOrResultId)}"
+                          :class="{active: isTarget(option.type, option.issueOrResultId)}"
                           @click="targetChose(index, indexs)">
-                          {{targetTxt(option.target.type, option.target.issueOrResultId)}}
+                          {{targetTxt(option.type, option.issueOrResultId)}}
                     </span>
                  </el-form-item>
                 <!-- 增加选项 -->
                 <div class="add-opt">
                     <button type="button" class="btn" @click="addOption(index)">增加答案</button>
+                    <button type="button" class="btn" @click="subOption(index)">减少答案</button>
                 </div>
                 <!-- 选择弹出框 -->
                 <v-dialog 
                     @confirm="setTarget"
                     :isOpen.sync="goDialog"
                     :targetType.sync="targetType"
+                    :goIndex="goIndex"
                     :targetIndex.sync="targetIndex">
                 </v-dialog>
                 <!-- 提示弹出框 -->
@@ -112,6 +118,22 @@ export default {
 
     methods: {
         /**
+         * 改变当前问题
+         * @param {Number} index 问题索引
+         */
+        changeQ(index) {
+            this.$store.commit('setCurQ', index);
+        },
+
+        /**
+         * 返回选项序号ABCD
+         * @param {Number} index 选项索引
+         */
+        optionOrder(index) {
+            let order = ['A','B', 'C', 'D']
+            return `${order[index]}.`;
+        },
+        /**
          * 修改图片地址
          * @param {Number} index 要改变的图片索引
          * @param {String} url 要改变的图片地址
@@ -139,14 +161,13 @@ export default {
             _this.tipTxt = '确认删除？';
 
             // 验证关联性
-            gameQuestions.forEach((question) => {
-                question.options.forEach((option)=> {
-                    let target = option.target;
+            gameQuestions.forEach((question, qIndex) => {
+                question.options.forEach((option, oIndex)=> {
 
                     // 验证是否关联
-                    if(target.type === 0 && target.issueOrResultId === index) {
+                    if(option.type === 0 && option.issueOrResultId === index) {
                         // 切换弹窗类型
-                        _this.tipTxt = '该问题已被关联，确认删除？';
+                        _this.tipTxt = `该问题与问题${qIndex+1}的选项${oIndex+1}关联，确认删除？`;
                     }
                 })
             });
@@ -163,12 +184,11 @@ export default {
         setTarget() {
             let _this = this,
                 curQuestion = _this.gameQuestions[_this.goIndex],
-                curOption = curQuestion.options[_this.goIndexs],
-                target = curOption.target;
+                curOption = curQuestion.options[_this.goIndexs];
 
             // 跳转目标修改
-            target.type = _this.targetType;
-            target.issueOrResultId = _this.targetIndex;
+            curOption.type = _this.targetType;
+            curOption.issueOrResultId = _this.targetIndex;
 
             // 同步gameQuestions数据至vuex
             _this.syncData();
@@ -198,7 +218,7 @@ export default {
          * @param {Number} index 跳转索引
          */
         isTarget(type, index) {
-            if(type === '' || index === '') { 
+            if(type === -1 || index === -1) { 
                 return false;
             } else {
                 return true;
@@ -212,13 +232,13 @@ export default {
          */
         targetChose(index, indexs) {
             let _this = this,
-                target =  _this.gameQuestions[index].options[indexs].target;
+                option =  _this.gameQuestions[index].options[indexs];
 
             _this.goIndex = index;
             _this.goIndexs = indexs;
 
-            _this.targetType = target.type;
-            _this.targetIndex = target.issueOrResultId;
+            _this.targetType = option.type;
+            _this.targetIndex = option.issueOrResultId;
 
             // 弹出框
             _this.goDialog = true;
@@ -249,6 +269,10 @@ export default {
 
             // 控制问题20以上
             if(gameQuestions.length === 20) {
+                _this.$message({
+                    message: '问题最多为20个',
+                    duration: 2000
+                });
                 return false;
             }
 
@@ -257,21 +281,17 @@ export default {
                 _id: 0, // 问题序号
                 question: { // 问题文字描述
                     image: '', // 问题图片地址
-                    name: '1', // 问题描述
+                    name: '', // 问题描述
                 }, 
                 options: [ // 问题选项数组
                     {
                         name: '', // 答案文字描述
-                        target: {
-                            type: -1,
-                            issueOrResultId: -1
-                        }
+                        type: -1,
+                        issueOrResultId: -1
                     }, {
                         name: '', // 答案文字描述
-                        target: {
-                            type: -1,
-                            issueOrResultId: -1
-                        }
+                        type: -1,
+                        issueOrResultId: -1
                     }
                 ]
             });
@@ -279,15 +299,14 @@ export default {
             // 问题的关联性更新
             gameQuestions.forEach((question) => {
                 question.options.forEach((option)=> {
-                    let target = option.target;
 
                     // 当选项的关联索引 <= 删除索引 关联性不变
 
                     // 当选项的关联索引 > 增加索引 关联结果后置一个单位
-                    if(target.type === 0 && target.issueOrResultId > index) {
+                    if(option.type === 0 && option.issueOrResultId > index) {
 
                         // 删除问题的关联目标
-                        target.issueOrResultId = target.issueOrResultId + 1;
+                        option.issueOrResultId = option.issueOrResultId + 1;
                     }
                 })
             });
@@ -302,16 +321,49 @@ export default {
          * @param {Number} indexs 二级索引
          */
         addOption(index) {
-            let _this = this;
+            let _this = this,
+                options = _this.gameQuestions[index].options;
+            
+            // 限制答案最多为四个
+            if(options.length === 4) {
+                _this.$message({
+                    message: '问题选项最多为4个',
+                    duration: 2000
+                });
+                return false;
+            }
 
             // 添加选项
-            _this.gameQuestions[index].options.push({
+            options.push({
                 name: '', // 答案文字描述
-                target: {
-                    type: -1,
-                    issueOrResultId: -1
-                }
+                type: -1,
+                issueOrResultId: -1
             });
+
+            // 同步vuex数据
+            _this.syncData();
+        },
+
+        /**
+         * 减少问题选项
+         * @param {Nubmer} index 一级索引
+         * @param {Number} indexs 二级索引
+         */
+        subOption(index) {
+            let _this = this,
+                options = _this.gameQuestions[index].options;
+            
+            // 限制答案最少为2个
+            if(options.length === 2) {
+                _this.$message({
+                    message: '问题选项最少为2个',
+                    duration: 2000
+                });
+                return false;
+            }
+
+            // 减少选项
+            options.pop();
 
             // 同步vuex数据
             _this.syncData();
@@ -327,7 +379,7 @@ export default {
             _this.goIndexs = 0;            
 
             // 防止全被删除 至少保留两个
-            if(gameQuestions.length === 2) { // 当前问题个数为2
+            if(gameQuestions.length <= 2) { // 当前问题个数为2
 
                 gameQuestions.splice(_this.delIndex, 1, {
                     _id: 0, // 问题序号
@@ -338,16 +390,12 @@ export default {
                     options: [ // 问题选项数组
                         {
                             name: '', // 答案文字描述
-                            target: {
-                                type: -1,
-                                issueOrResultId: -1
-                            }
+                            type: -1,
+                            issueOrResultId: -1
                         }, {
                             name: '', // 答案文字描述
-                            target: {
-                                type: -1,
-                                issueOrResultId: -1
-                            }
+                            type: -1,
+                            issueOrResultId: -1
                         }
                     ]
                 });
@@ -358,21 +406,20 @@ export default {
                 // 更新 问题关联性
                 gameQuestions.forEach((question) => {
                     question.options.forEach((option)=> {
-                        let target = option.target;
 
                         // 当选项的关联索引 = 删除索引 删除关联性
-                        if(target.type === 0 && target.issueOrResultId === _this.delIndex) {
+                        if(option.type === 0 && option.issueOrResultId === _this.delIndex) {
 
                             // 删除问题的关联目标
-                            target.type = -1;
-                            target.issueOrResultId = -1;
+                            option.type = -1;
+                            option.issueOrResultId = -1;
                         }
                         
                         // 当选项的关联索引 > 删除索引 将关联性提前一个位置
-                        if(target.type === 0 && target.issueOrResultId > _this.delIndex) {
+                        if(option.type === 0 && option.issueOrResultId > _this.delIndex) {
 
                             // 提前问题的关联目标
-                            target.issueOrResultId = target.issueOrResultId - 1;
+                            option.issueOrResultId = option.issueOrResultId - 1;
                         }
 
                         // 当选项的关联索引 < 删除索引 关联性不变
@@ -385,6 +432,37 @@ export default {
 
             // 同步vuex数据
             _this.syncData();
+        }
+    },
+
+    directives: {
+        // 字数限制控制
+        wordLimit: {
+            inserted(el) {
+                let input = el.querySelector('.el-input__inner')
+                            || el.querySelector('.el-textarea__inner'),
+                    limitEl = el.parentNode.querySelector('.input-num');
+
+                // 隐藏字数限制提示
+                hideWordLimit();
+
+                // 监听表单聚焦事件显示字数限制提示
+                input.addEventListener('focus', showChangeNum, false);
+                // 表单修改事件显示字数
+                input.addEventListener('input', showChangeNum, false);
+                // 表单修改事件显示字数
+                input.addEventListener('blur', hideWordLimit, false);
+
+                // 改变字数限制字数
+                function showChangeNum() {
+                    limitEl.style.display = 'inline-block';
+                }
+
+                // 隐藏字数限制提示
+                function hideWordLimit() {
+                    limitEl.style.display = 'none';
+                }
+            }
         }
     },
 
@@ -441,28 +519,18 @@ export default {
                     }
 
                     .sub {
-                        width: 16px;
-                        height: 16px;
+                        width: 20px;
+                        height: 20px;
                         margin-right: 20px;
-                        text-align: center;
-                        font-size: 24px;
-                        color: #FF6A4D;
-                        line-height: 12px;
-                        border: 2px solid #FF6A4D;
-                        box-sizing: content-box;
-                        cursor: default;                        
+                        background: url('../pages/qa/assets/image/sub.png');    
+                        cursor: pointer;               
                     }
 
                     .add {
-                        width: 16px;
-                        height: 16px;
-                        text-align: center;
-                        font-size: 24px;
-                        color:  #7ED321;
-                        line-height: 15px;
-                        border: 2px solid  #7ED321;
-                        box-sizing: content-box;
-                        cursor: default;
+                        width: 20px;
+                        height: 20px;
+                        background: url('../pages/qa/assets/image/add.png');
+                        cursor: pointer;               
                     }
                 }
 
@@ -528,9 +596,9 @@ export default {
                                 right: -6px;
                                 width: 16px;
                                 height: 16px;
-                                cursor: default;
+                                cursor: pointer;
                                 text-align: center;
-                                background: url('../pages/create/assets/image/close.png');
+                                background: url('../pages/qa/assets/image/close.png');
                             }
                         }
 
@@ -582,6 +650,7 @@ export default {
                             position: relative;
                             width: 300px;
                             margin-right: 9px;
+                            padding-right: 40px;
                         }
 
                         .el-form-item__error {
@@ -599,12 +668,14 @@ export default {
                         }
 
                         .txt {
+                            flex-shrink: 0;
                             margin-right: 10px;
                             color: #bababa;
                         }
 
                         .target {
-                            cursor: default;
+                            flex-shrink: 0;
+                            cursor: pointer;
                         }
                         .target.active {
                             color: #FF981A;
@@ -614,16 +685,22 @@ export default {
                 
                 /* 添加选项 */
                 .add-opt {
-                    margin-left: 23px;
-
+                    width: 323px;
+                    text-align: right;
+                    
                     .btn {
                         .btn-base;
-                        width: 300px;
                         height: 32px;
-                        margin: 10px 0 0 0;
-                        color: #FF981A;
-                        border: 1px solid #FF981A;
+                        margin: 10px 0 0 20px;
+                        padding: 0 16px;
+                        color: #999999;
+                        border: 1px solid #999999;
                         background: #fff;
+
+                        &:hover {
+                            color: #FF981A;
+                            border: 1px solid #FF981A;
+                        }
                     }
                 }
             }
