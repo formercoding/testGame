@@ -41,10 +41,10 @@
                                         :validateKey.sync="validateKey"></GameBase>
                             
                             <!-- 游戏结果设置 -->
-                            <gamequestions v-show="curTab === 2"></gamequestions>
+                            <gameresults v-show="curTab === 2"></gameresults>
 
-                            <!-- 游戏结果设置 -->
-                            <gameresults v-show="curTab === 3"></gameresults>
+                            <!-- 游戏问题设置 -->
+                            <gamequestions v-show="curTab === 3"></gamequestions>
                         </div>
                     </div>
                 </div>

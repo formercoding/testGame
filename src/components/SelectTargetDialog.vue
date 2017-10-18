@@ -8,16 +8,16 @@
         :lock-scroll="true"
         :modal-append-to-body="true">
         <div class="content flex">
-            <div class="ask-box flex-col">
 
-                <!-- 问题集合 -->
+            <!-- 问题集合 -->
+            <div class="ask-box flex-col">
                 <span class="txt">问题</span>
                 <div class="scroll-wrap">
                     <div class="scroll" v-bar>
                         <ul class="asks">
                             <li v-for="(item, index) in gameQuestions" 
                                 :key="index" 
-                                v-show="goIndex !== index"
+                                v-if="goIndex !== index"
                                 :class="{active: targetIndex === index && targetType === 0}"
                                 @click="setOptionTarget(0, index)"
                                 class="flex item">
@@ -154,6 +154,7 @@ export default {
         width: 425px;
         border-radius: 5px;
         background: #fff;
+        overflow: hidden;
 
         /* 头部 */
         .el-dialog__header {
@@ -200,6 +201,10 @@ export default {
 
                     .scroll {
                         height: 220px;
+
+                        .asks {
+                            font-size: 0;
+                        }
                         
                         .item {
                             align-items: center;

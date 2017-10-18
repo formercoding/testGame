@@ -381,6 +381,7 @@ export default {
                         text-align: right;
                         font-size: 12px;
                         color: #ccc;
+                        line-height: 30px;
                     }
 
                     .w-300 {
@@ -444,7 +445,7 @@ export default {
 
                     .input-num {
                         position: absolute;
-                        right: 43px;
+                        right: 27px;
                         bottom: -26px;
                         font-size: 12px;
                         color: #ccc;

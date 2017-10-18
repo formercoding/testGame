@@ -32,12 +32,12 @@ export default new Vuex.Store({
                 options: [ // 问题选项数组
                     {
                         name: '', // 答案文字描述
-                        type: 0,
-                        issueOrResultId: 0
+                        type: -1,
+                        issueOrResultId: -1
                     }, {
                         name: '', // 答案文字描述
-                        type: 0,
-                        issueOrResultId: 0
+                        type: -1,
+                        issueOrResultId: -1
                     }
                 ]
             }
@@ -89,7 +89,7 @@ export default new Vuex.Store({
          * 设置curQuestionIndex
          * @param {Array} index 切换的索引
          */
-        setQuestionIndex(state, index) {
+        setCurQuestionIndex(state, index) {
             state.tabState.curQuestionIndex = index;
         },
 

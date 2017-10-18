@@ -12,7 +12,8 @@
                 <el-input v-model="gameBase.title"
                           :maxlength="12"
                           @blur="syncData"
-                          v-wordLimit                          
+                          v-wordLimit
+                          class="w-300"                         
                           placeholder="请输入题目名称最多12字...">
                 </el-input>
 
@@ -41,7 +42,6 @@
                           v-wordLimit                          
                           placeholder="请输入活动说明..."
                           v-model="gameBase.description" 
-                          class="w-384"
                           resize="none">
                 </el-input>
 
@@ -346,6 +346,7 @@ export default {
                     text-align: right;
                     font-size: 12px;
                     color: #ccc;
+                    line-height: 30px;
                 }
 
                 .w-300 {
@@ -363,6 +364,7 @@ export default {
                     text-align: right;
                     font-size: 12px;
                     color: #ccc;
+                    line-height: 30px;                    
                 }
 
                 .w-300 {

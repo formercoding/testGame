@@ -1,13 +1,13 @@
 <template>
-    <div class="gameask">
+    <div class="game-question">
         <!-- 问题表单 -->
-        <el-form v-for="(askData, index) in gameQuestions" 
-                 :model= "askData"
+        <el-form v-for="(questionData, index) in gameQuestions" 
+                 :model= "questionData"
                  :key="index"
-                 class="ask-form">
+                 class="question-form">
 
             <!-- 问题遍历 -->
-            <div class="ask">
+            <div class="question">
 
                 <!-- 头部 -->
                 <div class="header flex">
@@ -25,24 +25,24 @@
                     <el-input type="textarea" 
                               :maxlength="30"
                               placeholder="请输入提问..."
-                              v-model="askData.question.name"
+                              v-model="questionData.question.name"
                               @blur="syncData"
-                              @focus="changeQ(index)"
+                              @focus="changeCurQuestionIndex(index)"
                               class="w-300"
                               v-wordLimit
                               resize="none">
                     </el-input>
 
-                    <span class="input-num">{{askData.question.name.length}}/30</span>
+                    <span class="input-num">{{questionData.question.name.length}}/30</span>
 
                     <!-- 描述图片 -->
                     <div class="flex desc-pic">
-                        <div class="place-pic" v-show="askData.question.image !== ''">
-                            <img :src="askData.question.image + '?imageMogr2/auto-orient/crop/!640x365'">
+                        <div class="place-pic" v-show="questionData.question.image !== ''">
+                            <img :src="questionData.question.image + '?imageMogr2/auto-orient/crop/!640x365'">
                             <span class="close" @click="changePic(index, '')"></span>
                         </div>
 
-                        <div class="flex-col upload" v-show="askData.question.image === ''">
+                        <div class="flex-col upload" v-show="questionData.question.image === ''">
                             <div class="btn-wrap">
                                 <uploadpic :flag="index" @upload="changePic"></uploadpic>
                             </div>
@@ -57,7 +57,7 @@
 
                 <el-form-item
                     class="option"
-                    v-for="(option, indexs) in askData.options"
+                    v-for="(option, indexs) in questionData.options"
                     :key="indexs"
                     :prop="'options.' + indexs + '.name'"
                     :rules="{
@@ -72,7 +72,7 @@
                               placeholder="不超过20个字..." 
                               @blur="syncData"
                               v-wordLimit
-                              @focus="changeQ(index)"
+                              @focus="changeCurQuestionIndex(index)"
                               class="w-300">
                     </el-input>
 
@@ -141,8 +141,8 @@ export default {
          * 改变当前问题
          * @param {Number} index 问题索引
          */
-        changeQ(index) {
-            this.$store.commit('setCurQestionIndex', index);
+        changeCurQuestionIndex(index) {
+            this.$store.commit('setCurQuestionIndex', index);
         },
 
         /**
@@ -332,8 +332,11 @@ export default {
             this.syncData();
         },
 
-        // 增加问题选项
-        addOption() {
+        /**
+         * 增加问题选项
+         * @param {Number} index 当前选择问题索引
+         */
+        addOption(index) {
             let _this = this,
                 options = _this.gameQuestions[index].options;
             
@@ -357,7 +360,10 @@ export default {
             _this.syncData();
         },
 
-        // 减少问题选项
+        /**
+         * 减少问题选项
+         * @param {Number} index 当前选择问题索引
+         */
         subOption(index) {
             let _this = this,
                 options = _this.gameQuestions[index].options;
@@ -430,7 +436,7 @@ export default {
                 });
 
                 // 设置当前问题索引为 0 默认值
-                _this.changeQ(0);
+                _this.changeCurQuestionIndex(0);
 
                 // 删除问题
                 gameQuestions.splice(_this.delIndex, 1);
@@ -500,21 +506,21 @@ export default {
         background-position: center center;
     }
 
-    .gameask {
+    .game-question {
         font-size: 14px;
         color: #666;
         
         /* 问题表单 */
-        .ask-form {
+        .question-form {
             padding-top: 12px;
 
             &:last-child {
-                .ask {
+                .question {
                     border-bottom: none;
                 }
             }
             
-            .ask {
+            .question {
                 width: 430px;
                 margin-right: 62px;
                 padding: 20px 0;
@@ -552,7 +558,7 @@ export default {
                     .input-num {
                         position: relative;
                         top: 6px;
-                        right: 48px;
+                        right: 54px;
                         display: inline-block;
                         width: 40px;
                         text-align: right;

@@ -5,6 +5,7 @@
                class="file"
                @change="getSignature($event)">
         <button type="button"
+                :disabled="disabled"
                 class="btn">
                 上传图片
         </button>
@@ -53,7 +54,6 @@ export default {
             disabled: false, // 上传按钮状态
             signature: '', // 商家签名 
             limit: 1000, // 图片上传限制
-            overdure: 0
         }
     },
 
@@ -95,13 +95,26 @@ export default {
                     sessionStorage.signatureTime = new Date().getTime();
 
                     _this.uploadPic(event);
+                } else {
+                    _this.$message({
+                        message: data.return_msg,
+                        duration: 2000
+                    });
+                    _this.disabled = false;
                 }
-            }, (res) => {
-                // 获取签名失败提示
-                _this.$message({
-                    message: '获取签名失败',
-                    duration: 2000
-                });
+            }).catch( (error) => {
+                // 网络错误
+                if(error.response) {
+                    this.$message({
+                        message: error.response.status + ':网络错误，请刷新重试',
+                        duration: 2000
+                    });
+                } else { // 请求错误
+                    this.$message({
+                        message: '请求错误，请刷新重试',
+                        duration: 2000
+                    });
+                }
 
                 _this.disabled = false;
             });
@@ -169,13 +182,19 @@ export default {
                 }
 
                 _this.disabled = false;
-                
-            }, (res) => {
-                // 获取签名失败提示
-                _this.$message({
-                    message: '上传图片失败',
-                    duration: 2000
-                });
+            }).catch((res) => {
+                // 网络错误
+                if(error.response) {
+                    this.$message({
+                        message: error.response.status + ':网络错误，请刷新重试',
+                        duration: 2000
+                    });
+                } else { // 请求错误
+                    this.$message({
+                        message: '请求错误，请刷新重试',
+                        duration: 2000
+                    });
+                }
 
                 _this.disabled = false;
             });

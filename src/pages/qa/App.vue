@@ -10,9 +10,9 @@ import setgame from './../../components/SetGame'
 export default {
     mounted() {
         // 确认离开
-        window.onbeforeunload = function() {
-            return "系统可能不会保存您所做的更改。";
-        }
+        // window.onbeforeunload = function() {
+        //     return "系统可能不会保存您所做的更改。";
+        // }
     },
 
     components: {
