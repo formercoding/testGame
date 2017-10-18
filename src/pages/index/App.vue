@@ -94,7 +94,7 @@
                     <div class="dialog-content">
 
                         <!-- 二维码 -->
-                        <v-qrcode :value="shareUrl" size="152"></v-qrcode>
+                        <qrcode :value="shareUrl" size="152"></qrcode>
                         <span class="txt">扫码分享</span>
 
                         <!-- 复制链接 -->
@@ -121,29 +121,29 @@
         </div>
 
         <!-- 提示弹出框 操作活动二次确认 -->
-        <v-tipDialog 
+        <tipdialog 
             :isOpen.sync="isHandleOpen"
             title="提示"
             @confirm="changeState"
             class="confrimDialog"
             :txt="tipTxt">
-        </v-tipDialog>
+        </tipdialog>
     </div>
 </template>
 <script>
-import Idouzi from '@idouzi/idouzi-tools'
-import Tool from './assets/js/common.js'
-import vQrcode from 'qrcode.vue'
-import Clipboard from 'clipboard'
-import vTipDialog from './../../components/tipdialog'
-import qs from 'qs'
+import Idouzi from '@idouzi/idouzi-tools' // Idouzi工具包
+import Tool from './../../common/common.js' // 公共JS
+import qrcode from 'qrcode.vue' // 二维码预览
+import Clipboard from 'clipboard' // 复制插件
+import tipdialog from './../../components/TipDialog' // 弹窗文字提示
+import qs from 'qs' // post数据序列化
+import {Loading} from 'element-ui' // 饿了么loading
 
 // 主題ID
 let themeId = Idouzi.getQueryValue('themeId');
 
 export default {
     data() {
-
         return {
             isHandleOpen: false, // 活动操作弹窗
             stateIndex: 0, // 当前操作活动索引
@@ -173,6 +173,8 @@ export default {
                 title: '数页', // 测试名称
                 uv: 0 // 游戏uv
             }],
+
+            csrf: ''
         }
     },
 
@@ -207,43 +209,12 @@ export default {
         new Clipboard('.copy-btn');
 
         // 数据请求
-        _this.$http({
-            url: _this.ajaxUrl.list,
-            method: 'post',
-            timeout: 10 * 1000,
-            params: {
-                themeId,
-                page: _this.page,
-                rows: 10
-            }
-        }).then((res) => {
-            let resData = res.data;
-                msg = resData.return_msg;
-            
-            if(resData.return_code === 'SUCCESS') {
-
-                _this.total = msg.totalPage;
-                _this.rows = msg.lists;
-            } else {
-                // 显示错误信息
-                _this.$message(msg);
-            }
-
-            // 关闭加载条
-            _this.loading = false;
-        }).catch((error) => {
-            // 显示错误信息
-            _this.showError(error);
-
-            // 关闭加载条
-            _this.loading = false;
-        });      
+        _this.refreshList(0);
     },
 
     methods: {
         /**
          * 改变活动状态二次确认
-         * @param {String} 当前操作的活动ID eventId 
          * @param {Number} 当前操作的活动索引 index
          */
         handlerConfirm(index) {
@@ -252,23 +223,22 @@ export default {
 
             _this.stateIndex = index;
 
-
-            if(state === "违规") {
+            if(state === '违规') {
                 return false;
             } else {
                 _this.tipTxt = `确认${_this.stateTxt(state)}活动`
             }
 
             _this.isHandleOpen = true;
-
         },
 
         // 关闭prover
         hideProver() {
             let _this = this;
 
-            setTimeout(() => {
+            let timer = setTimeout(() => {
                 document.querySelector('.el-popover').style.display = 'none';
+                clearTimeout(timer);
             }, 1000);
         },
         
@@ -309,8 +279,10 @@ export default {
                     break;
                 }
                 case '违规': {
-                    txt = '违规'
+                    txt = '违规';
+                    break;
                 }
+                default: break;
             }
 
             return txt;
@@ -326,10 +298,10 @@ export default {
             _this.loading = true;
 
             _this.$http({
-                method: 'post',
+                method: 'get',
                 url: _this.ajaxUrl.list,
                 params: {
-                    themeId: Idouzi.getQueryValue('themeId'),
+                    themeId,
                     page: curPage,
                     rows: 10
                 }
@@ -337,7 +309,8 @@ export default {
                 let resData = res.data,
                     msg = resData.return_msg;
 
-                if(resData.return_code === 200) {
+                if(resData.return_code === 'SUCCESS') {
+                    _this.csrf = resData.headers._csrf;
                     _this.rows = msg.lists;
                     _this.totalPage = msg.totalPage;
                 } else {
@@ -347,7 +320,6 @@ export default {
 
                 _this.loading = false;
             }).catch((error) => {
-                
                 // 显示错误信息
                 _this.showError(error);
 
@@ -361,7 +333,7 @@ export default {
          * @param {String} eventId 活动ID
          */
         edit(eventId) {
-            window.location = `${this.editLink}&eventId=${eventId}`;
+            location.href = `${this.editLink}&eventId=${eventId}`;
         },
 
         /**
@@ -375,15 +347,12 @@ export default {
             _this.isShareOpen = true;
         },
 
-        /**
-         * 更改活动状态
-         */
+        // 更改活动状态
         changeState() {
             let _this = this,
                 index = _this.stateIndex,
-                curList = _this.rows[index],
-                eventId = curList[index].eventId,
-                state = curList[index].state;
+                eventId = _this.rows[index].eventId,
+                state = _this.rows[index].state;
             
             // 状态为违规时无法操作 退出函数
             if(state === '违规') {
@@ -391,20 +360,21 @@ export default {
             }
 
             if(state === '开启') {
-
                 state = '关闭';
-
             } else if(state === '关闭') {
-                
                 state = '开启';
             }
 
             let data = {
-                state: state,
-                eventId: eventId
+                state,
+                eventId
             }
+
             _this.$http({
                 method: 'post',
+                params: {
+                    _csrf: _this.csrf
+                },
                 url: _this.ajaxUrl.changeState,
                 data: qs.stringify(data),
                 timeout: 10000
@@ -418,9 +388,7 @@ export default {
                     // 显示错误信息
                     _this.$message(resData.return_msg);
                 }
-
             }).catch((error) => {
-                
                 // 显示错误信息
                 _this.showError(error);
             })
@@ -428,12 +396,12 @@ export default {
     },
 
     components: {
-        vQrcode,
-        vTipDialog
+        tipdialog,
+        qrcode
     }
-  
 }
 </script>
+
 <style lang="less">
     /* 主题颜色 */
     @color: #FF981A;
@@ -465,7 +433,7 @@ export default {
                     font-size: 18px;
                     color: #666;
                     line-height: 18px;
-                    border-left: 2px solid @color
+                    border-left: 2px solid @color;
                 }
 
                 .new-edit {
@@ -491,7 +459,6 @@ export default {
                         font-size: 14px;
                         color: #fff;
                         line-height: 32px;
-                        
                     }
                 }
             }
@@ -532,9 +499,7 @@ export default {
                     .el-loading-text {
                         color: @color;
                     }
-                    
                 }
-
             }
             
             /* 活动列表 */
@@ -672,21 +637,22 @@ export default {
                     }
 
                     .el-dialog__headerbtn {
-                        &:hover {
-                            i {
-                                color: #999;
-                            }
-                        }
-
+                        line-height: 20px;
+                        font-size: 14px;
+                        
                         i {
                             font-size: 14px;
                             color: #999;
+                        }
+
+                        &:hover i {
+                            color: @color;
                         }
                     }
                 }
 
                 .el-dialog__body {
-                    padding: 40px 20px 40px 20px;
+                    padding: 40px 20px;
                     text-align: left;
                     color: #1A1A1A;
                     
@@ -713,8 +679,8 @@ export default {
                             height: 32px;
                             margin-top: 26px;
                             padding: 0 10px;
-                            background: #FFFFFF;
-                            border: 1px solid #999999;
+                            background: #fff;
+                            border: 1px solid #999;
                             border-radius: 3px;
                             font-size: 12px;
 
@@ -737,6 +703,8 @@ export default {
 
                             .copy-btn {
                                 flex-shrink: 0;
+                                margin-left: 5px;
+                                padding-left: 4px;
                                 font-size: 12px;
                                 color: @color;
                                 border: none;
@@ -745,9 +713,7 @@ export default {
                                 box-sizing: content-box;
                             }
                         }
-                        
                     }
-
                 }
             }
         }

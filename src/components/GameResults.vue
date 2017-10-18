@@ -6,14 +6,17 @@
                  :model="resultData" 
                  :key="index"
                  class="result-form">
+
             <!-- 结果遍历 -->
             <div class="result">
+
                 <!-- 头部 -->
                 <div class="header flex">
                     <span class="txt">测试结果 {{calculateIndex(index)}}</span>
                     <span class="sub" @click="delConfirm(index)"></span>
                     <span class="add" @click="add(index)"></span>
                 </div>
+
                 <!-- 题目 -->
                 <el-form-item  prop="name" class="title">
                     <el-input v-model="resultData.name" 
@@ -26,20 +29,23 @@
                     </el-input>
                     <span class="input-num">{{resultData.name.length}}/10</span>
                 </el-form-item>
+
                 <!-- 描述图片 -->
                 <div class="flex desc-pic">
                     <div class="place-pic" v-show="resultData.image !== ''">
-                        <img :src="resultData.image">
+                        <img :src="resultData.image + '?imageMogr2/auto-orient/crop/!640x365'">
                         <span class="close" @click="changePic(index, '')"></span>
                     </div>
+
                     <div class="flex-col upload">
                         <div class="btn-wrap">
-                            <v-uploadpic :txtType="0" @upload="changePic" :flag="index"></v-uploadpic>
+                            <uploadpic @upload="changePic" :flag="index"></uploadpic>
                         </div>
                         <span class="suggest">图片建议尺寸：640&times;365px</span>
                         <span class="suggest">图片支持格式：JPG、JPEG、png</span>
                     </div>
                 </div>
+
                 <!-- 结果描述 -->
                 <el-form-item class="desc" prop="content">
                     <el-input type="textarea" 
@@ -56,13 +62,16 @@
                 </el-form-item>
             </div>
         </el-form>
+
         <!-- 提示弹出框 -->
-        <v-tipDialog :isOpen.sync="tipDialog" @confirm="sub" :txt="tipTxt" title="操作提示"></v-tipdialog>
+        <tipdialog :isOpen.sync="tipDialog" @confirm="sub" :txt="tipTxt" title="操作提示"></tipdialog>
     </div>
 </template>
+
 <script>
-import vUploadpic from './uploadpic'
-import vTipDialog from './tipdialog'
+import uploadpic from './UploadPic' // 图片上传组件
+import tipdialog from './TipDialog' // 文字提示组件
+
 export default {
     data() {
         return {
@@ -71,7 +80,6 @@ export default {
                 name: [
                     { required: true, message: '请输入标题', trigger: 'blur' }
                 ],
-                
                 content: [
                     { required: true, message: '请输入文字描述', trigger: 'blur' }
                 ]
@@ -101,7 +109,7 @@ export default {
          * @param {Number} index 结果索引
          */
         changeR(index) {
-            this.$store.commit('setCurR', index);
+            this.$store.commit('setCurResultIndex', index);
         },
 
         /**
@@ -109,7 +117,7 @@ export default {
          * @param {Number} index 要改变的图片索引
          * @param {String} url 要改变的图片地址
          */
-        changePic(index, url) {
+        changePic(index, url = '') {
             let _this = this,
                 gameResults = _this.gameResults;
             
@@ -122,6 +130,7 @@ export default {
         
         /**
          * 弹出确认 确认删除
+         * @param {Number} index 要删除的答案索引
          */
         delConfirm(index) {
             let _this = this,
@@ -133,10 +142,8 @@ export default {
             // 验证关联性
             gameQuestions.forEach((question, qIndex) => {
                 question.options.forEach((option, oIndex)=> {
-
                     // 验证是否关联
                     if(option.type === 1 && option.issueOrResultId === index) {
-                        
                         // 切换弹窗类型
                         _this.tipTxt = `该问题与问题${qIndex+1}的选项${oIndex+1}关联，是否确认删除？`;
                     }
@@ -159,19 +166,6 @@ export default {
          */
         calculateIndex(index) {
             return index < 9 ? '0' + (index + 1) : (index + 1);      
-        },
-
-        /**
-         * 计算传递给上传组件的信息
-         * @param {Number} index 数组索引
-         * @return {Object} 数据对象
-         */
-        calculatePic(index) {
-            return {
-                txt: '上传图片',
-                limit: 1000,
-                param: index
-            }
         },
 
         /**
@@ -202,12 +196,9 @@ export default {
             // 问题的关联性更新
             gameQuestions.forEach((question) => {
                 question.options.forEach((option)=> {
-
                     // 当选项的关联索引 <= 删除索引 关联性不变
-
                     // 当选项的关联索引 > 增加索引 关联结果后置一个单位
                     if(option.type === 1 && option.issueOrResultId > index) {
-
                         // 删除问题的关联目标
                         option.issueOrResultId = option.issueOrResultId + 1;
                     }
@@ -232,26 +223,21 @@ export default {
 
             // 防止全被删除 至少保留2题
             if(gameResults.length === 2) {
-
-                // 当前结果为一时替换题目
+                // 当前结果为2时替换题目
                 gameResults.splice(_this.delIndex, 1, {
                     questionId: 0, // 测试结果序号
                     content: '', // 测试结果描述
                     image: '', // 测试结果图片地址
                     name: '', // 测试结果标题
                 });
-
                 // 此时结果个数为2，保留其关联性
-
-            } else { // 当前结果个数大于2
-
+            } else {
+                // 当前结果个数大于2
                 // 更新 问题关联性
                 gameQuestions.forEach((question) => {
                     question.options.forEach((option)=> {
-
                         // 当选项的关联索引 = 删除索引 删除关联性
                         if(option.type === 1 && option.issueOrResultId === _this.delIndex) {
-
                             // 删除问题的关联目标
                             option.type = -1;
                             option.issueOrResultId = -1;
@@ -259,7 +245,6 @@ export default {
                         
                         // 当选项的关联索引 > 删除索引 将关联性提前一个位置
                         if(option.type === 1 && option.issueOrResultId > _this.delIndex) {
-
                             // 提前问题的关联目标
                             option.issueOrResultId = option.issueOrResultId - 1;
                         }
@@ -316,8 +301,8 @@ export default {
     },
 
     components: {
-        vUploadpic,
-        vTipDialog
+        uploadpic,
+        tipdialog
     }
 }
 </script>

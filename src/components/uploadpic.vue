@@ -1,23 +1,22 @@
 <template>
     <div class="uploadpic">
-        <input type="file" class="file" @change="getSignature($event)" :disabled="disabled">
+        <input type="file"
+               accept="image/png,image/jpg,image/jpeg"
+               class="file"
+               @change="getSignature($event)">
         <button type="button"
-                :style="btnStyle"
                 class="btn">
-                {{txt}}
+                上传图片
         </button>
     </div>
 </template>
+
 <script>
 import Idouzi from '@idouzi/idouzi-tools'
-import Tool from './../pages/index/assets/js/common.js'
+import Tool from './../common/common.js'
 
 export default {
     props: {
-        txtType: {
-            type: Number,
-            default: 0
-        },
         flag: {
             type: Number,
             default: 0
@@ -26,55 +25,35 @@ export default {
 
     data() {
         let ajaxUrl = {
-            getSignature: Tool.editUrl('/supplier/sign-medialibs')
-        };
+                getSignature: Tool.editUrl('/supplier/sign-medialibs')
+            };
+
+        ajaxUrl.uploadPic = 'http://medialibs-';
         // 环境检测
         switch(Idouzi.getEnv()) {
             case 'dev': {
-                ajaxUrl.uploadPic = 'http://medialibs-dev.idouzi.com/api/upload';
+                url += 'dev';
                 break;
             }
             case 'test': {
-                ajaxUrl.uploadPic = 'http://medialibs-wx.idouzi.com/api/upload';
+                ajaxUrl.uploadPic += 'wx';
                 break;
             }
             case 'prod': {
-                ajaxUrl.uploadPic = 'http://medialibs-qq.idouzi.com/api/upload';
-                ajaxUrl.uploadPic = 'http://medialibs-dev.idouzi.com/api/upload';
+                ajaxUrl.uploadPic += 'qq';
                 break;
             }
-            default: ajaxUrl.uploadPic = 'http://medialibs-dev.idouzi.com/api/upload';
+            default: ajaxUrl.uploadPic += 'dev';
         }
+
+        ajaxUrl.uploadPic += '.idouzi.com/api/upload'
+
         return {
             ajaxUrl: ajaxUrl, // ajax地址
             disabled: false, // 上传按钮状态
             signature: '', // 商家签名 
             limit: 1000, // 图片上传限制
             overdure: 0
-        }
-    },
-
-    computed: {
-        // 按钮上传图片样式
-        btnStyle() {
-            if(this.disabled === 'disabled') {
-                return {
-                    background: '#f7f7f7',
-                    border: '1px solid #ccc',
-                    color: '#999'
-                }
-            } else {
-                return {
-                }
-            }
-        },
-
-        txt() {
-            if(this.disabled === 'disabled') {
-                return '上传中'
-            } else {
-                return '上传图片'
-            }
         }
     },
 
@@ -105,20 +84,19 @@ export default {
             }
 
             // 获取签名请求
-            _this.$http.post(_this.ajaxUrl.getSignature).then((res) => {
+            _this.$http.get(_this.ajaxUrl.getSignature).then((res) => {
                 let data = res.data;
                 // 获取签名成功
                 if(data.return_code === 'SUCCESS') {
                     let signature = data.return_msg.params;
                     
                     _this.signature = signature;
-                    window.sessionStorage.signature = escape(JSON.stringify(signature));
-                    window.sessionStorage.signatureTime = new Date().getTime();
+                    sessionStorage.signature = escape(JSON.stringify(signature));
+                    sessionStorage.signatureTime = new Date().getTime();
 
                     _this.uploadPic(event);
                 }
             }, (res) => {
-
                 // 获取签名失败提示
                 _this.$message({
                     message: '获取签名失败',
@@ -130,7 +108,7 @@ export default {
         },
 
         /**
-         * 上传背景图片
+         * 上传图片
          * @param {Element} event 当前按钮的节点
          */
         uploadPic(event) {
@@ -186,6 +164,8 @@ export default {
                     let url = data.return_msg.accessUrl;
 
                     _this.$emit('upload', _this.flag, url);
+                } else {
+                    _this.$message(data.return_msg);
                 }
 
                 _this.disabled = false;
@@ -203,6 +183,7 @@ export default {
     }
 }
 </script>
+
 <style lang="less" scoped>
     /* 主题颜色 */
     @color: #FF981A;
@@ -232,11 +213,11 @@ export default {
             outline: none;
             background: @color;
 
-            &.disabled {
-                background: #fff;
+            &:disabled {
+                background: #f7f7f7;
+                border: 1px solid #ccc;
+                color: #999;
             }
         }
     }
 </style>
-
-

@@ -1,29 +1,28 @@
 <template>
   <div class="phone">
         <!-- 切换页面tab -->
-        <div class="nav">
-            <div class="tab" :class="{active: curTab === 0}" @click="changeTab(0)">
+        <ul class="nav">
+            <li class="tab" :class="{active: curTab === 0}" @click="changeTab(0)">
                 加载页
                 <span class="arrow"></span>
-            </div>
-            <div class="tab" :class="{active: curTab === 1}" @click="changeTab(1)">
+            </li>
+            <li class="tab" :class="{active: curTab === 1}" @click="changeTab(1)">
                 首页
                 <span class="arrow"></span>
-            </div>
-            <div class="tab" :class="{active: curTab === 3}" @click="changeTab(3)">
+            </li>
+            <li class="tab" :class="{active: curTab === 3}" @click="changeTab(3)">
                 问题页
                 <span class="arrow"></span>
-            </div>
-            <div class="tab" :class="{active: curTab === 2}" @click="changeTab(2)">
+            </li>
+            <li class="tab" :class="{active: curTab === 2}" @click="changeTab(2)">
                 结果页
                 <span class="arrow"></span>
-            </div>
-        </div>
+            </li>
+        </ul>
+
         <!-- 预览手机 -->
         <div class="show">
             <div class="show-inner" :style="imgBg(images.I002)">
-                <!-- 头部图片 -->
-                <!-- <img class="top-pic" src="http://pic.58pic.com/58pic/15/41/33/65N58PICxUd_1024.jpg" /> -->
 
                 <!-- 加载页 -->
                 <div class="loading" v-show="curTab === 0">
@@ -44,13 +43,17 @@
                             <h1 class="title" :style="colorTitle" v-show="gameBase.title">{{gameBase.title}}</h1>
                             <img class="banner" :src="gameBase.image" v-show="gameBase.image">
                         </div>
+
                         <div class="desc">
                             <p class="title" :style="txtStyle">{{gameBase.title}}</p>
+
                             <div class="gif-wrap" :style="txtStyle" v-show="gameBase.title">
                                 <img class="gif" :src="images.I007" :style="gifLeft" >
                             </div>
+
                             <p class="txt" :style="txtStyle">{{gameBase.description}}</p>
                         </div>
+
                         <div class="start-wrap">
                             <img class="start" :src="images.I004">
                         </div>
@@ -59,22 +62,24 @@
 
                 <!-- 游戏问答页 -->
                 <div class="question flex-col"
-                        v-show="curTab === 3">
+                     v-show="curTab === 3">
 
                     <!-- 音乐图标 -->
                     <div class="music-wrap flex">
                         <div class="music icon" :style="musicBg"></div>
                     </div>
+
                     <div class="item-wrap" v-bar>
                         <div class="item">
                             
                             <!-- 题目描述 -->
                             <div class="desc">
                                 <div class="txt">
-                                    {{`Q${curQ+1}、${curQuestion.question.name}`}}
+                                    {{`Q${curQuestionIndex+1}、${curQuestion.question.name}`}}
                                 </div>
                                 <img class="pic" :src="curQuestion.question.image" v-show="curQuestion.question.image">
                             </div>
+
                             <!-- 问题选项 -->
                             <div class="opts">
                                 <div class="opt flex" 
@@ -91,15 +96,18 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="footer flex">
                         <img class="pic" :src="images.I006" :style="border">
                         <img class="gif" :src="images.I007" :style="gifLeft">
                     </div>
                 </div>
+
                 <div class="end-wrap" 
                         v-show="curTab === 2" 
                         v-bar>
                     <div class="end">
+
                         <div class="share">
                             <img class="pic" :src="supplierUrl">
                             <div class="txt flex-col">
@@ -107,13 +115,19 @@
                                 <span class="txt-bot">长按二维码</span>
                             </div>
                         </div>
+
                         <div class="desc">
                             <div class="msg" :style="color(txtColor.T002)">结果为：</div>
+
                             <h1 class="title" :style="color(txtColor.T001)">{{curResult.name}}</h1>
+
                             <img class="pic" :src="curResult.image" v-show="curResult.image">
+
                             <div class="split" :style="bgColor(txtColor.T002)"></div>
+
                             <div class="txt" :style="color(txtColor.T002)">{{curResult.content}}</div>
                         </div>
+
                         <a class="restart-wrap flex" >
                             <img class="restart" :src="images.I008">
                         </a>
@@ -121,15 +135,18 @@
                 </div>
             </div>
         </div>
+
         <!-- 模板预览 -->
         <div class="preview">
-            <v-qrcode :value="eventUrl" :size="78" class="qrcode"></v-qrcode>
+            <qrcode :value="eventUrl" :size="78" class="qrcode"></qrcode>
             <div class="txt">模板预览</div>
         </div>
   </div>
 </template>
+
 <script>
-import vQrcode from 'qrcode.vue'
+import qrcode from 'qrcode.vue' // 二维码组件
+
 export default {
     props: {
         theme: Object,
@@ -145,20 +162,22 @@ export default {
 
         // 当前游戏问题
         curQuestion() {
-            let curQ = this.$store.state.tabState.curQ;
+            let _this = this,
+                curQuestionIndex = _this.$store.state.tabState.curQuestionIndex;
             
-            return this.$store.state.gameQuestions[curQ];
+            return _this.$store.state.gameQuestions[curQuestionIndex];
         },
 
         // 当前游戏问题索引
-        curQ() {
-            return this.$store.state.tabState.curQ;
+        curQuestionIndex() {
+            return this.$store.state.tabState.curQuestionIndex;
         },
 
         // 当前游戏结果
         curResult() {
-            let curR = this.$store.state.tabState.curR;
-            return this.$store.state.gameResults[curR];
+            let _this =this,
+                curResultIndex = this.$store.state.tabState.curResultIndex;
+            return this.$store.state.gameResults[curResultIndex];
         },
 
         // 主题图片
@@ -191,16 +210,18 @@ export default {
 
         // 底部加文字颜色样式
         txtStyle() {
+            let _this = this;
+
             return {
-                color: this.txtColor.T002,
-                borderBottom: `1px dashed ${this.txtColor.T004}`
+                color: _this.txtColor.T002,
+                borderBottom: `1px dashed ${_this.txtColor.T004}`
             }
         },
 
         // 音乐背景
         musicBg() {
             let _this = this,
-            images = _this.theme.images;
+                images = _this.theme.images;
 
             return this.isPlay ? {backgroundImage: `url(${images.I001})`} : 
             {backgroundImage: `url(${images.I003})`};
@@ -215,16 +236,19 @@ export default {
 
         // 选项背景
         handlerBg() {
+            let _this = this;
+
             return {
-                backgroundImage: `url(${this.images.I005})`,
-                color: this.txtColor.T003
+                backgroundImage: `url(${_this.images.I005})`,
+                color: _this.txtColor.T003
             }
         },
 
         // 动画的left
         gifLeft() {
-            let len = this.$store.state.gameQuestions.length,
-                curQ = this.$store.state.tabState.curQ,
+            let _this = this,
+                len = _this.$store.state.gameQuestions.length,
+                curQ = _this.$store.state.tabState.curQ,
                 pageW = 205,
                 gifW = 17;
 
@@ -256,7 +280,7 @@ export default {
          */
         color(color) {
             return {
-                color: color
+                color
             }
         },
 
@@ -278,7 +302,7 @@ export default {
             this.$store.commit('setCurTab', index);
         },
 
-        /**@argument
+        /**
          * 返回图片背景
          * @param {String} url 图片地址
          */
@@ -286,15 +310,15 @@ export default {
             return {
                 backgroundImage: `url(${url})`
             }
-        },
-
+        }
     },
 
     components: {
-        vQrcode
+        qrcode
     }
 }
 </script>
+
 <style lang="less" scoped>
     /* 主题颜色 */
     @color: #FF981A;
@@ -304,6 +328,7 @@ export default {
         display: flex;
         justify-content: space-between;
         position: relative;
+
         .nav {
             display: flex;
             flex-direction: column;
@@ -393,15 +418,7 @@ export default {
                 background-repeat: repeat;
                 background-size: contain;
                 border-top: none; 
-                
-
-                /* 顶部图片 */
-                .top-pic {
-                    width: 100%;
-                    height: 40px;
-                    background: #000;
-                }
-
+             
                 /* 加载页 */
                 .loading {
                     position: relative;
@@ -709,11 +726,13 @@ export default {
             }
         }
     }
+
     /* 游戏公共背景 音乐 */
     @keyframes rotate { /* 旋转动画 */
         from {transform: rotate(0);}
         to {transform: rotate(-360deg);}
     }
+
     .music-wrap {
         position: absolute;
         top: 12px;
@@ -729,6 +748,4 @@ export default {
             animation: rotate 10s linear infinite;
         }
     }
-
 </style>
-

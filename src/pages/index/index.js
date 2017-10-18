@@ -3,7 +3,7 @@
 import Vue from 'vue'
 import App from './App'
 import axios from 'axios'
-import './assets/less/common.less'
+import './../../common/common.less'
 import './../../../static/reset.css'
 
 import {
@@ -26,6 +26,8 @@ Vue.prototype.$message = Message
 Vue.prototype.$http = axios;
 
 Vue.config.productionTip = false
+
+axios.defaults.timeout = 10000; // 设置网络延迟 会触发请求错误
 
 /* eslint-disable no-new */
 new Vue({

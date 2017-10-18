@@ -6,8 +6,8 @@
     /* 修改item下边距 */
     .el-form-item {
         margin-bottom: 20px;
-
     }
+
     /*  修改星号 */
     .el-form-item.is-required {
         .el-form-item__label:before {
@@ -36,6 +36,7 @@
             }  
         }
     }
+
     /* input边框行高修改*/
     .el-form-item__label {
         padding: 9px 12px 9px 0;
@@ -49,24 +50,24 @@
 
         .el-input__inner {
             height: 32px;
-            border: 1px solid #999999;
+            border: 1px solid #999;
             border-radius: 3px;
             color: #666;
 
             &:focus {
-                border-color:  @color;
+                border-color: @color;
                 color: #666;
             }
         }
 
         .el-textarea__inner {
             height: 100%;
-            border: 1px solid #999999;
+            border: 1px solid #999;
             border-radius: 3px;
             color: #666;
 
             &:focus {
-                border-color:  @color;
+                border-color: @color;
             }
         }
     }
@@ -74,7 +75,7 @@
 
 /* 单选按钮颜色更改 */
 .el-radio__input.is-checked .el-radio__inner {
-    border-color:@color;
+    border-color: @color;
     background: @color;
 }
 .el-radio+.el-radio {
@@ -118,18 +119,23 @@
     }
 }
 
+/* 弹出提示样式 */
+.el-popover {
+    min-width: 0;
+    padding: 5px;
+}
+
 /* flex */
 .flex {
     display: flex;
 }
+
 .flex-col {
     display: flex;
     flex-direction: column;
 }
 
-
 /* 滚动条样式 */
-
 .vb > .vb-dragger {
     z-index: 5;
     width: 4px;
@@ -176,10 +182,3 @@
 .vb.vb-dragging-phantom > .vb-dragger > .vb-dragger-styler {
     background-color: rgba(48, 121, 244, .5);
 }
-
-.flex {
-    display: flex;
-}
-
-
-

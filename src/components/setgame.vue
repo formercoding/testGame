@@ -5,12 +5,13 @@
             <a class="level-1" :href="listLink">活动运营套餐列表 &gt; </a>
             <span class="level-2">新建问答测试</span>
         </div>
+
         <div class="box">
             <div class="content">
 
                 <!-- 手机预览组件 -->
                 <div class="phone-wrap">
-                    <v-phone :theme="theme" :supplierUrl="supplierUrl" :eventUrl="eventUrl"></v-phone>
+                    <phone :theme="theme" :supplierUrl="supplierUrl" :eventUrl="eventUrl"></phone>
                 </div>
 
                 <!-- 游戏设置模块 -->
@@ -28,24 +29,27 @@
                     </ul>
 
                     <!-- 设置内容组件 -->
-                    <div v-bar id="scrollEle"
-                            class="scrollbar"
-                            ref="scrollbar">
+                    <div v-bar 
+                         id="scrollEle"
+                         class="scrollbar"
+                         ref="scrollbar">
+
                         <div class="sets" :style="{maxHeight: scrollH, minHeight: scrollH}">
 
                             <!-- 游戏基础设置 -->
-                            <v-gamebase v-show="showBase"
-                                        :validateKey.sync="validateKey"></v-gamebase>
+                            <gamebase v-show="showBase"
+                                        :validateKey.sync="validateKey"></GameBase>
                             
-                            <!-- 游戏问题设置 -->
-                            <v-gameresult v-show="curTab === 2"></v-gameresult>
+                            <!-- 游戏结果设置 -->
+                            <gamequestions v-show="curTab === 2"></gamequestions>
 
                             <!-- 游戏结果设置 -->
-                            <v-gameask v-show="curTab === 3"></v-gameask>
+                            <gameresults v-show="curTab === 3"></gameresults>
                         </div>
                     </div>
                 </div>
             </div>
+
             <!-- 按钮切换tab模块 -->
             <div class="btns">
 
@@ -53,55 +57,69 @@
                 <div class="left" v-show="curTab === 1 || curTab === 0">
                     <button class="btn" 
                             type="button" 
-                            @click="submit">提交</button>
+                            @click="submit">
+                        提交
+                    </button>
                     <button class="btn" 
                             type="button" 
-                            @click="switchTab(2)">下一步</button>
+                            @click="switchTab(2)">
+                        下一步
+                    </button>
                 </div>
 
                 <!-- 结果设置时显示 -->
                 <div class="left" v-show="curTab === 2">
                     <button class="btn" 
                             type="button" 
-                            @click="switchTab(1)">上一步</button>
+                            @click="switchTab(1)">
+                        上一步
+                    </button>
                     <button class="btn" 
                             type="button" 
-                            @click="switchTab(3)">下一步</button>
+                            @click="switchTab(3)">
+                        下一步
+                    </button>
                 </div>
 
                 <!-- 问题设置时显示 -->
                 <div class="left" v-show="curTab === 3">
                     <button class="btn" 
                             type="button" 
-                            @click="switchTab(2)">上一步</button>
+                            @click="switchTab(2)">
+                        上一步
+                    </button>
                     <button class="btn" 
                             type="button" 
-                            @click="submit">提交</button>
+                            @click="submit">
+                        提交
+                    </button>
                 </div>
 
                 <!-- 恢复默认设置 -->
                 <div class="right">
                     <button class="btn" 
                             type="button" 
-                            @click="confirmDefault">恢复默认设置</button>
+                            @click="confirmDefault">
+                        恢复默认设置
+                    </button>
                 </div>
             </div>
 
             <!-- 提示弹出框 恢复默认设置 -->
-            <v-tipDialog 
+            <tipdialog 
                 :isOpen.sync="isSetOpen" 
                 @confirm="setDefault"
                 title="恢复默认" 
-                :txt="tipSetTxt">
-            </v-tipDialog>
+                txt="确认恢复全部默认设置吗?">
+            </tipdialog>
 
             <!-- 提示弹出框 表单未通过校验 -->
-            <v-tipDialog 
+            <tipdialog
                 :isOpen.sync="isValidateOpen" 
                 :single="true"
                 title="提示"
                 :txt="tipValidateTxt">
-            </v-tipDialog>
+            </tipdialog>
 
             <!-- 试用用户弹出 -->
             <el-dialog
@@ -119,7 +137,7 @@
                         </div>
                         <div class="pics">
                             <div class="left-pic">
-                                <div class="txt">套餐购买</div>
+                                <div class="txt">扫码即刻购买</div>
                                 <div class="qrcode">
                                     <v-qrcode :value="isBuy.purchaseUrl" size="130"></v-qrcode>
                                 </div>
@@ -139,9 +157,9 @@
                                 </div>
                             </div>
                             <div class="right-pic">
-                                <div class="txt">发布预览</div>
+                                <div class="txt">扫码查看实际设置效果</div>
                                 <div class="qrcode">
-                                    <v-qrcode :value="previewUrl" size="130"></v-qrcode>
+                                    <v-qrcode :value="isBuy.preview_url" size="130"></v-qrcode>
                                 </div>
                                 <div class="pic-bottom">
                                     <div class="spans">
@@ -159,35 +177,32 @@
         </div>
     </div>
 </template>
+
 <script>
-// 子组件
-import vGamebase from './gamebase'
-import vGameask from './gameask'
-import vGameresult from './gameresult'
-import vPhone from './phone'
+import gamebase from './GameBase' // 基础设置组件
+import gamequestions from './GameQuestions' // 问题设置组件
+import gameresults from './GameResults' // 结果设置组件
+import phone from './Phone' // 手机预览组件
 
-import vTipDialog from './tipdialog'
-import vQrcode from 'qrcode.vue'
+import tipdialog from './TipDialog' // 文字提示弹窗组件
+import qrcode from 'qrcode.vue' // 二维码组件
 
-import Idouzi from '@idouzi/idouzi-tools'
-import Tool from './../pages/index/assets/js/common.js'
-import { Loading } from 'element-ui';
-import qs from 'qs'
+import Idouzi from '@idouzi/idouzi-tools' // IDOUZI工具包
+import Tool from './../common/common.js' // 公共JS
+import qs from 'qs' // qs序列化
+import {Loading} from 'element-ui' // 加载loading
+
+let eventId = Idouzi.getQueryValue('eventId'),
+    themeId = Idouzi.getQueryValue('themeId'),
+    from = Idouzi.getQueryValue('from');
+
 export default {
     data() {
-        let eventId = Idouzi.getQueryValue('eventId'),
-            themeId = Idouzi.getQueryValue('themeId');
-
-        let validateKey = false;
-        // 编辑活动进来的关键词校验为正确 
-        if(eventId) {
-            validateKey = true;
-        }
-
         return {
-            listLink: `index?themeId=${themeId}`,
+            listLink: `index?themeId=${themeId}`, // 列表链接
             supplierUrl:  '', // 商家二维码预览链接
             eventUrl: '', // 模板二维码预览链接
+
             ajaxUrl: {
                 getCreate: Tool.editUrl('/supplier/get-create-event-data'), // 新建获取数据接口
                 getEdit: Tool.editUrl('/supplier/get-edit-event-data'), // 编辑获取数据接口
@@ -195,17 +210,20 @@ export default {
                 saveEdit: Tool.editUrl('/supplier/save-edit-event-data'), // 保存编辑数据
                 saveCreate: Tool.editUrl('/supplier/save-create-event-data') // 保存新建数据
             },
+
             gameBaseDefault: {}, // 默认游戏基础设置
             gameQuestionsDefault: [], // 默认游戏问答设置
             gameResultsDefault: [], // 默认游戏结果设置
-            validateKey: validateKey, // 关键词验证是否通过
-            tipValidateTxt: '游戏设置有误，请重新设置', // 表单验证提示文字类型
-            tipSetTxt: '确认恢复全部默认设置吗?',  // 恢复默认设置提示文字类型
-            isSetOpen: false, // 恢复默认设置弹出是否显示
+
+            validateKey: eventId ? true : false, // 关键词验证是否通过
+            tipValidateTxt: '', // 表单验证提示文字类型
+
+            isSetOpen: false, // 恢复默认设置弹窗是否显示
             isValidateOpen: false, // 表单验证弹窗是否显示
             isPurchaseOpen: false, // 预览的链接弹窗
-            previewUrl: 'www.idouzi.com', // 预览链接
-            buyStartTime: '', // 购买链接生成时间
+
+            buyStartTime: 0, // 购买链接生成时间
+
             isBuy: {
                 purchaseUrl: '', // 购买链接
                 preview_url: '', // 预览链接
@@ -214,7 +232,8 @@ export default {
                 total_fee: 0, // 套餐费用
                 oid: '', // 订单ID 二维码的订单信息查询
                 goodsName: '' // 商品名称
-            }, 
+            },
+            
             theme: { // 游戏主题
                 images: {
                     I001: '', // 音乐背景
@@ -228,6 +247,7 @@ export default {
                     I009: '', // 选项被选中
                     I010: '' // 背景图
                 },
+
                 texts: {
                     T001: '', // 标题颜色
                     T002: '', // 内容颜色
@@ -239,16 +259,16 @@ export default {
     },
 
     created() {
-        let _this = this;
-
         // 游戏数据请求
-        _this.getData();
+        this.getData();
     },
 
     computed: {
         // 基础设置的显示
         showBase() {
-            if(this.curTab === 1 || this.curTab === 0) {
+            let curTab = this.curTab;
+
+            if(curTab === 1 || curTab === 0) {
                 return true;
             } else {
                 return false;
@@ -257,10 +277,6 @@ export default {
 
         // tab状态
         curTab() {
-            let curTab = this.$store.state.tabState.curTab;
-            if(curTab) {
-                
-            }
             return this.$store.state.tabState.curTab;
         },
 
@@ -305,32 +321,26 @@ export default {
         setTime() {
             let _this = this;
 
-            // 随着弹窗退出计时
+            // 随着弹窗关闭 退出计时
             if(!_this.isPurchaseOpen) {
                 return false;
             }
 
-            // 超过30分钟及时计时结束
-            if(_this.isBuy.restTime === 0) {
+            // 超过30分钟则计时结束
+            if(_this.isBuy.restTime <= 0) {
                 return false;
             }
             
             let timer = setTimeout(() => {
-                
-                _this.isBuy.restTime = _this.isBuy.restTime - 1000;
+                _this.isBuy.restTime -= 1000;
                 _this.setTime();
                 clearTimeout(timer);
-                
             }, 1000);
         },
-        /**
-         * 游戏数据请求
-         */
+
+        // 游戏数据请求
         getData() {
-            let _this = this,
-                from = Idouzi.getQueryValue('from'),
-                eventId = Idouzi.getQueryValue('eventId'),
-                themeId = Idouzi.getQueryValue('themeId');
+            let _this = this;
             
             // 加载条
             let loading = Loading.service({fullscreen: true});
@@ -339,9 +349,9 @@ export default {
             if(from === 'create') {
                 _this.$http({
                     url: _this.ajaxUrl.getCreate,
-                    method: 'post',
+                    method: 'get',
                     params: {
-                        themeId: themeId
+                        themeId
                     }
                 }).then((res) => {
                     let data = res.data;
@@ -350,9 +360,11 @@ export default {
                     if(data.return_code === 'SUCCESS') {
                         let msg = data.return_msg,
                             store = _this.$store;
+                            
 
-                        if(_this.isBuy === false) {
-                            _this.$message('您尚未购买此次活动');
+                        if(msg.isBuy === false) {
+                            _this.tipValidateTxt = '您尚未购买此次活动';
+                            _this.tipdialog = true;
                         }
 
                         // 二维码 商家 模板
@@ -360,45 +372,40 @@ export default {
                         _this.eventUrl = msg.eventUrl;
 
                         // 关键字
-                        if(!msg.gameBase.keyword) {
-                            msg.gameBase.keyword = '';
-                        }
+                        msg.gameBase.keyword = '';
 
                         // 存储默认数据 当点击恢复默认设置的时候替换
                         _this.gameBaseDefault = _this.cloneObj(msg.gameBase),
                         _this.gameQuestionsDefault = _this.cloneObj(msg.gameQuestions),
                         _this.gameResultsDefault = _this.cloneObj(msg.gameResults);
-
                         
-                        let sessionFlag = false; // sessionStorge是否可用
-                        if(sessionStorage.gameBase && sessionStorage.gameQuestions && sessionStorage.gameResults) {
-                            let gameBase = JSON.parse(unescape(sessionStorage.gameBase)),
-                                gameQuestions = JSON.parse(unescape(sessionStorage.gameQuestions)),
-                                gameResults = JSON.parse(unescape(sessionStorage.gameResults));
+                        // 当基础设置 问题设置 答案设置数据同时存在时
+                        if(localStorage.gameBase && localStorage.gameQuestions && localStorage.gameResults) {
+                            // 解析storge
+                            let gameBase = JSON.parse(unescape(localStorage.gameBase)),
+                                gameQuestions = JSON.parse(unescape(localStorage.gameQuestions)),
+                                gameResults = JSON.parse(unescape(localStorage.gameResults));
                                 
                             if(gameQuestions.length > 1 && gameResults.length > 1) {
-                                sessionFlag = true;
-                                // 从localStorge中获取设置
-                                store.commit('setGameBase', gameBase);
-                                store.commit('setGameQuestions', gameQuestions);
-                                store.commit('setGameResults', gameResults);
+
+                                // 从localStorage中获取设置
+                                msg.gameBase =  gameBase;
+                                msg.gameQuestions = gameQuestions;
+                                msg.gameResults =  gameResults;
                             }
                         }
 
                         // 游戏主题设置 小手机预览使用
                         _this.theme = msg.theme;
 
-                        // 如果没有sessionStorge则将接口默认数据作为初始化数据
-                        if(!sessionFlag) {
+                        // 游戏基础设置
+                        store.commit('setGameBase', msg.gameBase);
+                        
+                        // 游戏问题设置
+                        store.commit('setGameQuestions', msg.gameQuestions);
 
-                            store.commit('setGameBase', msg.gameBase);
-                            
-                            // 游戏问题设置
-                            store.commit('setGameQuestions', msg.gameQuestions);
-
-                            // 游戏结果设置
-                            store.commit('setGameResults', msg.gameResults);
-                        }
+                        // 游戏结果设置
+                        store.commit('setGameResults', msg.gameResults);
 
                     // 获取数据的返回值不等于success
                     } else {
@@ -432,16 +439,16 @@ export default {
                     // 请求结束关闭加载条
                     loading.close();
                 });
+            }
 
             // 来自编辑
-            } else if(from === 'edit') {
-
+            if(from === 'edit') {
                 _this.$http({
                     url: _this.ajaxUrl.getEdit,
-                    method: 'post',
+                    method: 'get',
                     params: {
-                        eventId: eventId, // 编辑时需要带上活动ID
-                        themeId: themeId
+                        eventId, // 编辑时需要带上活动ID
+                        themeId
                     }
                 }).then((res) => {
                     let data = res.data;
@@ -455,11 +462,6 @@ export default {
                         _this.supplierUrl = msg.supplierUrl;
                         _this.eventUrl = msg.eventUrl;
 
-                        // 关键字
-                        if(!msg.gameDefault.gameBase.keyword) {
-                            msg.gameDefault.gameBase.keyword = '';
-                        }
-                        
                         // 存储默认数据 用以恢复默认设置 
                         // 编辑则默认数据来自gameDefault
                         let gameDefault = msg.gameDefault;
@@ -530,11 +532,12 @@ export default {
                 str = JSON.stringify(obj), //系列化对象
                 newobj = JSON.parse(str); //还原
             } else {
-                for(var i in obj){
+                for(let i in obj){
                     newobj[i] = typeof obj[i] === 'object' ? 
                     cloneObj(obj[i]) : obj[i]; 
                 }
             }
+
             return newobj;
         },
 
@@ -549,9 +552,7 @@ export default {
 
         // 对订单进行轮询 获取订单是否支付
         getPayStatus() {
-            let _this = this,
-                themeId = Idouzi.getQueryValue('themeId'),
-                from = Idouzi.getQueryValue('from');
+            let _this = this;
 
             // 如果弹窗关闭 则终止轮询
             if(!_this.isPurchaseOpen) {
@@ -560,7 +561,6 @@ export default {
 
             // 支付超时 购买二维码出现时间超过30分钟
             if(_this.buyStartTime + 30 * 60 * 1000 < (new Date().getTime())) {
-
                 // 显示超时 关闭弹窗 退出函数
                 _this.$message('支付超时');
                 _this.isPurchaseOpen = false;
@@ -568,19 +568,16 @@ export default {
             }
 
             let time = setTimeout(()=>{
-
                 // 轮询请求获取订单支付状态
                 _this.$http({
                     url: _this.ajaxUrl.getCreate,
-                    method: 'post',
+                    method: 'get',
                     params: {
                         oid: _this.isBuy.oid // 订单编号
                     }
                 }).then((res) => {
-
                     // 判断是否支付成功，如果支付成功，直接保存，否则继续轮询
                     if(res.data.return_code === 'SUCCESS') {
-
                         // 关闭弹窗
                         _this.isPurchaseOpen = false;
 
@@ -594,10 +591,7 @@ export default {
                     } else {
                         _this.getPayStatus();
                     }
-
-                // 请求错误 或 网络错误
                 }).catch((error) => {
-
                     // 网络错误
                     if(error.response) {
                         _this.$message({
@@ -618,32 +612,25 @@ export default {
                 clearTimeout(time);
             
             // 两秒一次请求
-            }, 2000)
+            }, 2000);
         },
 
         // 向服务器提交数据
         saveData() {
             let _this = this,
-                url = '',
-                eventId = Idouzi.getQueryValue('eventId'),
-                themeId = Idouzi.getQueryValue('themeId'),
-                from = Idouzi.getQueryValue('from');
+                url = '';
 
-            
             // 将要保存的数据
             let data = {
-                themeId: themeId,
+                themeId,
                 gameBase: _this.gameBase
             }
 
             // 根据新建和编辑页面 设置不同的上传接口
             if(from === 'create') {
-
                 // 新建 保存数据接口地址
                 url = _this.ajaxUrl.saveCreate;
-
             } else if(from === 'edit') {
-
                 // 编辑 保存数据接口地址
                 url = _this.ajaxUrl.saveEdit;
 
@@ -669,16 +656,13 @@ export default {
             // 向后台发送将要保存的数据
             _this.$http({
                 method: 'post',
-                url: url,
+                url,
                 data: qs.stringify(data) // 利用qs序列化data数据
-
             }).then((res) => {
-
                 let data = res.data;
 
                 // 请求成功
                 if(data.return_code === 'SUCCESS') {
-
                     /**
                      * isBuy为订单信息
                      * 判断是否已经购买
@@ -703,32 +687,24 @@ export default {
                         // 预览剩余时间倒计时
                         _this.setTime();
 
-                        // 购买过期时间
+                        // 购买弹窗开始显示时间
                         _this.buyStartTime = new Date().getTime();
 
                         // 对订单进行情况进行轮询
                         _this.getPayStatus();  
-
-                    // 当已经购买
                     } else {
+                        // 当已经购买
                         _this.$message('保存成功');
-                        loading.href = _this.listLink
+                        location.href = _this.listLink
                     }
-                
-                // 提交数据返回不是success
                 } else {
-                    if(data.return_msg) {
-                        _this.tipValidateTxt = data.return_msg;
-                        _this.isValidateOpen = true;
-                    }
+                    // 提交数据返回不是success
+                    _this.$message(data.return_msg);
                 }
 
                 // 关闭loading
                 loading.close();
-
-            // 网络错误 或 请求错误
             }).catch((error) => {
-
                 // 网络错误
                 if(error.response) {
                     _this.$message({
@@ -755,7 +731,6 @@ export default {
             // 对游戏进行校验 validate返回值为校验是否通过 true通过 false有错误
             if(!_this.validate()) {
                 // 弹窗提示错误 不予提交
-                _this.isValidateOpen = true;
                 return false;
             }
 
@@ -765,9 +740,7 @@ export default {
 
         // 恢复默认设置 弹窗
         confirmDefault() { 
-            let _this = this;
-
-            _this.isSetOpen = true;
+            this.isSetOpen = true;
         },
 
         // 关闭试用弹窗函数
@@ -792,7 +765,6 @@ export default {
 
             // 关闭弹窗
             _this.isSetOpen = false;
-            
         },
 
         /**
@@ -806,7 +778,6 @@ export default {
 
             // 游戏基础设置校验
             for(let key in gameBase) {
-
                 // 如果已经有错误 跳出key检索
                 if(isError) {
                     break;
@@ -816,118 +787,92 @@ export default {
                     // 标题
                     case 'title': {
                         if(gameBase[key].lenth > 12) {
-
                             isError = true;
-                            _this.tipValidateTxt = '游戏名称长度超过12个字';
+                            _this.$message('游戏名称长度超过12个字');
                             break;
 
                         } else if(gameBase[key].trim() === ''){
-
                             isError = true;
-                            _this.tipValidateTxt = '游戏名称不能为空';
+                            _this.$message('游戏名称不能为空');
                             break;
-
                         }
                     }
 
                     // 关键字
                     case 'keyword': {
                         if(gameBase[key].lenth > 20) {
-
                             isError = true;
-                            _this.tipValidateTxt = '游戏关键词长度超过20个字';
+                            _this.$message('游戏关键词长度超过20个字');
                             break;
-
                         } else if(gameBase[key].trim() === '') {
-
                             isError = true;
-                            _this.tipValidateTxt = '游戏关键词不能为空';
+                            _this.$message('游戏关键词不能为空');
                             break;
                         }
                     }
                     
                     // 游戏描述
                     case 'description': {
-
                         if(gameBase[key].lenth > 500) {
-
                             isError = true;
-                            _this.tipValidateTxt = '游戏描述超过500个字';
+                            _this.$message('游戏描述超过500个字');
                             break;
-
                         } else if(gameBase[key].trim() === '') {
-
                             isError = true;
-                            _this.tipValidateTxt = '游戏描述不能为空';
+                            _this.$message('游戏描述不能为空');
                             break;
                         }
                     }
 
                     // 自定义标题
                     case 'shareTitle': {
-
                         // 如果设置了自定义分享
                         if (gameBase.shareType === 1) {
-
                             if(gameBase[key].lenth > 20) {
-
                                 isError = true;
-                                _this.tipValidateTxt = '自定义分享标题超过20个字';
+                                _this.$message('自定义分享标题超过20个字');
                                 break;
-
                             } else if(gameBase[key].trim() === '') {
-
                                 isError = true;
-                                _this.tipValidateTxt = '自定义分享标题不能为空';
+                                _this.$message('自定义分享标题不能为空');
                                 break;
                             }
                         }
-
                         break;
                     }
 
                     // 自定义分享类型
                     case 'shareType': {
-
                         if(gameBase[key] !== 0 || gameBase[key] !== 1) {
-                            _this.tipValidateTxt = '自定义分享类型错误';
+                            _this.$message('自定义分享类型错误');
                         }
                         break;
                     }
 
                     // 自定义分享描述
                     case 'shareContent': {
-
                         // 如果设置了自定义分享
                         if (gameBase.shareType === 1) {
-
                             if(gameBase[key].lenth > 30) {
-
                                 isError = true;
-                                _this.tipValidateTxt = '自定义分享标题超过30个字';
+                                _this.$message('自定义分享标题超过30个字');
                                 break;
-
                             } else if(gameBase[key].trim() === '') {
-
                                 isError = true;
-                                _this.tipValidateTxt = '自定义分享描述不能为空';
+                                _this.$message('自定义分享标题不能为空');
                                 break;
                             }
                         }
-                        
                         break;
                     }
 
                     // 自定义分享图片
                     case 'shareContent': {
-
                         // 如果设置了自定义分享
                         if (gameBase.shareType === 1) {
-
                             if(gameBase[key].trim() == '') {
-
                                 isError = true;
-                                _this.tipValidateTxt = '自定义分享图片不能为空';
+                                _this.$message('自定义分享图片不能为空');
                                 break;
                             }
                         }
@@ -946,33 +891,28 @@ export default {
         validateQ() {
             let _this = this,
                 isError = false, // 校验是否出错
-                gameQuestions = this.gameQuestions;
+                gameQuestions = _this.gameQuestions;
             
             // 游戏问答校验
             gameQuestions.some((gameQuestion, index) => {
-                
                 for(let key in gameQuestion) {
-
                     // 如果已经有错误 跳出key检索
                     if(isError) {
                         break;
                     }
 
                     switch (key) {
-
                         // 问题描述
                         case 'question': {
                             let question = gameQuestion[key];
 
                             if(question.name.length > 30) {
-                                
                                 isError = true;
-                                _this.tipValidateTxt = `游戏问题${index+1}问题长度超过30个字`;
+                                _this.$message(`游戏问题${index+1}问题长度超过30个字`);
                                 break;
                             } else if(question.name.trim() === '') {
-
                                 isError = true;
-                                _this.tipValidateTxt = `游戏问题${index+1}问题不能为空`;
+                                _this.$message(`游戏问题${index+1}问题不能为空`);
                             }
                             break;
                         }
@@ -982,23 +922,19 @@ export default {
                             let options = gameQuestion[key];
 
                             options.some((item, order) => {
-
                                 if(item.name.length > 20) {
-                                    
                                     isError = true;
-                                    _this.tipValidateTxt = `游戏问题${index+1}选项${order+1}长度超过20个字`;
+                                    _this.$message(`游戏问题${index+1}选项${order+1}长度超过20个字`);
                                     return true;
                                 } else if(item.name.trim() === '') {
-
                                     isError = true;
-                                    _this.tipValidateTxt = `游戏问题${index+1}选项${order+1}不能为空`;
+                                    _this.$message(`游戏问题${index+1}选项${order+1}不能为空`);
                                     return true;
                                 }
 
                                 if(item.type === -1 || item.issueOrResultId === -1) {
-
                                     isError = true;
-                                    _this.tipValidateTxt = `游戏问题${index+1}的选项${order+1}没有设置跳转`;
+                                    _this.$message(`游戏问题${index+1}的选项${order+1}没有设置跳转`);
                                     return true;
                                 }
                             });
@@ -1020,13 +956,11 @@ export default {
         validateR() {
             let _this = this,
                 isError = false, // 校验是否出错
-                gameResults = this.gameResults;
+                gameResults = _this.gameResults;
 
             // 游戏答案校验
             gameResults.some((gameResult, index) => {
-
                 for(let key in gameResult) {
-
                     // 如果已经有错误 跳出key检索
                     if(isError) {
                         break;
@@ -1034,33 +968,28 @@ export default {
 
                     switch (key) {
                         case 'title': {
-
                             let name = gameResult[key];
+
                             if(name.length > 10) {
-
                                 isError = true;
-                                _this.tipValidateTxt = `游戏答案${index+1}标题长度超过10个字`;
+                                _this.$message(`游戏答案${index+1}标题长度超过10个字`);
                                 break;
-                                
                             } else if(name.trim() === ''){
-
                                 isError = true;
-                                _this.tipValidateTxt = `游戏答案${index+1}标题不能为空`;
+                                _this.$message(`游戏答案${index+1}标题不能为空`);
                             }
                             break;
                         }
                         case 'content': {
                             let content = name = gameResult[key];
+
                             if(content.length > 500) {
-
                                 isError = true;
-                                _this.tipValidateTxt = `游戏答案${index+1}描述长度超过500个字`;
+                                _this.$message(`游戏答案${index+1}描述长度超过500个字`);
                                 break;
-
                             } else if(content.trim() === '') {
-
                                 isError = true;
-                                _this.tipValidateTxt = `游戏答案${index+1}描述不能为空`;
+                                _this.$message(`游戏答案${index+1}描述不能为空`);
                             }
                             break;
                         }
@@ -1083,36 +1012,31 @@ export default {
                 lenQ = _this.gameQuestions.length,
                 lenR = _this.gameResults.length,
                 trac = [], // 路径数组
-                nodesQ = [], // 问题数组
-                nodesR = []; // 结果数组
+                nodeQuestions = [], // 问题数组
+                nodeResults = []; // 结果数组
 
             // 建立数据
             let {loopNodes, tracNodes, nextNodes} = this.buildData();
 
-
             // 统计使用到的节点
             // 对子节点进行遍历 nodes为子节点数组
             nextNodes.forEach((nodes) => {
-                
                 // 对子节点数组进行遍历 node为单个子节点
                 nodes.forEach((node) => {
-
                     // 添加到数组集合中
                     if(typeof(node) === 'number') {
-                        nodesQ.push(node);
+                        nodeQuestions.push(node);
                     } else {
-                        nodesR.push(node);
+                        nodeResults.push(node);
                     }
                 });
             });
 
             // 1.是否有未被使用到的问题 问题一01不需要被使用
             for(let i = 1; i < lenQ; i++) {
-
-                if(nodesQ.indexOf(i) === -1) {
-
+                if(nodeQuestions.indexOf(i) === -1) {
                     isError = true;
-                    _this.tipValidateTxt = `问题${i+1}未被使用`;
+                    _this.$message(`问题${i+1}未被使用`);
                     break;
                 }
             }
@@ -1124,11 +1048,9 @@ export default {
 
             // 2.是否有未被使用的答案
             for(let i = 0; i < lenR; i++) {
-
-                if(nodesR.indexOf(`R${i}`) === -1) {
-
+                if(nodeResults.indexOf(`R${i}`) === -1) {
                     isError = true;
-                    _this.tipValidateTxt = `答案${i+1}未被使用`;
+                    _this.$message(`答案${i+1}未被使用`);
                     break;
                 }
             }
@@ -1140,42 +1062,31 @@ export default {
 
             // 3.验证循环并提示
             // 对各个后代节点集合进行遍历 nodes为各个问题对应后代
-
             loopNodes.some((nodes, index) => {
-                
                 // 对单个后代集合进行遍历 node为该问题对应后代节点
                 let one = nodes.some((node) => {
                     // 如果node === index则说明循环
                     if(node === index) {
-                        
                         isError = true;
-
                         // 对对应的tracnode进行后序遍历
-                        let items = tracNodes[index]; // 当前节点所有集合
-
-                        let len = items.length,
+                        let items = tracNodes[index], // 当前节点所有集合
+                            len = items.length,
                             target = index; // 当前寻找目标
-                        
 
                             trac = [index]; // 存储循环路径
                         
                         for(let i = len - 1; i >= 0; i--) {
-                            
                             // 当前层级
                             let level = items[i];
 
                             // 当前层级的遍历 item为层级中一项
                             level.some((item) => {
-                                
                                 // 遍历项 cur为当前项下的节点
                                 let has = item[1].some((cur) => {
-
                                     if(cur === target) { // 找到循环点
-                                        
                                         // 推入路径 同时保存上一层目标
                                         target = item[0].parentId;
                                         trac.unshift(target);
-
                                         return true;
                                     }
                                 });
@@ -1199,12 +1110,9 @@ export default {
             });
 
             if(trac.length > 0) {
-
-                let tipValidateTxt = `请检查你所设置的问题是否存在循环路径${trac.join('=>')}`;
-
-                _this.tipValidateTxt = tipValidateTxt;
-
+                _this.$message(`请检查你所设置的问题是否存在循环路径${trac.join('=>')}`);
             }
+
             return !isError;
         },
 
@@ -1217,16 +1125,15 @@ export default {
          */
         buildData() {
             let _this = this,
-                ques = _this.gameQuestions;
-
-            let nextNodes = [], // 各个问题的子节点数组
+                ques = _this.gameQuestions,
+                nextNodes = [], // 各个问题的子节点数组
                 loopNodes = [], // 各个问题的后代节点数组，用以判断是否循环
                 tracNodes = []; // 各个问题的后代节点数组,包括层级及父id
 
             // 对问题数据进行循环找出子节点
             ques.forEach((item, index) => {
                 nextNodes[index] = [];
-                
+
                 let options = item.options;
 
                 options.forEach((items, indexs) => {
@@ -1243,7 +1150,6 @@ export default {
 
             // 第一次格式化数据结构
             nextNodes.forEach((item, index) => {
-
                     tracNodes[index] = [];
 
                     // 第一次数据
@@ -1261,22 +1167,16 @@ export default {
 
             // 再次遍历nextNodes 
             nextNodes.forEach((item, index) => {
-
                 // 整个路径节点的遍历 curItem为各个问题数组
                 tracNodes.forEach((curItem, itemLevel) => {
 
                     // 各个问题数组的遍历 level为问题中的各个层级
                     curItem.forEach((curLevel, level) => {
-                        
                         // 层级中的各个子节点集合
                         curLevel.forEach((options) => {
-
                             if(options) {
-
                                 options[1].forEach((option) => {
-
                                     if(option === index) {
-                                        
                                         // 合并数组
                                         item.forEach((node) => {
                                             loopNodes[itemLevel].push(node);
@@ -1301,9 +1201,9 @@ export default {
             });
 
             return {
-                nextNodes: nextNodes,
-                loopNodes: loopNodes,
-                tracNodes: tracNodes
+                nextNodes,
+                loopNodes,
+                tracNodes
             }
         },
 
@@ -1318,7 +1218,7 @@ export default {
 
             // 校验关键词
             if(!_this.validateKey) {
-                _this.tipValidateTxt = '游戏关键词设置错误';
+                _this.$message(`游戏关键词设置错误`);
                 return false;
             }
 
@@ -1329,13 +1229,11 @@ export default {
             
             // 校验游戏问题
             if(!_this.validateQ()) {
-                
                 return false;
             }
 
             // 校验游戏答案
             if(!_this.validateR()) {
-                
                 return false;
             }
 
@@ -1348,57 +1246,59 @@ export default {
         }
     },
 
-    mounted() {
-    },
-
     watch: { 
-        // 监听数据变化 进行缓存cookie
+        // 监听数据变化 进行缓存游戏基础设置
         gameBase: {
             handler() {
-                // 若来自编辑则不设置cookie
-                if(Idouzi.getQueryValue('from') === 'edit') {
+                // 若来自编辑则不设置
+                if(from === 'edit') {
                     return false;
                 }
 
-                sessionStorage.gameBase = escape(JSON.stringify(this.gameBase));
+                localStorage.gameBase = escape(JSON.stringify(this.gameBase));
             },
             deep: true
         },
+
+        // 监听数据变化 进行缓存游戏问题设置
         gameQuestions: {
             handler() {
-                // 若来自编辑则不设置cookie
-                if(Idouzi.getQueryValue('from') === 'edit') {
+                // 若来自编辑则不设置
+                if(from === 'edit') {
                     return false;
                 }
 
-                sessionStorage.gameQuestions = escape(JSON.stringify(this.gameQuestions));
+                localStorage.gameQuestions = escape(JSON.stringify(this.gameQuestions));
 
             },
             deep: true
         },
+
+        // 监听数据变化 进行缓存游戏结果设置
         gameResults: {
             handler() {
-                // 若来自编辑则不设置cookie
-                if(Idouzi.getQueryValue('from') === 'edit') {
+                // 若来自编辑则不设置
+                if(from === 'edit') {
                     return false;
                 }
 
-                sessionStorage.gameResults = escape(JSON.stringify(this.gameResults));
+                localStorage.gameResults = escape(JSON.stringify(this.gameResults));
             },
             deep: true
         }
     },
 
     components: {
-        vPhone,
-        vGameask,
-        vGamebase,
-        vGameresult,
-        vTipDialog,
-        vQrcode
+        phone,
+        gamebase,
+        gamequestions,
+        gameresults,
+        tipdialog,
+        qrcode
     }
 }
 </script>
+
 <style lang="less">
     /* 主题颜色 */
     @color: #FF981A;
@@ -1535,8 +1435,6 @@ export default {
                         background: #fff;
                     }
                 }
-                
-
             }
 
             /* 试用提示框 */
@@ -1571,6 +1469,7 @@ export default {
 
                                 .tip {
                                     color: #1A1A1A;
+                                    font-size: 28px;
                                 }
                             }
 
@@ -1584,9 +1483,10 @@ export default {
                                     font-size: 0;
                                     
                                     .txt {
-                                        width: 130px;
+                                        width: 140px;
                                         text-align: center;
                                         margin-top: 30px;
+                                        margin-left: -5px;
                                         font-size: 14px;
                                         color: #222;
                                     }

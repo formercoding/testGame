@@ -9,6 +9,8 @@
         :modal-append-to-body="true">
         <div class="content flex">
             <div class="ask-box flex-col">
+
+                <!-- 问题集合 -->
                 <span class="txt">问题</span>
                 <div class="scroll-wrap">
                     <div class="scroll" v-bar>
@@ -30,6 +32,8 @@
                     </div>
                 </div>
             </div>
+
+            <!-- 结果集合 -->
             <div class="result-box flex-col">
                 <span class="txt">测试结果</span>
                 <div class="scroll-wrap">
@@ -47,15 +51,16 @@
                             </li>
                         </ul>
                     </div>
-                    
                 </div>
             </div>
         </div>
-        <span slot="footer" class="dialog-footer">
+
+        <div slot="footer" class="dialog-footer">
             <el-button type="primary" @click="confirm">确定</el-button>
-        </span>
+        </div>
     </el-dialog>
 </template>
+
 <script>
 export default {
     props: {
@@ -75,11 +80,6 @@ export default {
             type: Number,
             default: 0
         }
-    },
-
-    data() {
-        return {
-        };
     },
 
     computed: {
@@ -120,24 +120,31 @@ export default {
          * @param {Number} 跳转索引 index 
          */
         setOptionTarget(type, index) {
-            this.$emit('update:targetIndex', index);
-            this.$emit('update:targetType', type);
+            let _this = this;
+
+            _this.$emit('update:targetIndex', index);
+            _this.$emit('update:targetType', type);
         },
 
         //  确认事件
         confirm() {
-            this.$emit('update:isOpen', false);
-            this.$emit('confirm');
+            let _this = this;
+            
+            _this.$emit('update:isOpen', false);
+            _this.$emit('confirm');
         },
 
         // 关闭弹窗
         close() {
-            this.$emit('update:isOpen', false);
-            this.$emit('confirm');
+            let _this = this;
+
+            _this.$emit('update:isOpen', false);
+            _this.$emit('confirm');
         }
     }
 };
 </script>
+
 <style lang="less">
     /* 主题颜色 */
     @color: #FF981A;
@@ -170,7 +177,7 @@ export default {
                 i {
                     color: #999;
                     &:hover {
-                        color: #999;
+                        color: @color;
                     }
                 }
             }
@@ -286,6 +293,5 @@ export default {
                 }
             }
         }
-        
     }
 </style>

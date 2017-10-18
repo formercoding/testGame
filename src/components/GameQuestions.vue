@@ -5,19 +5,23 @@
                  :model= "askData"
                  :key="index"
                  class="ask-form">
+
             <!-- 问题遍历 -->
             <div class="ask">
+
                 <!-- 头部 -->
                 <div class="header flex">
                     <span class="txt">测试问题 {{calculateIndex(index)}}</span>
                     <span class="sub" @click="delConfirm(index)"></span>
                     <span class="add" @click="add(index)"></span>
                 </div>
+
                 <!-- 问题描述 -->
                 <el-form-item class="title" prop="question.name"
                     :rules="{
                         required: true, message: '请输入选项描述', trigger: 'blur'
                     }">
+
                     <el-input type="textarea" 
                               :maxlength="30"
                               placeholder="请输入提问..."
@@ -28,23 +32,29 @@
                               v-wordLimit
                               resize="none">
                     </el-input>
+
                     <span class="input-num">{{askData.question.name.length}}/30</span>
+
                     <!-- 描述图片 -->
                     <div class="flex desc-pic">
                         <div class="place-pic" v-show="askData.question.image !== ''">
-                            <img :src="askData.question.image">
+                            <img :src="askData.question.image + '?imageMogr2/auto-orient/crop/!640x365'">
                             <span class="close" @click="changePic(index, '')"></span>
                         </div>
+
                         <div class="flex-col upload" v-show="askData.question.image === ''">
                             <div class="btn-wrap">
-                                <v-uploadpic :flag="index" @upload="changePic"></v-uploadpic>
+                                <uploadpic :flag="index" @upload="changePic"></uploadpic>
                             </div>
                         </div>
                     </div>
                 </el-form-item>
-                <p class="suggest">图片建议尺寸：640&times;365px 图片支持格式：JPG、 JPEG、png</p>
+
+                <p class="suggest">图片建议尺寸：640&times;365px 图片支持格式：jpg、jpeg、png</p>
+                
                 <!-- 问题选项 -->
                 <span class="opt">问题答案</span>
+
                 <el-form-item
                     class="option"
                     v-for="(option, indexs) in askData.options"
@@ -53,8 +63,10 @@
                     :rules="{
                         required: true, message: '请输入选项描述', trigger: 'blur'
                     }">
+
                     <!-- 选项描述 -->
                     <span class="key">{{optionOrder(indexs)}}</span>
+
                     <el-input v-model="option.name" 
                               :maxlength="20"
                               placeholder="不超过20个字..." 
@@ -63,47 +75,55 @@
                               @focus="changeQ(index)"
                               class="w-300">
                     </el-input>
+
                     <span class="input-num">{{option.name.length}}/20</span>
+
                     <!-- 选择跳转 -->
                     <span class="txt">跳转至</span>
+
                     <span class="target" 
                           :class="{active: isTarget(option.type, option.issueOrResultId)}"
                           @click="targetChose(index, indexs)">
                           {{targetTxt(option.type, option.issueOrResultId)}}
                     </span>
                  </el-form-item>
+
                 <!-- 增加选项 -->
                 <div class="add-opt">
                     <button type="button" class="btn" @click="addOption(index)">增加答案</button>
                     <button type="button" class="btn" @click="subOption(index)">减少答案</button>
                 </div>
+
                 <!-- 选择弹出框 -->
-                <v-dialog 
+                <selecttargetdialog 
                     @confirm="setTarget"
-                    :isOpen.sync="goDialog"
+                    :isOpen.sync="isSelectDialogOpen"
                     :targetType.sync="targetType"
                     :goIndex="goIndex"
                     :targetIndex.sync="targetIndex">
-                </v-dialog>
+                </selecttargetdialog>
+
                 <!-- 提示弹出框 -->
-                <v-tipDialog :isOpen.sync="tipDialog" @confirm="sub" :txt="tipTxt" title="操作提示"></v-tipdialog>
+                <tipdialog :isOpen.sync="isTipDialogOpen" @confirm="sub" :txt="tipTxt" title="操作提示"></tipdialog>
             </div>    
         </el-form>
     </div>
 </template>
+
 <script>
-import vUploadpic from './uploadpic'
-import vDialog from './dialog'
-import vTipDialog from './tipdialog'
+import uploadpic from './UploadPic'; // 图片上传组件
+import selecttargetdialog from './selectTargetDialog' // 选择跳转组件
+import tipdialog from './TipDialog' // 文字提示组件
+
 export default {
     data() {
         return {
-            goDialog: false, // 跳转弹窗状态
-            tipDialog: false, // 提示弹窗状态
+            isSelectDialogOpen: false, // 跳转弹窗状态
+            isTipDialogOpen: false, // 提示弹窗状态
             delIndex: 0, // 点击的删除索引
             goIndex: 0, // 跳转问题所在索引
-            targetType: -1, // 跳转类型
-            targetIndex: -1, // 跳转索引
+            targetType: -1, // 跳转类型 -1:无跳转类型 0:跳转到问题 1:跳转到结果
+            targetIndex: -1, // 跳转到问题或结果的索引
             goIndexs: 0, // 跳转选项所在索引
             tipTxt: '确认删除?' // 提示文字
         }
@@ -122,7 +142,7 @@ export default {
          * @param {Number} index 问题索引
          */
         changeQ(index) {
-            this.$store.commit('setCurQ', index);
+            this.$store.commit('setCurQestionIndex', index);
         },
 
         /**
@@ -133,12 +153,13 @@ export default {
             let order = ['A','B', 'C', 'D']
             return `${order[index]}.`;
         },
+
         /**
          * 修改图片地址
          * @param {Number} index 要改变的图片索引
          * @param {String} url 要改变的图片地址
          */
-        changePic(index, url) {
+        changePic(index, url = '') {
             let _this = this,
                 gameQuestions = _this.gameQuestions,
                 question = gameQuestions[index].question;
@@ -163,7 +184,6 @@ export default {
             // 验证关联性
             gameQuestions.forEach((question, qIndex) => {
                 question.options.forEach((option, oIndex)=> {
-
                     // 验证是否关联
                     if(option.type === 0 && option.issueOrResultId === index) {
                         // 切换弹窗类型
@@ -173,13 +193,13 @@ export default {
             });
 
             // 开启弹窗
-            _this.tipDialog = true;
+            _this.isTipDialogOpen = true;
         },
 
         /**
          * 弹出确认 修改跳转
-         * @param {Number} type 跳转类型
-         * @param {Number} index 跳转目标序号
+         * @param {Number} type 跳转类型 -1:无跳转类型 0:跳转到问题 1:跳转到结果
+         * @param {Number} index 跳转到问题或结果的索引
          */
         setTarget() {
             let _this = this,
@@ -196,8 +216,8 @@ export default {
 
         /**
          * 跳转文字
-         * @param {Number} type 跳转类型
-         * @param {Number} index 跳转索引
+         * @param {Number} type 跳转类型 -1:无跳转类型 0:跳转到问题 1:跳转到结果
+         * @param {Number} index 跳转到问题或结果的索引
          */
         targetTxt(type, index) {
             if(type === -1 || index === -1) { 
@@ -214,8 +234,8 @@ export default {
 
         /**
          * 跳转文字样式
-         * @param {Number} type 跳转类型
-         * @param {Number} index 跳转索引
+         * @param {Number} type 跳转类型 -1:无跳转类型 0:跳转到问题 1:跳转到结果
+         * @param {Number} index 跳转到问题或结果的索引
          */
         isTarget(type, index) {
             if(type === -1 || index === -1) { 
@@ -241,7 +261,7 @@ export default {
             _this.targetIndex = option.issueOrResultId;
 
             // 弹出框
-            _this.goDialog = true;
+            _this.isSelectDialogOpen = true;
         },
 
         // 将表单数据与vuex同步
@@ -260,15 +280,15 @@ export default {
         },
 
         /**
-         * 增加问题结果
-         * @param {Number} index 问题结果索引
+         * 增加问题
+         * @param {Number} index 问题索引
          */
         add(index) {
             let _this = this,
                 gameQuestions = _this.gameQuestions;
 
             // 控制问题20以上
-            if(gameQuestions.length === 20) {
+            if(gameQuestions.length >= 20) {
                 _this.$message({
                     message: '问题最多为20个',
                     duration: 2000
@@ -299,12 +319,9 @@ export default {
             // 问题的关联性更新
             gameQuestions.forEach((question) => {
                 question.options.forEach((option)=> {
-
                     // 当选项的关联索引 <= 删除索引 关联性不变
-
                     // 当选项的关联索引 > 增加索引 关联结果后置一个单位
                     if(option.type === 0 && option.issueOrResultId > index) {
-
                         // 删除问题的关联目标
                         option.issueOrResultId = option.issueOrResultId + 1;
                     }
@@ -315,12 +332,8 @@ export default {
             this.syncData();
         },
 
-        /**
-         * 增加问题选项
-         * @param {Nubmer} index 一级索引
-         * @param {Number} indexs 二级索引
-         */
-        addOption(index) {
+        // 增加问题选项
+        addOption() {
             let _this = this,
                 options = _this.gameQuestions[index].options;
             
@@ -344,11 +357,7 @@ export default {
             _this.syncData();
         },
 
-        /**
-         * 减少问题选项
-         * @param {Nubmer} index 一级索引
-         * @param {Number} indexs 二级索引
-         */
+        // 减少问题选项
         subOption(index) {
             let _this = this,
                 options = _this.gameQuestions[index].options;
@@ -399,17 +408,13 @@ export default {
                         }
                     ]
                 });
+            } else {
                 // 如果此时问题个数为2  则维持 其它 -> 自身 的关联性
-                
-            } else {// 如果此时问题个数大于2
-                
                 // 更新 问题关联性
                 gameQuestions.forEach((question) => {
                     question.options.forEach((option)=> {
-
                         // 当选项的关联索引 = 删除索引 删除关联性
                         if(option.type === 0 && option.issueOrResultId === _this.delIndex) {
-
                             // 删除问题的关联目标
                             option.type = -1;
                             option.issueOrResultId = -1;
@@ -421,8 +426,6 @@ export default {
                             // 提前问题的关联目标
                             option.issueOrResultId = option.issueOrResultId - 1;
                         }
-
-                        // 当选项的关联索引 < 删除索引 关联性不变
                     })
                 });
 
@@ -431,8 +434,6 @@ export default {
 
                 // 删除问题
                 gameQuestions.splice(_this.delIndex, 1);
-
-                
             }
 
             // 同步vuex数据
@@ -472,12 +473,13 @@ export default {
     },
 
     components: {
-        vUploadpic,
-        vDialog,
-        vTipDialog
+        uploadpic,
+        selecttargetdialog,
+        tipdialog
     }
 }
 </script>
+
 <style lang="less">
     /* 主题颜色 */
     @color: #FF981A;
@@ -713,6 +715,4 @@ export default {
             }
         }
     }
-
 </style>
-

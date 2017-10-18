@@ -13,6 +13,7 @@
         </span>
     </el-dialog>
 </template>
+
 <script>
 export default {
     props: {
@@ -38,21 +39,13 @@ export default {
         }
     },
 
-    data() {
-      return {
-      }
-    },
-
-    computed: {
-    },
-    mounted() {
-    },
-
     methods: {
         // 确认按钮
         confirm() {
-            this.$emit('update:isOpen', false);
-            this.$emit('confirm');
+            let _this = this;
+
+            _this.$emit('update:isOpen', false);
+            _this.$emit('confirm');
         },
 
         // 普通关闭按钮
@@ -62,6 +55,7 @@ export default {
     }
 };
 </script>
+
 <style lang="less">
     /* 主题颜色 */
     @color: #FF981A;
@@ -71,13 +65,13 @@ export default {
             width: 360px;
             font-size: 14px;
             line-height: 20px;
+            border-radius: 5px;
 
             .el-dialog__header {
                 width: 360px;
                 padding: 10px 20px;
                 background: #F8F8F8;
                 border-radius: 5px 5px 0 0;
-                
             }
 
             .el-dialog__title {
@@ -88,10 +82,8 @@ export default {
                 font-size: 12px;
                 line-height: 20px;
 
-                &:hover {
-                    i {
-                        color: #bfcbd9;
-                    }
+                &:hover i {
+                    color: @color;
                 }
             }
 
@@ -106,7 +98,6 @@ export default {
                 padding: 0 20px 20px 0;
                 text-align: right;
                 border-radius: 0 0 5px 5px;
-
 
                 .el-button {
                     vertical-align: top;
@@ -128,5 +119,3 @@ export default {
         }
     }
 </style>
-
-

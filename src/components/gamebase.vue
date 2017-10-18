@@ -13,8 +13,7 @@
                           :maxlength="12"
                           @blur="syncData"
                           v-wordLimit                          
-                          placeholder="请输入题目名称最多12字..." 
-                          class="w-300">
+                          placeholder="请输入题目名称最多12字...">
                 </el-input>
 
                 <!-- 已输入字符数显示 -->
@@ -56,7 +55,7 @@
 
             <!-- 图片展示 -->
             <div class="place-pic" v-show="hasIndexPic">
-                <img :src="gameBase.image">
+                <img :src="gameBase.image + '?imageMogr2/auto-orient/crop/!640x365'">
                 <span class="close" @click="changePic(0, '')"></span>
             </div>
 
@@ -64,12 +63,15 @@
 
                 <!-- 上传图片组件 -->
                 <div class="btn-wrap">
-                    <v-uploadpic :flag="0" @upload="changePic" :txtType="1"></v-uploadpic>
+                    <uploadpic :flag="0" @upload="changePic"></uploadpic>
                 </div>
 
                 <!-- 图片建议尺寸 -->
-                <span class="suggest">图片建议尺寸：640&times;365px</span>
-                <span class="suggest">图片支持格式：JPG、 JPEG、png</span>
+                <span class="suggest">
+                    图片建议尺寸：640&times;365px
+                    <br>
+                    图片支持格式：JPG、 JPEG、png
+                </span>
             </div>
         </div>
 
@@ -90,17 +92,22 @@
                 <span class="label">分享图片</span>
 
                 <!-- 图片展示 -->
-                <img class="pic" :src="gameBase.shareImage" v-show="gameBase.shareImage">
+                <img class="pic" 
+                     :src="gameBase.shareImage + '?imageMogr2/auto-orient/crop/!200x200'" 
+                     v-show="gameBase.shareImage">
 
                 <!-- 图片上传组件 -->
                 <div class="btn-wrap">
-                    <v-uploadpic :flag="1" @upload="changePic" :txtType="1"></v-uploadpic>
+                    <uploadpic :flag="1" @upload="changePic"></uploadpic>
                 </div>
 
                 <!-- 图片建议尺寸 -->
                 <div class="flex-col">
-                    <span class="suggest">图片尺寸：200&times;200px</span>
-                    <span class="suggest">图片格式：JPG、JPEG、png</span>
+                    <span class="suggest">
+                        图片尺寸：200&times;200px
+                        <br>
+                        图片格式：JPG、JPEG、png
+                    </span>
                 </div>
             </div>
             
@@ -141,25 +148,13 @@
         </div>
     </div>
 </template>
-<script>
 
-import vUploadpic from './uploadpic';
-import Idouzi from '@idouzi/idouzi-tools'
-import Tool from './../pages/qa/assets/js/common.js'
+<script>
+import uploadpic from './UploadPic'; // 图片上传组件
+import Idouzi from '@idouzi/idouzi-tools' // IDOUZI工具包
+import Tool from './../common/common.js' // 公共JS
 
 export default {
-    props: {
-        validator : {
-            type: Boolean,
-            default: true
-        },
-
-        validateBase: {
-            type: Boolean,
-            default: false
-        }
-    },
-
     data() {
         return {
             ajaxUrl: {
@@ -214,7 +209,7 @@ export default {
          * @param {Number} index 要改变的图片索引
          * @param {String} url 要改变的图片地址
          */
-        changePic(index, url) {
+        changePic(index, url = '') {
             let _this = this,
                 gameBase = _this.gameBase;
 
@@ -232,7 +227,9 @@ export default {
 
         // 将表单数据与vuex同步
         syncData() {
-            this.$store.commit('setGameBase', this.gameBase);
+            let _this = this;
+
+            _this.$store.commit('setGameBase', _this.gameBase);
         },
 
         /**
@@ -246,11 +243,10 @@ export default {
                 gameBase = _this.gameBase;
 
             if (value) {
-
                 // 请求校验
                 _this.$http({
                     url: _this.ajaxUrl.checkKeyword,
-                    methods: 'post',
+                    methods: 'get',
                     params: {
                         keyword: value,
                     }
@@ -259,20 +255,15 @@ export default {
 
                     // 验证是否通过
                     if(resData.return_code === 'SUCCESS') {
-
                         _this.$emit('update:validateKey', true);
                         callback();
-
                     } else {
                         _this.$emit('update:validateKey', false);
                         callback(new Error(resData.return_msg));
-
                     }
                 }).catch(() => {
-                    
                     _this.$emit('update:validateKey', false);
                     callback(new Error('网络错误，请刷新后重试！'));
-
                 });
             }
         }
@@ -309,12 +300,12 @@ export default {
         }
     },
 
-
     components: {
-        vUploadpic
+        uploadpic
     }
 }
 </script>
+
 <style lang="less">
     /* 主题颜色 */
     @color: #FF981A;
@@ -393,7 +384,7 @@ export default {
                     color: #ccc;
                 }
 
-                .w-384 {
+                .el-textarea {
                     width: 384px;
                     height: 160px;
                 }
@@ -408,7 +399,6 @@ export default {
 
             .label {
                 width: 96px;
-
             }
 
             /* 图片预览 */
@@ -445,7 +435,6 @@ export default {
                 color: #666;
 
                 .btn {
-                    // .btn-base;
                     display: inline-block;
                     width: 80px;
                     height: 32px;
